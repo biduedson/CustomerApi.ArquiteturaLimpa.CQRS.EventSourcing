@@ -1,29 +1,51 @@
-# Acesse https://aka.ms/customizecontainer para saber como personalizar seu contêiner de depuração e como o Visual Studio usa este Dockerfile para criar suas imagens para uma depuração mais rápida.
-
-# Esta fase é usada durante a execução no VS no modo rápido (Padrão para a configuração de Depuração)
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
+# -----------------------------------------------------
+# 🔹 Configuração da Imagem Base 🔹
+# -----------------------------------------------------
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-bookworm-slim AS base
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 80
+ENV ASPNETCORE_URLS=http://+:80
+ENV DOTNET_NOLOGO=1
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 
-
-# Esta fase é usada para compilar o projeto de serviço
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
+# -----------------------------------------------------
+# 🔹 Configuração da Build 🔹
+# -----------------------------------------------------
+FROM mcr.microsoft.com/dotnet/sdk:9.0-bookworm-slim AS build
 WORKDIR /src
+
+# Copia arquivos globais
+COPY ["Directory.Packages.props", "."]
+COPY ["Directory.Build.props", "."]
+COPY ["nuget.config", "."]
+
+# Copia os projetos da sua solução
 COPY ["src/CustomerApi.WebApi/CustomerApi.WebApi.csproj", "src/CustomerApi.WebApi/"]
-RUN dotnet restore "./src/CustomerApi.WebApi/CustomerApi.WebApi.csproj"
+COPY ["src/CustomerApi.Application/CustomerApi.Application.csproj", "src/CustomerApi.Application/"]
+COPY ["src/CustomerApi.Domain/CustomerApi.Domain.csproj", "src/CustomerApi.Domain/"]
+COPY ["src/CustomerApi.Core/CustomerApi.Core.csproj", "src/CustomerApi.Core/"]
+COPY ["src/CustomerApi.Infrastructure/CustomerApi.Infrastructure.csproj", "src/CustomerApi.Infrastructure/"]
+COPY ["src/CustomerApi.Query/CustomerApi.Query.csproj", "src/CustomerApi.Query/"]
+
+# Restaura dependências
+RUN dotnet restore "src/CustomerApi.WebApi/CustomerApi.WebApi.csproj"
+
+# Copia todo o código
 COPY . .
+
+# Define diretório para build
 WORKDIR "/src/src/CustomerApi.WebApi"
-RUN dotnet build "./CustomerApi.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "CustomerApi.WebApi.csproj" --configuration Release --no-restore --nologo --output /app/build
 
-# Esta fase é usada para publicar o projeto de serviço a ser copiado para a fase final
+# -----------------------------------------------------
+# 🔹 Publicação 🔹
+# -----------------------------------------------------
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./CustomerApi.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "CustomerApi.WebApi.csproj" --configuration Release --no-restore --nologo --output /app/publish
 
-# Esta fase é usada na produção ou quando executada no VS no modo normal (padrão quando não está usando a configuração de Depuração)
+# -----------------------------------------------------
+# 🔹 Final 🔹
+# -----------------------------------------------------
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .

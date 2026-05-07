@@ -1,0 +1,15 @@
+services:
+  # -----------------------------------------------------
+  # 🔹 Override da API ASP.NET Core
+  # -----------------------------------------------------
+  customerapi-webapi:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker   # 👉 força a aplicação a usar o appsettings.Docker.json
+      - ASPNETCORE_URLS=http://+:80     # 👉 define que o Kestrel escute na porta 80 dentro do container
+
+    ports:
+      - "8080:80"                      # 👉 mapeia porta 8080 do host → 80 do container (evita conflito com IIS/Apache)
+
+    volumes:
+      - ~/.aspnet/https:/root/.aspnet/https:ro          # 👉 monta certificados HTTPS locais dentro do container (somente leitura)
+      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro # 👉 monta os user-secrets locais dentro do container (somente leitura)

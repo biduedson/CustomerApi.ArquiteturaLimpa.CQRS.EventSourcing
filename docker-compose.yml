@@ -1,0 +1,99 @@
+version: '3.4'
+
+# -----------------------------------------------------
+# 🔹 Rede interna para comunicação entre os containers
+# -----------------------------------------------------
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  # -----------------------------------------------------
+  # 🔹 ASP.NET Core Web API
+  # -----------------------------------------------------
+  customerapi-webapi:
+    image: ${DOCKER_REGISTRY-}customerapi-webapi   # Nome da imagem (pode usar registry remoto)
+    container_name: customerapi-webapi             # Nome do container
+    restart: always                                # Reinicia automaticamente em caso de falha
+    build:
+      context: .                                   # Contexto da build (raiz da solução)
+      dockerfile: src/CustomerApi.WebApi/Dockerfile # Dockerfile da WebApi
+    expose:
+      - 80                                         # Porta exposta internamente
+    links:                                         # Links para outros serviços
+      - customerapi-sql-server
+      - customerapi-mongo-server
+      - customerapi-redis
+    networks:
+      - app-network                                # Usa a rede interna
+    depends_on:                                    # Garante que bancos subam antes da API
+      - customerapi-sql-server
+      - customerapi-mongo-server
+      - customerapi-redis
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker              # 👉 força a aplicação a usar o appsettings.Docker.json
+      - ASPNETCORE_URLS=http://+:80                # 👉 define que o Kestrel escute na porta 80 dentro do container
+
+  # -----------------------------------------------------
+  # 🔹 SQL Server
+  # -----------------------------------------------------
+  customerapi-sql-server:
+    image: mcr.microsoft.com/azure-sql-edge:latest # Imagem oficial SQL Edge
+    cap_add: ["SYS_PTRACE"]                        # Permissão extra para debugging
+    hostname: mssql
+    container_name: customerapi-sql-server
+    restart: always
+    expose:
+      - 1433                                       # Porta interna
+    ports:
+      - "1433:1433"                                # Porta externa mapeada
+    environment:                                   # Variáveis de ambiente vindas do .env local
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}     # 👉 senha real vem do .env e não fica hardcoded no compose
+      - MSSQL_PID=Developer
+      - MSSQL_COLLATION=Latin1_General_CI_AI
+    networks:
+      - app-network
+    volumes:
+      - "./data-mssql:/var/opt/mssql/data"         # Volume persistente para dados
+
+  # -----------------------------------------------------
+  # 🔹 MongoDB
+  # -----------------------------------------------------
+  customerapi-mongo-server:
+    image: mongo:latest
+    container_name: customerapi-mongo-server
+    restart: always
+    expose:
+      - 27017
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+    volumes:
+      - "./data-mongo:/data/db"                    # Volume persistente para dados
+    # 👉 Sem usuário/senha (Mongo aberto por padrão em ambiente local de demonstração)
+
+  # -----------------------------------------------------
+  # 🔹 Redis
+  # -----------------------------------------------------
+  customerapi-redis:
+    image: redis:latest
+    container_name: customerapi-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD} # 👉 senha real vem do .env e não fica hardcoded no compose
+    restart: always
+    expose:
+      - 6379
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+# -----------------------------------------------------
+# 🔹 Volumes persistentes
+# -----------------------------------------------------
+volumes:
+  data-mssql:
+    external: true
+  data-mongo:
+    external: true

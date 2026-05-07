@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="src/CustomerApi.Application/CustomerApi.Application.csproj" />
+  <Project Path="src/CustomerApi.Core/CustomerApi.Core.csproj" />
+  <Project Path="src/CustomerApi.Domain/CustomerApi.Domain.csproj" />
+  <Project Path="src/CustomerApi.Infrastructure/CustomerApi.Infrastructure.csproj" />
+  <Project Path="src/CustomerApi.Query/CustomerApi.Query.csproj" />
+  <Project Path="src/CustomerApi.WebApi/CustomerApi.WebApi.csproj" />
+  <Project Path="tests/CustomerApi.IntegrationTests/CustomerApi.IntegrationTests.csproj" />
+  <Project Path="tests/CustomerApi.UnitTests/CustomerApi.UnitTests.csproj" />
+</Solution>

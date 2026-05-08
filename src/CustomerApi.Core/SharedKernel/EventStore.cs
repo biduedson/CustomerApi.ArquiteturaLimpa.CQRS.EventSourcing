@@ -1,4 +1,4 @@
-﻿namespace CustomerApi.Core.SharedKernel;/
+﻿namespace CustomerApi.Core.SharedKernel;
 
 public class EventStore : BaseEvent
 {

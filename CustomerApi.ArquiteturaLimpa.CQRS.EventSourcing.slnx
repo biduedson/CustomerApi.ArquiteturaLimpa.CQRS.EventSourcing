@@ -1,7 +1,4 @@
 <Solution>
-  <Project Path="../MeuSistema/docker-compose.dcproj" Id="81dded9d-158b-e303-5f62-77a2896d2a5a">
-    <Build />
-  </Project>
   <Project Path="src/CustomerApi.Application/CustomerApi.Application.csproj" />
   <Project Path="src/CustomerApi.Core/CustomerApi.Core.csproj" />
   <Project Path="src/CustomerApi.Domain/CustomerApi.Domain.csproj" />

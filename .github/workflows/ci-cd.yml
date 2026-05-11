@@ -9,11 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: '9.0.x'
-  SOLUTION_FILTER: 'CustomerApi.ArquiteturaLimpa.CQRS.EventSourcing.slnf'   
-  IMAGE_NAME: customerapi
-  ACR_NAME: customerapiacr
-  CONTAINER_APP_NAME: costumer-api
-  RESOURCE_GROUP: rg-customerapi-dev
+  SOLUTION_NAME: 'CustomerApi.ArquiteturaLimpa.CQRS.EventSourcing.slnx'
 
 jobs:
   build-and-test:
@@ -28,14 +24,14 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore
-        run: dotnet restore ${{ env.SOLUTION_FILTER }}
+      - name: Restore (ignora docker-compose)
+        run: dotnet restore ${{ env.SOLUTION_NAME }} --ignore-failed-sources
 
       - name: Build
-        run: dotnet build ${{ env.SOLUTION_FILTER }} --configuration Release --no-restore
+        run: dotnet build ${{ env.SOLUTION_NAME }} --configuration Release --no-restore
 
       - name: Run Tests
-        run: dotnet test ${{ env.SOLUTION_FILTER }} --configuration Release --no-build --verbosity normal
+        run: dotnet test ${{ env.SOLUTION_NAME }} --configuration Release --no-build --verbosity normal
 
   deploy:
     needs: build-and-test

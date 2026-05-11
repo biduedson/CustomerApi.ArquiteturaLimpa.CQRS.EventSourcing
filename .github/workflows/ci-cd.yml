@@ -9,7 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: '9.0.x'
-  SOLUTION_NAME: 'CustomerApi.ArquituralLimpa.CQRS.EventSourcing.slnx' 
+  SOLUTION_NAME: CustomerApi.ArquituralLimpa.CQRS.EventSourcing.slnx   
   IMAGE_NAME: customerapi
   ACR_NAME: customerapiacr
   CONTAINER_APP_NAME: costumer-api
@@ -27,6 +27,9 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: List files (debug)
+        run: ls -la
 
       - name: Restore
         run: dotnet restore ${{ env.SOLUTION_NAME }}

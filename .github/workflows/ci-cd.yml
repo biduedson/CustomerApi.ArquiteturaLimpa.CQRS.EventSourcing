@@ -30,7 +30,6 @@ jobs:
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
-
     if: github.ref == 'refs/heads/master' || github.event_name == 'pull_request'
 
     steps:
@@ -43,13 +42,13 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Build and push
+      - name: Build and push Docker image
         run: |
           IMAGE_TAG=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
           docker build -f src/CustomerApi.WebApi/Dockerfile -t $IMAGE_TAG .
           docker push $IMAGE_TAG
 
-      - name: Deploy to Azure
+      - name: Deploy to Azure Container App
         uses: azure/container-apps-deploy-action@v1
         with:
           appName: ${{ env.CONTAINER_APP_NAME }}

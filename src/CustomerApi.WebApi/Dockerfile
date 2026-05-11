@@ -19,7 +19,7 @@ WORKDIR /src
 COPY ["Directory.Packages.props", "."]
 COPY ["Directory.Build.props", "."]
 COPY ["nuget.config", "."]
-COPY ["CustomerApi.ArquituralLimpa.CQRS.EventSourcing.sln", "./"]
+COPY ["CustomerApi.ArquituralLimpa.CQRS.EventSourcing.slnx", "./"]
 
 # Copia os csproj
 COPY ["src/CustomerApi.WebApi/CustomerApi.WebApi.csproj", "src/CustomerApi.WebApi/"]

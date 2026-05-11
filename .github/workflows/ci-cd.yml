@@ -6,12 +6,10 @@ on:
   pull_request:
     branches: [ master ]
     types: [opened, synchronize, reopened]
-    paths-ignore:
-      - ".github/workflows/**"
-      - "**/*.md"
 
 env:
   DOTNET_VERSION: '9.0.x'
+  SOLUTION_NAME: 'CustomerApi.ArquituralLimpa.CQRS.EventSourcing.slnx' 
   IMAGE_NAME: customerapi
   ACR_NAME: customerapiacr
   CONTAINER_APP_NAME: costumer-api
@@ -31,13 +29,13 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore ${{ env.SOLUTION_NAME }}
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build ${{ env.SOLUTION_NAME }} --configuration Release --no-restore
 
       - name: Run Tests
-        run: dotnet test --configuration Release --no-build --verbosity normal
+        run: dotnet test ${{ env.SOLUTION_NAME }} --configuration Release --no-build --verbosity normal
 
   deploy:
     needs: build-and-test
@@ -55,13 +53,13 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Build and push
+      - name: Build and push Docker image
         run: |
           IMAGE_TAG=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
           docker build -f src/CustomerApi.WebApi/Dockerfile -t $IMAGE_TAG .
           docker push $IMAGE_TAG
 
-      - name: Deploy to Azure
+      - name: Deploy to Azure Container App
         uses: azure/container-apps-deploy-action@v1
         with:
           appName: ${{ env.CONTAINER_APP_NAME }}

@@ -10,6 +10,10 @@ on:
 env:
   DOTNET_VERSION: '9.0.x'
   SOLUTION_NAME: 'CustomerApi.ArquiteturaLimpa.CQRS.EventSourcing.slnx'
+  IMAGE_NAME: customerapi
+  ACR_NAME: customerapiacr
+  CONTAINER_APP_NAME: costumer-api
+  RESOURCE_GROUP: rg-customerapi-dev
 
 jobs:
   build-and-test:
@@ -24,8 +28,8 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore (ignora docker-compose)
-        run: dotnet restore ${{ env.SOLUTION_NAME }} --ignore-failed-sources
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION_NAME }}
 
       - name: Build
         run: dotnet build ${{ env.SOLUTION_NAME }} --configuration Release --no-restore

@@ -16,7 +16,6 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0-bookworm-slim AS build
 WORKDIR /src
 
 # Copia arquivos de solução primeiro (melhor cache)
-COPY ["Directory.Packages.props", "."]
 COPY ["Directory.Build.props", "."]
 COPY ["nuget.config", "."]
 COPY ["CustomerApi.ArquiteturaLimpa.CQRS.EventSourcing.slnx", "./"]

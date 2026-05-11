@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+	<PropertyGroup>
+		<Authors>Edson Gomes (@biduedsono)</Authors>
+		<MaintainerEmail>biduzao.bidu21@gmail.com</MaintainerEmail>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/biduedson/CustomerApi.ArquiteturaLimpa.CQRS.EventSourcing</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<NeutralLanguage>en</NeutralLanguage>
+		<LangVersion>latest</LangVersion>
+		<Nullable>disable</Nullable>
+		<AnalysisLevel>latest</AnalysisLevel>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+	</PropertyGroup>
+</Project>

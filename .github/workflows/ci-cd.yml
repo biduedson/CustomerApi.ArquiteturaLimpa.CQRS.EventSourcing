@@ -18,33 +18,23 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET 9
-        uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Restore
-        run: dotnet restore ${{ env.SOLUTION_NAME }}
-
-      - name: Build
-        run: dotnet build ${{ env.SOLUTION_NAME }} --configuration Release --no-restore
-
-      - name: Run Tests
-        run: dotnet test ${{ env.SOLUTION_NAME }} --configuration Release --no-build --verbosity normal
+      - run: dotnet restore ${{ env.SOLUTION_NAME }}
+      - run: dotnet build ${{ env.SOLUTION_NAME }} --configuration Release --no-restore
+      - run: dotnet test ${{ env.SOLUTION_NAME }} --configuration Release --no-build --verbosity normal
 
   deploy:
     needs: build-and-test
-    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
 
+    if: github.ref == 'refs/heads/master' || github.event_name == 'pull_request'
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Login to ACR
         uses: azure/docker-login@v2
@@ -53,13 +43,13 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build and push
         run: |
           IMAGE_TAG=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
           docker build -f src/CustomerApi.WebApi/Dockerfile -t $IMAGE_TAG .
           docker push $IMAGE_TAG
 
-      - name: Deploy to Azure Container App
+      - name: Deploy to Azure
         uses: azure/container-apps-deploy-action@v1
         with:
           appName: ${{ env.CONTAINER_APP_NAME }}

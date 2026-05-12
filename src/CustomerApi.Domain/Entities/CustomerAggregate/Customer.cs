@@ -1,5 +1,4 @@
-﻿using System.Net.Mail;
-using CustomerApi.Core.SharedKernel;
+﻿using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.CustomerAggregate.Events;
 using CustomerApi.Domain.Exceptions;
 using CustomerApi.Domain.ValueObjects;
@@ -17,16 +16,16 @@ public class Customer : BaseEntity, IAggregateRoot
         Gender = gender;
         Email = email;
         DateOfBirth = dateOfBirth;
-        AddDomainEvent(new CustomerCreatedEvent(Id, firstName, lastName, gender, email.Address, dateOfBirth));
+        AddDomainEvent(new CustomerCreatedEvent(Id, firstName, lastName, gender, email.Address!, dateOfBirth));
         
     }
 
     public Customer() { }
 
-    public string  FirstName { get;}
-    public  string LastName { get;}  
+    public string  FirstName { get;} = string.Empty;
+    public string LastName { get; } = string.Empty;
     public EGender Gender { get; }
-    public Email Email { get; private set; }
+    public Email? Email { get; private set; } 
     public DateTime DateOfBirth { get;}
 
     public static Customer Create(string firstName, string lastName, EGender gender, string email, DateTime dateOfBirth)
@@ -40,12 +39,12 @@ public class Customer : BaseEntity, IAggregateRoot
 
     public void ChangeEmail(Email newEmail)
     {
-        if (Email.Equals(newEmail))
+        if (Email!.Equals(newEmail))
             return;
 
         Email = newEmail;
 
-        AddDomainEvent(new CustomerUpdatedEvent(Id, FirstName, LastName, Gender, newEmail.Address, DateOfBirth));
+        AddDomainEvent(new CustomerUpdatedEvent(Id, FirstName, LastName, Gender, newEmail.Address!, DateOfBirth));
     }
 
     public void Delete()
@@ -54,6 +53,6 @@ public class Customer : BaseEntity, IAggregateRoot
 
         _isDeleted = true;
 
-        AddDomainEvent(new CustomerDeletedEvent(Id, FirstName, LastName, Gender, Email.Address, DateOfBirth));
+        AddDomainEvent(new CustomerDeletedEvent(Id, FirstName, LastName, Gender, Email!.Address!, DateOfBirth));
     }
 }

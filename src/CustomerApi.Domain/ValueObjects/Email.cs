@@ -10,7 +10,7 @@ public sealed record Email
 
     public Email() { } 
 
-    public string Address { get; }
+    public string? Address { get; }
 
     public static Email Create(string emailAddress)
     {
@@ -19,5 +19,5 @@ public sealed record Email
         return new Email(emailAddress);   
     }
 
-    public override string ToString() => Address;
+    public override string? ToString() => Address;
 }

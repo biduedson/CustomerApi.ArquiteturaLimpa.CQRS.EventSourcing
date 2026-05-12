@@ -1,4 +1,5 @@
-﻿using CustomerApi.Core;
+﻿using System.Collections.Generic;
+using CustomerApi.Core;
 using CustomerApi.Core.AppSettings;
 using CustomerApi.Core.Extensions;
 using FluentAssertions;

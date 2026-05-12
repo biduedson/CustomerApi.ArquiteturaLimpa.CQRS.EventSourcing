@@ -1,4 +1,4 @@
 ﻿namespace CustomerApi.Core.SharedKernel;
-    internal interface IAggregateRoot;
+    public interface IAggregateRoot;
 
 

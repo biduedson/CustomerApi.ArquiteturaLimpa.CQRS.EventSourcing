@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Factories\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CustomerApi.Core\CustomerApi.Core.csproj" />
+  </ItemGroup>
+
 </Project>

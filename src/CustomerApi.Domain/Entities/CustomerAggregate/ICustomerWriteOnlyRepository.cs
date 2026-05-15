@@ -5,7 +5,7 @@ namespace CustomerApi.Domain.Entities.CustomerAggregate;
 
 public interface ICustomerWriteOnlyRepository : IWriteOnlyRepository<Customer,Guid>
 {
-    Task<bool> ExistsByEmailAsyn(Email email);
+    Task<bool> ExistsByEmailAsync(Email email);
 
-    Task<bool> ExistsByEmailAsyn(Email email, Guid currentId);
+    Task<bool> ExistsByEmailAsync(Email email, Guid currentId);
 }

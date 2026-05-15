@@ -7,5 +7,5 @@ public interface IWriteOnlyRepository<TEntity, in TKey> : IDisposable
     void Add(TEntity entity);
     void Update(TEntity entity);
     void Remove(TEntity entity);
-    Task<TEntity> GetById(TKey id);
+    Task<TEntity> GetByIdAsync(TKey id);
 }

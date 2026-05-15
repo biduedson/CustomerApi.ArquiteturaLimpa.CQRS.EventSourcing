@@ -8,9 +8,9 @@ public sealed record Email
     private Email(string addres) =>
         Address = addres.ToLowerInvariant().Trim();
 
-    public Email() { } 
+    public Email() { }
 
-    public string? Address { get; }
+    public string Address { get; } = default!;
 
     public static Email Create(string emailAddress)
     {

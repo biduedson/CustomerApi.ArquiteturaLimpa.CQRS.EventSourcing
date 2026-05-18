@@ -24,7 +24,11 @@ internal sealed class UnitOfWork(
 
         await strategy.ExecuteAsync(async () =>
         {
-            await using var transaction = await writeDbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+            bool committed = false;
+
+            await using var transaction =
+                await writeDbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+
             logger.LogInformation("----- Iniciando transação: '{TransactionId}'", transaction.TransactionId);
 
             try
@@ -36,24 +40,28 @@ internal sealed class UnitOfWork(
                 logger.LogInformation("----- Commit da transação: '{TransactionId}'", transaction.TransactionId);
 
                 await transaction.CommitAsync();
+                committed = true;
 
-                logger.LogInformation("----- Transação confirmada com sucesso: '{TransactionId}', Linhas afetadas: {RowsAffected}",
-                   transaction.TransactionId,
-                   rowsAffected);
+                await AfterSaveChangesAsync(domainEvents, eventStores);
+
+                logger.LogInformation(
+                    "----- Transação confirmada com sucesso: '{TransactionId}', Linhas afetadas: {RowsAffected}",
+                    transaction.TransactionId,
+                    rowsAffected);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Ocorreu uma exceção inesperada ao confirmar a transação: '{TransactionId}', mensagem: {Message}",
-                    transaction.TransactionId,
-                    ex.Message);
+                logger.LogError(ex, committed
+                    ? "Erro ao processar eventos após commit da transação."
+                    : "Erro ao salvar alterações antes do commit da transação.");
 
-                await transaction.RollbackAsync();
+                if (!committed)
+                    await transaction.RollbackAsync();
 
                 throw;
             }
         });
     }
-
     private (IReadOnlyList<BaseEvent> domainEvents, IReadOnlyList<EventStore> eventStores) BeforeSaveChanges()
     {
         var domainEntities = writeDbContext
@@ -84,7 +92,7 @@ internal sealed class UnitOfWork(
             await eventStoreRepository.StoreAsync(eventStores);
     }
 
-    #region Disposeble
+    #region Disposable
     private bool _disposed;
 
     ~UnitOfWork() => Dispose(false);
@@ -95,7 +103,7 @@ internal sealed class UnitOfWork(
     }
     private void Dispose(bool disposing)
     {
-        if (!_disposed) return;
+        if (_disposed) return;
 
         if (disposing)
         {

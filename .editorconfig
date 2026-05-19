@@ -1,0 +1,498 @@
+###############################
+# Opções Principais            #
+###############################
+
+# Indica que este é o arquivo raiz — o editor para de procurar
+# arquivos .editorconfig em pastas pai
+root = true
+
+# Todos os arquivos
+[*]
+# Usa espaços para indentação (não tabs)
+indent_style = space
+
+# Arquivos de projeto XML (csproj, vbproj, etc)
+[*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
+# 2 espaços de indentação para arquivos de projeto
+indent_size = 2
+
+# Arquivos de configuração XML
+[*.{props,targets,ruleset,config,nuspec,resx,vsixmanifest,vsct}]
+# 2 espaços de indentação para arquivos de configuração
+indent_size = 2
+
+# Arquivos JSON
+[*.json]
+# 2 espaços de indentação para JSON
+indent_size = 2
+
+# Arquivos de código (C#, VB)
+[*.{cs,csx,vb,vbx}]
+# 4 espaços de indentação para código
+indent_size = 4
+# Não insere linha em branco no final do arquivo
+insert_final_newline = false
+# Encoding UTF-8 para suportar acentos e caracteres especiais
+charset = utf-8
+# Quebra de linha no estilo Linux/Mac (LF) em vez de Windows (CRLF)
+# evita conflitos de git entre diferentes sistemas operacionais
+end_of_line = lf
+# Remove espaços em branco desnecessários no final de cada linha
+trim_trailing_whitespace = true
+
+###############################
+# Diagnósticos .NET            #
+###############################
+
+# IDE0001 — Simplificar nome
+# Ex: System.String → string
+dotnet_diagnostic.IDE0001.severity = warning 
+
+# IDE0002 — Simplificar acesso a membro
+# Ex: MyClass.MyStaticMethod() → MyStaticMethod() dentro da própria classe
+dotnet_diagnostic.IDE0002.severity = warning 
+
+# IDE0003 — Preferências de this/Me
+# Avisa quando o uso de this. é desnecessário
+dotnet_diagnostic.IDE0003.severity = warning 
+
+# IDE0004 — Remover cast desnecessário
+# Ex: (string)minhaString → minhaString (já é string)
+dotnet_diagnostic.IDE0004.severity = warning 
+
+# IDE0005 — Remover using desnecessário
+# Remove imports que não estão sendo usados no arquivo
+dotnet_diagnostic.IDE0005.severity = warning 
+
+# IDE0007 — Preferir "var" em todo lugar
+# Ex: string nome = "João" → var nome = "João"
+dotnet_diagnostic.IDE0007.severity = warning
+
+# IDE0016 — Usar throw expression
+# Ex: if (x == null) throw new Exception() → x ?? throw new Exception()
+dotnet_diagnostic.IDE0016.severity = warning
+
+# IDE0017 — Usar inicializadores de objeto
+# Ex: var p = new Pessoa(); p.Nome = "João" → var p = new Pessoa { Nome = "João" }
+dotnet_diagnostic.IDE0017.severity = warning
+
+# IDE0018 — Declaração de variável inline
+# Ex: int x; int.TryParse(s, out x) → int.TryParse(s, out int x)
+dotnet_diagnostic.IDE0018.severity = warning
+
+# IDE0028 — Inicialização de coleção pode ser simplificada
+# Ex: var lista = new List<int>(); lista.Add(1) → var lista = new List<int> { 1 }
+dotnet_diagnostic.IDE0028.severity = warning 
+
+# IDE0029/0030/0270 — Verificação de null pode ser simplificada
+# Ex: x != null ? x : y → x ?? y
+dotnet_diagnostic.IDE0029.severity = warning 
+dotnet_diagnostic.IDE0030.severity = warning 
+dotnet_diagnostic.IDE0270.severity = warning 
+
+# IDE0031 — Usar propagação de null
+# Ex: if (x != null) x.Metodo() → x?.Metodo()
+dotnet_diagnostic.IDE0031.severity = warning
+
+# IDE0032 — Usar propriedade auto-implementada
+# Ex: private string _nome; public string Nome { get { return _nome; } } → public string Nome { get; }
+dotnet_diagnostic.IDE0032.severity = warning 
+
+# IDE0033 — Usar nome de tupla explicitamente fornecido
+# Ex: tupla.Item1 → tupla.Nome (quando a tupla tem nome definido)
+dotnet_diagnostic.IDE0033.severity = warning 
+
+# IDE0034 — Simplificar expressão 'default'
+# Ex: default(int) → default
+dotnet_diagnostic.IDE0034.severity = warning 
+
+# IDE0035 — Remover código inacessível
+# Remove código que nunca será executado (após return, throw, etc)
+dotnet_diagnostic.IDE0035.severity = warning 
+
+# IDE0036 — Ordenar modificadores
+# Ex: static public → public static (ordem correta)
+dotnet_diagnostic.IDE0036.severity = warning 
+
+# IDE0039 — Usar função local em vez de lambda
+# Quando uma função local é mais apropriada que uma expressão lambda
+dotnet_diagnostic.IDE0039.severity = warning 
+
+# IDE0040 — Adicionar modificadores de acessibilidade
+# Ex: class MinhaClasse → public class MinhaClasse
+dotnet_diagnostic.IDE0040.severity = warning 
+
+# IDE0042 — Desconstruir declaração de variável
+# Ex: var x = tupla.Item1; var y = tupla.Item2 → var (x, y) = tupla
+dotnet_diagnostic.IDE0042.severity = warning 
+
+# IDE0044 — Tornar campo readonly
+# Se um campo só é atribuído no construtor, deve ser readonly
+dotnet_diagnostic.IDE0044.severity = warning 
+
+# IDE0045 — Usar expressão condicional para atribuição
+# Ex: if (b) x = 1; else x = 2 → x = b ? 1 : 2
+dotnet_diagnostic.IDE0045.severity = warning 
+
+# IDE0047 — Parênteses podem ser removidos
+# Remove parênteses desnecessários que não ajudam na clareza
+dotnet_diagnostic.IDE0047.severity = warning
+
+# IDE0049 — Usar palavras-chave da linguagem em vez de nomes do framework
+# Ex: Int32 → int, String → string, Boolean → bool
+dotnet_diagnostic.IDE0049.severity = warning
+
+# IDE0051 — Remover membro privado não usado
+# Campos, métodos ou propriedades privadas que nunca são chamadas
+dotnet_diagnostic.IDE0051.severity = warning 
+
+# IDE0052 — Remover membro privado não lido
+# Campo privado que é escrito mas nunca lido
+dotnet_diagnostic.IDE0052.severity = warning 
+
+# IDE0054 — Usar atribuição composta
+# Ex: x = x + 1 → x += 1
+dotnet_diagnostic.IDE0054.severity = warning 
+
+# IDE0059 — Atribuição desnecessária a um valor
+# Ex: var x = Calcular(); x = OutroValor() — o primeiro valor nunca é usado
+dotnet_diagnostic.IDE0059.severity = warning 
+
+# IDE0060 — Remover parâmetro não usado
+# Parâmetros de método que nunca são referenciados no corpo
+dotnet_diagnostic.IDE0060.severity = warning 
+
+# IDE0062 — Tornar função local estática
+# Se a função local não usa nada da classe, pode ser static
+dotnet_diagnostic.IDE0062.severity = warning 
+
+# IDE0063 — Usar instrução 'using' simples
+# Ex: using (var x = ...) { } → using var x = ...
+dotnet_diagnostic.IDE0063.severity = warning 
+
+# IDE0071 — Simplificar interpolação
+# Ex: $"{x.ToString()}" → $"{x}"
+dotnet_diagnostic.IDE0071.severity = warning 
+
+# IDE0075 — Simplificar expressão condicional
+# Ex: condicao ? true : false → condicao
+dotnet_diagnostic.IDE0075.severity = warning 
+
+# IDE0090 — Simplificar expressão new
+# Ex: new List<string>() → new() (quando o tipo é inferido)
+dotnet_diagnostic.IDE0090.severity = warning 
+
+# IDE0161 — Converter para namespace com escopo de arquivo
+# Ex: namespace Foo { class Bar {} } → namespace Foo; class Bar {}
+dotnet_diagnostic.IDE0161.severity = warning
+
+# IDE0170 — Preferir padrão de propriedade estendido
+# Ex: x is Foo foo && foo.Bar == 1 → x is Foo { Bar: 1 }
+dotnet_diagnostic.IDE0170.severity = warning
+
+# IDE1005 — Usar chamada de delegado condicional
+# Ex: if (handler != null) handler() → handler?.Invoke()
+dotnet_diagnostic.IDE1005.severity = warning
+
+# CA1012 — Tipos abstratos não devem ter construtores públicos
+# Construtor de classe abstrata deve ser protected, não public
+dotnet_diagnostic.CA1012.severity = warning
+
+# CA1822 — Tornar membro estático
+# Se o método não acessa nada da instância (this), pode ser static
+dotnet_diagnostic.CA1822.severity = warning 
+
+###############################
+# Convenções de Código .NET   #
+###############################
+
+[*.{cs,vb}]
+
+# Ordena os usings com System.* aparecendo primeiro
+# Ex: using System; using System.Linq; using MinhaLib;
+dotnet_sort_system_directives_first = true
+# Não separa grupos de using com linha em branco
+dotnet_separate_import_directive_groups = false
+
+# Preferências de this. — silencioso significa sem aviso
+# false = não exige this. para campos, propriedades, métodos e eventos
+dotnet_style_qualification_for_field = false:silent
+dotnet_style_qualification_for_property = false:silent
+dotnet_style_qualification_for_method = false:silent
+dotnet_style_qualification_for_event = false:silent
+
+# Preferir palavras-chave da linguagem para tipos locais e membros
+# Ex: System.Int32 → int, System.String → string
+dotnet_style_predefined_type_for_locals_parameters_members = true:silent
+dotnet_style_predefined_type_for_member_access = true:silent
+
+# Preferências de parênteses em operadores
+# always_for_clarity = sempre coloca parênteses pra deixar claro
+# never_if_unnecessary = remove se não precisar
+dotnet_style_parentheses_in_arithmetic_binary_operators = always_for_clarity:silent
+dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity:silent
+dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:silent
+dotnet_style_parentheses_in_other_operators = never_if_unnecessary:silent
+
+# Preferências de modificadores
+# for_non_interface_members = exige modificador de acesso em tudo exceto interface
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:silent
+# Campos que nunca mudam após o construtor devem ser readonly
+dotnet_style_readonly_field = true:suggestion
+
+# Preferências de nível de expressão
+# Prefere inicializador de objeto: new Foo { Bar = 1 }
+dotnet_style_object_initializer = true:suggestion
+# Prefere inicializador de coleção: new List<int> { 1, 2, 3 }
+dotnet_style_collection_initializer = true:suggestion
+# Prefere nomes explícitos em tuplas: tupla.Nome vs tupla.Item1
+dotnet_style_explicit_tuple_names = true:suggestion
+# Prefere propagação de null: x?.Metodo()
+dotnet_style_null_propagation = true:suggestion
+# Prefere operador de coalescência: x ?? y
+dotnet_style_coalesce_expression = true:suggestion
+# Prefere is null em vez de == null com ReferenceEquals
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:silent
+# Infere nomes de membros em tuplas automaticamente
+dotnet_style_prefer_inferred_tuple_names = true:suggestion
+# Infere nomes de membros em tipos anônimos automaticamente
+dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
+# Prefere propriedades auto-implementadas
+dotnet_style_prefer_auto_properties = true:silent
+# Prefere ternário em atribuições: x = b ? 1 : 2
+dotnet_style_prefer_conditional_expression_over_assignment = true:silent
+# Prefere ternário em returns: return b ? 1 : 2
+dotnet_style_prefer_conditional_expression_over_return = true:silent
+
+###############################
+# Convenções de Nomenclatura  #
+###############################
+
+# Define o estilo PascalCase (primeira letra maiúscula em cada palavra)
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case
+
+# Campos constantes devem ser PascalCase
+# Ex: const int MaxTentativas = 3
+dotnet_naming_rule.constant_fields_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.constant_fields_should_be_pascal_case.symbols  = constant_fields
+dotnet_naming_rule.constant_fields_should_be_pascal_case.style = pascal_case_style
+dotnet_naming_symbols.constant_fields.applicable_kinds = field
+dotnet_naming_symbols.constant_fields.applicable_accessibilities = *
+dotnet_naming_symbols.constant_fields.required_modifiers = const
+# Operador no início da linha quando quebrar linha
+dotnet_style_operator_placement_when_wrapping = beginning_of_line
+dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
+dotnet_style_prefer_compound_assignment = true:suggestion
+dotnet_style_prefer_simplified_interpolation = true:suggestion
+# Namespace deve corresponder à estrutura de pastas
+dotnet_style_namespace_match_folder = true:suggestion
+
+# Não permite múltiplas linhas em branco seguidas
+dotnet_style_allow_multiple_blank_lines_experimental = false
+
+# Campos estáticos não-privados devem ser PascalCase
+# Ex: public static string ConnectionString
+dotnet_naming_rule.non_private_static_fields_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.non_private_static_fields_should_be_pascal_case.symbols = non_private_static_fields
+dotnet_naming_rule.non_private_static_fields_should_be_pascal_case.style = non_private_static_field_style
+dotnet_naming_symbols.non_private_static_fields.applicable_kinds = field
+dotnet_naming_symbols.non_private_static_fields.applicable_accessibilities = public, protected, internal, protected_internal, private_protected
+dotnet_naming_symbols.non_private_static_fields.required_modifiers = static
+dotnet_naming_style.non_private_static_field_style.capitalization = pascal_case
+
+# Campos readonly não-privados devem ser PascalCase
+# Ex: public readonly string Nome
+dotnet_naming_rule.non_private_readonly_fields_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.non_private_readonly_fields_should_be_pascal_case.symbols = non_private_readonly_fields
+dotnet_naming_rule.non_private_readonly_fields_should_be_pascal_case.style = non_private_readonly_field_style
+dotnet_naming_symbols.non_private_readonly_fields.applicable_kinds = field
+dotnet_naming_symbols.non_private_readonly_fields.applicable_accessibilities = public, protected, internal, protected_internal, private_protected
+dotnet_naming_symbols.non_private_readonly_fields.required_modifiers = readonly
+dotnet_naming_style.non_private_readonly_field_style.capitalization = pascal_case
+
+# Constantes devem ser PascalCase
+# Ex: const int TamanhoMaximo = 100
+dotnet_naming_rule.constants_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.constants_should_be_pascal_case.symbols = constants
+dotnet_naming_rule.constants_should_be_pascal_case.style = constant_style
+dotnet_naming_symbols.constants.applicable_kinds = field, local
+dotnet_naming_symbols.constants.required_modifiers = const
+dotnet_naming_style.constant_style.capitalization = camel_case
+
+# Campos estáticos devem ser camelCase (ou PascalCase — ver style abaixo)
+dotnet_naming_rule.static_fields_should_be_camel_case.severity = suggestion
+dotnet_naming_rule.static_fields_should_be_camel_case.symbols = static_fields
+dotnet_naming_rule.static_fields_should_be_camel_case.style = static_field_style
+dotnet_naming_symbols.static_fields.applicable_kinds = field
+dotnet_naming_symbols.static_fields.required_modifiers = static
+dotnet_naming_style.static_field_style.capitalization = pascal_case
+
+# Campos de instância devem ser camelCase com prefixo _
+# Ex: private string _nomeCliente;
+dotnet_naming_rule.instance_fields_should_be_camel_case.severity = suggestion
+dotnet_naming_rule.instance_fields_should_be_camel_case.symbols = instance_fields
+dotnet_naming_rule.instance_fields_should_be_camel_case.style = instance_field_style
+dotnet_naming_symbols.instance_fields.applicable_kinds = field
+dotnet_naming_style.instance_field_style.capitalization = camel_case
+# O _ no início é a convenção mais usada em C# para campos privados
+dotnet_naming_style.instance_field_style.required_prefix = _
+
+# Variáveis locais e parâmetros devem ser camelCase
+# Ex: void Processar(string nomeCliente) { var totalItens = 0; }
+dotnet_naming_rule.locals_should_be_camel_case.severity = suggestion
+dotnet_naming_rule.locals_should_be_camel_case.symbols = locals_and_parameters
+dotnet_naming_rule.locals_should_be_camel_case.style = camel_case_style
+dotnet_naming_symbols.locals_and_parameters.applicable_kinds = parameter, local
+dotnet_naming_style.camel_case_style.capitalization = camel_case
+
+# Funções locais devem ser PascalCase
+# Ex: void MinhaFuncaoLocal() { } definida dentro de um método
+dotnet_naming_rule.local_functions_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.local_functions_should_be_pascal_case.symbols = local_functions
+dotnet_naming_rule.local_functions_should_be_pascal_case.style = local_function_style
+dotnet_naming_symbols.local_functions.applicable_kinds = local_function
+dotnet_naming_style.local_function_style.capitalization = pascal_case
+
+# Regra padrão — tudo que não se encaixou nas regras acima é PascalCase
+# Cobre: classes, interfaces, métodos, propriedades, enums, etc
+dotnet_naming_rule.members_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.members_should_be_pascal_case.symbols = all_members
+dotnet_naming_rule.members_should_be_pascal_case.style = pascal_case_style
+dotnet_naming_symbols.all_members.applicable_kinds = *
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case
+
+###############################
+# Convenções de Código C#     #
+###############################
+
+[*.cs]
+
+# Preferências de var
+# true = prefere var para tipos primitivos (int, string, bool...)
+csharp_style_var_for_built_in_types = true:silent
+# true = prefere var quando o tipo já está óbvio no lado direito
+# Ex: var lista = new List<string>() — tipo óbvio
+csharp_style_var_when_type_is_apparent = true:silent
+# true = prefere var em todos os outros casos também
+csharp_style_var_elsewhere = true:silent
+
+# Membros com corpo de expressão (=>)
+# false = não prefere => em métodos — usa corpo completo com { }
+csharp_style_expression_bodied_methods = false:silent
+# false = não prefere => em construtores
+csharp_style_expression_bodied_constructors = false:silent
+# false = não prefere => em operadores
+csharp_style_expression_bodied_operators = false:silent
+# true = prefere => em propriedades: public string Nome => _nome;
+csharp_style_expression_bodied_properties = true:silent
+# true = prefere => em indexadores
+csharp_style_expression_bodied_indexers = true:silent
+# true = prefere => em accessors get/set simples
+csharp_style_expression_bodied_accessors = true:silent
+
+# Preferências de pattern matching
+# Prefere: x is string s em vez de: var s = x as string; if (s != null)
+csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
+# Prefere: x is string s em vez de: if (x as string != null)
+csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
+
+# Preferências de verificação de null
+# Prefere throw expression: x ?? throw new Exception()
+csharp_style_throw_expression = true:suggestion
+# Prefere chamada condicional de delegate: handler?.Invoke()
+csharp_style_conditional_delegate_call = true:suggestion
+
+# Ordem preferida dos modificadores em uma declaração
+# Ex: public static readonly string Nome
+csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:suggestion
+
+# Preferências de nível de expressão
+# Prefere sempre usar chaves { } mesmo em blocos de uma linha
+csharp_prefer_braces = true:silent
+# Prefere desconstrução: var (x, y) = GetPonto()
+csharp_style_deconstructed_variable_declaration = true:suggestion
+# Prefere default simples em vez de default(T)
+csharp_prefer_simple_default_expression = true:suggestion
+# Prefere função local em vez de função anônima quando possível
+csharp_style_pattern_local_over_anonymous_function = true:suggestion
+# Prefere declaração inline: int.TryParse(s, out int resultado)
+csharp_style_inlined_variable_declaration = true:suggestion
+
+###############################
+# Regras de Formatação C#     #
+###############################
+
+# Preferências de nova linha
+# Abre chave { sempre em nova linha (estilo Allman)
+csharp_new_line_before_open_brace = all
+# else em nova linha
+csharp_new_line_before_else = true
+# catch em nova linha
+csharp_new_line_before_catch = true
+# finally em nova linha
+csharp_new_line_before_finally = true
+# Membros de inicializadores de objeto em nova linha
+csharp_new_line_before_members_in_object_initializers = true
+# Membros de tipos anônimos em nova linha
+csharp_new_line_before_members_in_anonymous_types = true
+# Cláusulas de expressão de consulta LINQ em nova linha
+csharp_new_line_between_query_expression_clauses = true
+
+# Preferências de indentação
+# Indenta o conteúdo de case dentro de switch
+csharp_indent_case_contents = true
+# Indenta os próprios labels de case dentro de switch
+csharp_indent_switch_labels = true
+# Labels (goto, etc) ficam alinhados à esquerda sem indentação
+csharp_indent_labels = flush_left
+
+# Preferências de espaçamento
+# Sem espaço após cast: (string)valor, não (string) valor
+csharp_space_after_cast = false
+# Espaço após palavras-chave de controle: if (, while (, for (
+csharp_space_after_keywords_in_control_flow_statements = true
+# Sem espaço dentro dos parênteses de chamada: Metodo(a, b), não Metodo( a, b )
+csharp_space_between_method_call_parameter_list_parentheses = false
+# Sem espaço dentro dos parênteses de declaração: void Metodo(int x), não void Metodo( int x )
+csharp_space_between_method_declaration_parameter_list_parentheses = false
+# Sem espaço entre parênteses em geral
+csharp_space_between_parentheses = false
+# Espaço antes do : em herança: class Filho : Pai
+csharp_space_before_colon_in_inheritance_clause = true
+# Espaço depois do : em herança: class Filho : Pai
+csharp_space_after_colon_in_inheritance_clause = true
+# Espaço antes e depois de operadores binários: x + y, x == y
+csharp_space_around_binary_operators = before_and_after
+# Sem espaço em parênteses vazios de declaração: void Metodo()
+csharp_space_between_method_declaration_empty_parameter_list_parentheses = false
+# Sem espaço entre nome do método e parêntese: Metodo(), não Metodo ()
+csharp_space_between_method_call_name_and_opening_parenthesis = false
+# Sem espaço em chamada com parênteses vazios: Metodo()
+csharp_space_between_method_call_empty_parameter_list_parentheses = false
+
+# Preferências de quebra de linha
+# Permite manter instruções simples em uma linha: if (b) return;
+csharp_preserve_single_line_statements = true
+# Permite manter blocos simples em uma linha: { return x; }
+csharp_preserve_single_line_blocks = true
+# using deve ficar fora do namespace
+csharp_using_directive_placement = outside_namespace:silent
+# Prefere using simples sem chaves: using var x = ...
+csharp_prefer_simple_using_statement = true:suggestion
+# Prefere namespace com escopo de arquivo: namespace Foo; em vez de namespace Foo { }
+csharp_style_namespace_declarations = file_scoped:silent
+# Prefere expressão lambda com =>
+csharp_style_expression_bodied_lambdas = true:silent
+# Não prefere => em funções locais — usa corpo completo
+csharp_style_expression_bodied_local_functions = false:silent
+# Prefere is null em vez de verificação de tipo
+csharp_style_prefer_null_check_over_type_check = true:suggestion
+
+###############################
+# Convenções de Código VB     #
+###############################
+
+[*.vb]
+
+# Ordem preferida dos modificadores em Visual Basic
+visual_basic_preferred_modifier_order = Partial,Default,Private,Protected,Public,Friend,NotOverridable,Overridable,MustOverride,Overloads,Overrides,MustInherit,NotInheritable,Static,Shared,Shadows,ReadOnly,WriteOnly,Dim,Const,WithEvents,Widening,Narrowing,Custom,Async:suggestion

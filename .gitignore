@@ -372,3 +372,5 @@ appsettings.Docker.json
 appsettings.Development.json
 
 .env
+
+AGENTS.md

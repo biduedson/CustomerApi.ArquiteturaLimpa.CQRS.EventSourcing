@@ -2,5 +2,5 @@
 
 public interface IEventStoreRepository : IDisposable
 {
-    Task StoreAsync(IEquatable<EventStore> eventStores);
+    Task StoreAsync(IEnumerable<EventStore> eventStores);
 }

@@ -2,8 +2,44 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
+<ItemGroup>
+  <PackageReference Include="Ardalis.Result.FluentValidation" />
+  <PackageReference Include="Ardalis.Result" />
+  <PackageReference Include="AutoMapper" />
+  <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  <PackageReference Include="FluentValidation" />
+  <PackageReference Include="MediatR" />
+  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  <PackageReference Include="MongoDB.Bson" />
+  <PackageReference Include="MongoDB.Driver" />
+  <PackageReference Include="Polly" />
+  <PackageReference Include="Roslynator.Analyzers">
+    <PrivateAssets>all</PrivateAssets>
+    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+  </PackageReference>
+  <PackageReference Include="Roslynator.CodeAnalysis.Analyzers">
+    <PrivateAssets>all</PrivateAssets>
+    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+  </PackageReference>
+  <PackageReference Include="Roslynator.CodeFixes">
+    <PrivateAssets>all</PrivateAssets>
+    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+  </PackageReference>
+  <PackageReference Include="Roslynator.Formatting.Analyzers">
+    <PrivateAssets>all</PrivateAssets>
+    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+  </PackageReference>
+  <PackageReference Include="Roslynator.Refactorings">
+    <PrivateAssets>all</PrivateAssets>
+    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+  </PackageReference>
+</ItemGroup>
+
+<ItemGroup>
+  <ProjectReference Include="..\CustomerApi.Core\CustomerApi.Core.csproj" />
+  <ProjectReference Include="..\CustomerApi.Domain\CustomerApi.Domain.csproj" />
+</ItemGroup>
+  
 </Project>

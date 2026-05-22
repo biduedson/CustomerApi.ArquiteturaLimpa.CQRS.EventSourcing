@@ -1,7 +1,12 @@
+using System;
+using System.Threading.Tasks;
 using AutoMapper;
 using CustomerApi.Infrastructure.Data.Context;
 using CustomerApi.Query.Abstractions;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 internal static class WebApplicationExtensions
 {

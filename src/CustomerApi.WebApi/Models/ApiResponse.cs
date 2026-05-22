@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http;
 
 namespace CustomerApi.WebApi.Models;
 
@@ -23,8 +26,6 @@ public class ApiResponse
 
     public static ApiResponse Ok() =>
         new() { Success = true, StatusCode = StatusCodes.Status200OK };
-
-
     public static ApiResponse Ok(string successMessage) =>
         new() { Success = true, StatusCode = StatusCodes.Status200OK, SuccessMessage = successMessage };
     public static ApiResponse BadRequest() =>

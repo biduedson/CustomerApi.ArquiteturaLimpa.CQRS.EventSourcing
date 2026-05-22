@@ -1,10 +1,16 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using CustomerApi.Core.AppSettings;
 using CustomerApi.Core.Extensions;
 using CustomerApi.Infrastructure;
 using CustomerApi.Infrastructure.Data.Context;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 
 namespace CustomerApi.WebApi.Extensions;

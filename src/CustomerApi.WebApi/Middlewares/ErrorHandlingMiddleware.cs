@@ -1,6 +1,11 @@
+using System;
 using System.Net.Mime;
+using System.Threading.Tasks;
 using CustomerApi.Core.Extensions;
 using CustomerApi.WebApi.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace CustomerApi.WebApi.Middlewares;
 

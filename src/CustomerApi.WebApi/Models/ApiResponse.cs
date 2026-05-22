@@ -48,6 +48,8 @@ public class ApiResponse
             new() { Success = false, StatusCode = StatusCodes.Status404NotFound };
     public static ApiResponse NotFound(string errorMessage) =>
             new() { Success = false, StatusCode = StatusCodes.Status404NotFound, Errors = CreateErrors(errorMessage) };
+    public static ApiResponse NotFound(IEnumerable<ApiErrorResponse> errors) =>
+       new() { Success = false, StatusCode = StatusCodes.Status404NotFound, Errors = errors };
     public static ApiResponse InternalServerError(string errorMessage) =>
             new() { Success = false, StatusCode = StatusCodes.Status500InternalServerError, Errors = CreateErrors(errorMessage) };
     private static ApiErrorResponse[] CreateErrors(string errorMessage) =>

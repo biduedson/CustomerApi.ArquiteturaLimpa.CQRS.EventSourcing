@@ -9,6 +9,7 @@ using CustomerApi.Application;
 using CustomerApi.Core;
 using CustomerApi.Core.Extensions;
 using CustomerApi.Infrastructure;
+using CustomerApi.Query;
 using CustomerApi.WebApi.Extensions;
 using FluentValidation;
 using FluentValidation.Resources;
@@ -67,7 +68,11 @@ builder.Services
        .ConfigureAppSettings()
        .AddInfrastructure()
        .AddCommandHandlers()
+       .AddQueryHandlers()
        .AddWriteDbContext(builder.Environment)
+       .AddWriteOnlyRepositories()
+       .AddReadDbContext()
+       .AddReadOnlyRepositories()
        .AddCAcheService(builder.Configuration)
        .AddHealthChecks(builder.Configuration)
        .AddDefaultCorrelationId();

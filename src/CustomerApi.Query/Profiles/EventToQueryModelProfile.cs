@@ -1,3 +1,4 @@
+using AutoMapper;
 using CustomerApi.Domain.Entities.CustomerAggregate.Events;
 using CustomerApi.Query.QueriesModel;
 

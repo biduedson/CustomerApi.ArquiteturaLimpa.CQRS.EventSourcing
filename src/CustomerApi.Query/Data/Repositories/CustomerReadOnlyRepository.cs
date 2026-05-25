@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CustomerApi.Query.Abstractions;
 using CustomerApi.Query.Data.Repositories.Abstractions;
 using CustomerApi.Query.QueriesModel;
+using MongoDB.Driver;
 
 namespace CustomerApi.Query.Data.Repositories;
 

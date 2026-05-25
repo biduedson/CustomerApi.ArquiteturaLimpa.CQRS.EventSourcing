@@ -1,11 +1,13 @@
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using CustomerApi.Core.Extensions;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.CustomerAggregate.Events;
 using CustomerApi.Query.Abstractions;
 using CustomerApi.Query.Application.Customer.Queries;
 using CustomerApi.Query.QueriesModel;
+using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace CustomerApi.Query.EventHandlers;

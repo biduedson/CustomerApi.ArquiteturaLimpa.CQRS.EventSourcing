@@ -1,5 +1,7 @@
 using System;
+using Ardalis.Result;
 using CustomerApi.Query.QueriesModel;
+using MediatR;
 
 namespace CustomerApi.Query.Application.Customer.Queries;
 

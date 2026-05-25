@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Ardalis.Result;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Query.Application.Customer.Queries;
 using CustomerApi.Query.Data.Repositories.Abstractions;
 using CustomerApi.Query.QueriesModel;
+using MediatR;
 
 namespace CustomerApi.Query.Application.Customer.Handlers;
 

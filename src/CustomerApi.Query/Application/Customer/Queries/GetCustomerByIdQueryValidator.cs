@@ -1,3 +1,4 @@
+using FluentValidation;
 
 namespace CustomerApi.Query.Application.Customer.Queries;
 

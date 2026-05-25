@@ -2,13 +2,16 @@
 
 using System.Globalization;
 using System.IO.Compression;
+using Asp.Versioning;
 using CorrelationId;
 using CorrelationId.DependencyInjection;
 using CustomerApi.Application;
+using CustomerApi.Core;
 using CustomerApi.Core.Extensions;
 using CustomerApi.Infrastructure;
 using CustomerApi.Query;
 using CustomerApi.WebApi.Extensions;
+using FluentValidation;
 using FluentValidation.Resources;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
@@ -18,6 +21,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Scalar.AspNetCore;
 using StackExchange.Profiling;
 
 // Cria o builder da aplicação.

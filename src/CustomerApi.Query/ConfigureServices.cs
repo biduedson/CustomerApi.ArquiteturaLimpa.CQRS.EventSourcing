@@ -6,7 +6,6 @@ using CustomerApi.Query.Data.Mappings;
 using CustomerApi.Query.Data.Repositories;
 using CustomerApi.Query.Data.Repositories.Abstractions;
 using FluentValidation;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;

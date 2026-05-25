@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using CustomerApi.Core.SharedKernel;
 
 namespace CustomerApi.Core.AppSettings;

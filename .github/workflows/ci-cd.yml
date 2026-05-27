@@ -56,8 +56,15 @@ jobs:
       - name: Rodar migrations
         run: |
           dotnet ef database update \
-            --project src/CustomerApi.Infrastructure \
+            --project src/CustomerApi.WebApi \
             --startup-project src/CustomerApi.WebApi \
+            --context EventStoreDbContext \
+            --connection "${{ secrets.SQL_CONNECTION_STRING }}"
+
+          dotnet ef database update \
+            --project src/CustomerApi.WebApi \
+            --startup-project src/CustomerApi.WebApi \
+            --context WriteDbContext \
             --connection "${{ secrets.SQL_CONNECTION_STRING }}"
 
   build-and-push-image:

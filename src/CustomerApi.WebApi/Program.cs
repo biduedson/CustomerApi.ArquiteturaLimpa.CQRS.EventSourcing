@@ -36,20 +36,20 @@ builder.Services
    .AddHttpContextAccessor()
    .AddResponseCompression(compressionOptions =>
    {
-          compressionOptions.EnableForHttps = true;
-          compressionOptions.Providers.Add<GzipCompressionProvider>();
+       compressionOptions.EnableForHttps = true;
+       compressionOptions.Providers.Add<GzipCompressionProvider>();
    })
    .AddEndpointsApiExplorer()
    .AddApiVersioning(versioningOptions =>
    {
-          versioningOptions.DefaultApiVersion = ApiVersion.Default;
-          versioningOptions.ReportApiVersions = true;
-          versioningOptions.AssumeDefaultVersionWhenUnspecified = true;
+       versioningOptions.DefaultApiVersion = ApiVersion.Default;
+       versioningOptions.ReportApiVersions = true;
+       versioningOptions.AssumeDefaultVersionWhenUnspecified = true;
    })
    .AddApiExplorer(explorerOptions =>
    {
-          explorerOptions.GroupNameFormat = "'v'VVV";
-          explorerOptions.SubstituteApiVersionInUrl = true;
+       explorerOptions.GroupNameFormat = "'v'VVV";
+       explorerOptions.SubstituteApiVersionInUrl = true;
    });
 
 // Configura documentação e controllers.
@@ -58,8 +58,8 @@ builder.Services.AddDataProtection();
 builder.Services.AddControllers()
       .ConfigureApiBehaviorOptions(behaviorOptions =>
       {
-             behaviorOptions.SuppressMapClientErrors = true;
-             behaviorOptions.SuppressModelStateInvalidFilter = true;
+          behaviorOptions.SuppressMapClientErrors = true;
+          behaviorOptions.SuppressModelStateInvalidFilter = true;
       })
       .AddJsonOptions(_ => { });
 
@@ -80,18 +80,18 @@ builder.Services
 // Configura profiler da aplicação.
 builder.Services.AddMiniProfiler(options =>
 {
-       options.RouteBasePath = "/profiler";
-       options.ColorScheme = ColorScheme.Dark;
-       options.EnableServerTimingHeader = true;
-       options.TrackConnectionOpenClose = true;
-       options.EnableDebugMode = builder.Environment.IsDevelopment();
+    options.RouteBasePath = "/profiler";
+    options.ColorScheme = ColorScheme.Dark;
+    options.EnableServerTimingHeader = true;
+    options.TrackConnectionOpenClose = true;
+    options.EnableDebugMode = builder.Environment.IsDevelopment();
 }).AddEntityFramework();
 
 // Valida dependências no startup.
 builder.Host.UseDefaultServiceProvider((context, serviceProviderOptions) =>
 {
-       serviceProviderOptions.ValidateScopes = context.HostingEnvironment.IsDevelopment();
-       serviceProviderOptions.ValidateOnBuild = true;
+    serviceProviderOptions.ValidateScopes = context.HostingEnvironment.IsDevelopment();
+    serviceProviderOptions.ValidateOnBuild = true;
 });
 
 // Define opções globais de validação.
@@ -105,14 +105,14 @@ var app = builder.Build();
 // Exibe detalhes de erro em desenvolvimento.
 if (app.Environment.IsDevelopment())
 {
-       app.UseDeveloperExceptionPage();
+    app.UseDeveloperExceptionPage();
 }
 
 // Expõe o endpoint de health check.
 app.UseHealthChecks("/health", new HealthCheckOptions
 {
-       Predicate = _ => true,
-       ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    Predicate = _ => true,
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
 // Mapeia a especificação OpenAPI.
@@ -121,11 +121,11 @@ app.MapOpenApi();
 // Configura a UI da documentação.
 app.MapScalarApiReference(scalarOptions =>
 {
-       scalarOptions.DarkMode = true;
-       scalarOptions.DotNetFlag = false;
-       scalarOptions.DocumentDownloadType = DocumentDownloadType.None; ;
-       scalarOptions.HideModels = true;
-       scalarOptions.Title = "Shop API";
+    scalarOptions.DarkMode = true;
+    scalarOptions.DotNetFlag = false;
+    scalarOptions.DocumentDownloadType = DocumentDownloadType.None; ;
+    scalarOptions.HideModels = true;
+    scalarOptions.Title = "Customer API";
 });
 
 // Configura o pipeline HTTP.

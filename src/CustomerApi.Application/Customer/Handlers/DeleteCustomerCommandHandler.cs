@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.Result;
 using Ardalis.Result.FluentValidation;
@@ -14,14 +14,14 @@ public class DeleteCustomerCommandHandler(
     IValidator<DeleteCustomerCommand> validator,
     ICustomerWriteOnlyRepository repository,
     IUnitOfWork unitOfWork
-    )  : IRequestHandler<DeleteCustomerCommand, Result>
+    ) : IRequestHandler<DeleteCustomerCommand, Result>
 {
     public async Task<Result> Handle(
         DeleteCustomerCommand request,
         CancellationToken cancellationToken
         )
     {
-        var  validationResult = await validator.ValidateAsync( request, cancellationToken );
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
             return Result.Invalid(validationResult.AsErrors());
@@ -30,6 +30,8 @@ public class DeleteCustomerCommandHandler(
 
         if (customer == null)
             return Result.NotFound($"Nenhum cliente encontrado com o Id: {request.Id}");
+
+        customer.Delete();
 
         repository.Remove(customer);
 

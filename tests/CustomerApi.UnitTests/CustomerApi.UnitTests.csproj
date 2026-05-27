@@ -69,6 +69,7 @@
     <ProjectReference Include="..\..\src\CustomerApi.Core\CustomerApi.Core.csproj" />
     <ProjectReference Include="..\..\src\CustomerApi.Domain\CustomerApi.Domain.csproj" />
     <ProjectReference Include="..\..\src\CustomerApi.Infrastructure\CustomerApi.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\CustomerApi.Query\CustomerApi.Query.csproj" />
   </ItemGroup>
 
 	<ItemGroup>

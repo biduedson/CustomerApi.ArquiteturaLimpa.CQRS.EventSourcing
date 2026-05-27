@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -24,7 +24,6 @@ internal sealed class UnitOfWork(
 
         await strategy.ExecuteAsync(async () =>
         {
-            bool committed = false;
 
             await using var transaction =
                 await writeDbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
@@ -40,7 +39,7 @@ internal sealed class UnitOfWork(
                 logger.LogInformation("----- Commit da transação: '{TransactionId}'", transaction.TransactionId);
 
                 await transaction.CommitAsync();
-                committed = true;
+
 
                 await AfterSaveChangesAsync(domainEvents, eventStores);
 
@@ -51,12 +50,13 @@ internal sealed class UnitOfWork(
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, committed
-                    ? "Erro ao processar eventos após commit da transação."
-                    : "Erro ao salvar alterações antes do commit da transação.");
+                logger.LogError(
+                     ex,
+                     "Ocorreu uma exceção inesperada ao confirmar a transação: '{TransactionId}', mensagem: {Message}",
+                     transaction.TransactionId,
+                     ex.Message);
 
-                if (!committed)
-                    await transaction.RollbackAsync();
+                await transaction.RollbackAsync();
 
                 throw;
             }

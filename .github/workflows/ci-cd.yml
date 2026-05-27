@@ -4,7 +4,6 @@ on:
   pull_request:
     branches: [ master ]
     types: [opened, synchronize, reopened]
-
   push:
     branches: [ master ]
 
@@ -17,7 +16,6 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Baixar código
         uses: actions/checkout@v4
@@ -36,11 +34,43 @@ jobs:
       - name: Testes
         run: dotnet test ${{ env.SOLUTION_NAME }} --configuration Release --no-build --verbosity normal
 
-  build-and-push-image:
+  run-migrations:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
 
+      - name: Instalar .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restaurar pacotes
+        run: dotnet restore ${{ env.SOLUTION_NAME }}
+
+      - name: Instalar EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Rodar migrations
+        run: |
+          dotnet ef database update \
+            --project src/CustomerApi.WebApi \
+            --startup-project src/CustomerApi.WebApi \
+            --context EventStoreDbContext \
+            --connection "${{ secrets.SQL_CONNECTION_STRING }}"
+
+          dotnet ef database update \
+            --project src/CustomerApi.WebApi \
+            --startup-project src/CustomerApi.WebApi \
+            --context WriteDbContext \
+            --connection "${{ secrets.SQL_CONNECTION_STRING }}"
+
+  build-and-push-image:
+    needs: run-migrations
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
       - name: Baixar código
         uses: actions/checkout@v4

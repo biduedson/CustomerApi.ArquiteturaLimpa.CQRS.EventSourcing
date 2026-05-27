@@ -88,7 +88,7 @@ public class NoSqlDbContext : IReadDbContext, ISynchronizeDb
     {
         _logger.LogInformation("----- MongoDB: criando índices...");
 
-        var indexDefinition = Builders<CustomerQueryModel>.IndexKeys.Ascending(model => model.Id);
+        var indexDefinition = Builders<CustomerQueryModel>.IndexKeys.Ascending(model => model.Email);
         var indexModel = new CreateIndexModel<CustomerQueryModel>(indexDefinition, DefaultCreateIndexOptions);
         var collection = GetCollection<CustomerQueryModel>();
 

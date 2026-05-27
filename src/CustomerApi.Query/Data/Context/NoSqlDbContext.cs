@@ -69,11 +69,7 @@ public class NoSqlDbContext : IReadDbContext, ISynchronizeDb
             {
                 _logger.LogInformation("----- MongoDB: criando a coleção {Name}", collectionName);
 
-                await _mongoDatabase.CreateCollectionAsync(collectionName, new CreateCollectionOptions
-                {
-                    ValidationLevel = DocumentValidationLevel.Strict,
-                });
-
+                await _mongoDatabase.CreateCollectionAsync(collectionName);
             }
             else
             {

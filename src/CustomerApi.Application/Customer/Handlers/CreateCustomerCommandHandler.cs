@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.Result;
 using Ardalis.Result.FluentValidation;
@@ -22,7 +22,7 @@ public class CreateCustomerCommandHandler(
         CreateCustomerCommand request,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request,cancellationToken);
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
             return Result<CreatedCustomerResponse>.Invalid(validationResult.AsErrors());
@@ -44,6 +44,6 @@ public class CreateCustomerCommandHandler(
         await unitOfWork.SaveChangesAsync();
 
         return Result<CreatedCustomerResponse>.Created(
-            new CreatedCustomerResponse(customer.Id), $"/api/customers/{customer.Id}");
+            new CreatedCustomerResponse(customer.Id), location: $"/api/customers/{customer.Id}");
     }
 }

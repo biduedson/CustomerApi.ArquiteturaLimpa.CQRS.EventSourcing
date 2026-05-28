@@ -67,4 +67,10 @@
     <ProjectReference Include="..\CustomerApi.Query\CustomerApi.Query.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+    <InternalsVisibleTo Include="CustomerApi.IntegrationTests" />
+    <InternalsVisibleTo Include="CustomerApi.UnitTests" />
+  </ItemGroup>
+
 </Project>

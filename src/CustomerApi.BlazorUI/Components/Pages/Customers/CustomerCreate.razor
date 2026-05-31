@@ -1,0 +1,36 @@
+@using CustomerApi.BlazorUI.Models.Customers
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin,Manager")]
+@page "/customers/new"
+@inject CustomerApi.BlazorUI.Services.ICustomerApiClient CustomerApi
+@inject CustomerApi.BlazorUI.Services.ToastService Toast
+@inject NavigationManager Navigation
+
+<CustomerForm Title="Novo Cliente" Model="_model" OnValidSubmit="SaveAsync"/>
+
+@code{
+     private CustomerFormModel _model = new();
+
+     private async Task SaveAsync()
+     {
+        var request = new CreateCustomerRequest
+        {
+             FirstName = _model.FirstName,
+             LastName = _model.LastName,
+             Gender = _model.Gender,
+             Email = _model.Email,
+             DateOfBirth = _model.DateOfBirth!.Value
+        };
+
+         var response = await CustomerApi.CreateAsync(request);
+
+         if(response.Success)
+         {
+            Toast.Success("Cliente cadastrado com Sucesso");
+            Navigation.NavigateTo("/customers");
+         }
+
+         Toast.Error(string.Join("", response.Errors));
+     }
+
+}

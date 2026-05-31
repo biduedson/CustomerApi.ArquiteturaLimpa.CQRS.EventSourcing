@@ -1,0 +1,56 @@
+@using CustomerApi.BlazorUI.Models.Customers
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin,Manager")]
+@page "/customers/{Id:guid}/edit"
+@inject CustomerApi.BlazorUI.Services.ICustomerApiClient CustomerApi
+@inject CustomerApi.BlazorUI.Services.ToastService Toast
+@inject NavigationManager Navigation
+
+<CustomerForm Title="Editar cliente" Model="_model" OnValidSubmit="SaveAsync" />
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private CustomerFormModel _model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await CustomerApi.GetByIdAsync(Id);
+        var customer = response.Result;
+        if (customer is null)
+        {
+            Toast.Error("Cliente não encontrado.");
+            Navigation.NavigateTo("/customers");
+            return;
+        }
+
+        _model = new()
+        {
+            Id = customer.Id,
+            FirstName = customer.FirstName,
+            LastName = customer.LastName,
+            Gender = customer.Gender,
+            Email = customer.Email,
+            DateOfBirth = customer.DateOfBirth
+        };
+    }
+
+    private async Task SaveAsync()
+    {
+        var request = new UpdateCustomerRequest
+        {
+            Id = Id,
+            Email = _model.Email,
+            
+        };
+
+        var response = await CustomerApi.UpdateAsync(request);
+        if (response.Success)
+        {
+            Toast.Success("Cliente atualizado com sucesso.");
+            Navigation.NavigateTo("/customers");
+            return;
+        }
+
+        Toast.Error(string.Join(" ", response.Errors));
+    }
+}

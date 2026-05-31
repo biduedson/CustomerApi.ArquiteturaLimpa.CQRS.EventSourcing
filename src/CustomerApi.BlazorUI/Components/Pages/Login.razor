@@ -1,0 +1,47 @@
+@page "/login"
+@attribute [AllowAnonymous]
+@inject NavigationManager Navigation
+
+<PageTitle>Login</PageTitle>
+
+<div class="login-page">
+    <div class="login-card shadow-lg">
+        <div class="login-brand">
+            <span class="brand-mark">C</span>
+            <div>
+                <strong>CustomerApi CRM</strong>
+                <small>Acesso administrativo</small>
+            </div>
+        </div>
+
+        <h1>Entrar</h1>
+        <p class="text-muted">Use sua conta do sistema para acessar o painel de clientes.</p>
+
+        @if (HasError)
+        {
+            <div class="alert alert-danger rounded-4">
+                Email ou senha invalidos. Confira os dados e tente novamente.
+            </div>
+        }
+
+        <form method="post" action="/auth/login" class="mt-4">
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input class="form-control form-control-lg" name="email" type="email" autocomplete="username" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Senha</label>
+                <input class="form-control form-control-lg" name="password" type="password" autocomplete="current-password" required />
+            </div>
+
+            <button class="btn btn-primary btn-lg rounded-pill w-100" type="submit">
+                Entrar no sistema
+            </button>
+        </form>
+    </div>
+</div>
+
+@code{
+    private bool HasError => Navigation.ToAbsoluteUri(Navigation.Uri).Query.Contains("error", StringComparison.OrdinalIgnoreCase);
+}

@@ -1,0 +1,53 @@
+@using CustomerApi.BlazorUI.Models.Customers
+
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Formulário</p>
+        <h1>@Title</h1>
+        <p class="text-muted">Os dados serão enviados para a WebApi e processados via MediatR.</p>
+    </div>
+</div>
+
+<EditForm Model="Model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="card border-0 shadow-sm rounded-4 form-card">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Nome</label>
+                <InputText class="form-control form-control-lg" @bind-Value="Model.FirstName" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Sobrenome</label>
+                <InputText class="form-control form-control-lg" @bind-Value="Model.LastName" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Email</label>
+                <InputText class="form-control form-control-lg" @bind-Value="Model.Email" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Gênero</label>
+                <InputSelect class="form-select form-select-lg" @bind-Value="Model.Gender">
+                    <option value="Male">Masculino</option>
+                    <option value="Female">Feminino</option>
+                    <option value="Other">Outro</option>
+                </InputSelect>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Nascimento</label>
+                <InputDate class="form-control form-control-lg" @bind-Value="Model.DateOfBirth" />
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a class="btn btn-light rounded-pill px-4" href="customers">Cancelar</a>
+            <button class="btn btn-primary rounded-pill px-4" type="submit">Salvar</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public CustomerFormModel Model { get; set; } = new();
+    [Parameter, EditorRequired] public EventCallback OnValidSubmit { get; set; }
+}

@@ -1,0 +1,30 @@
+﻿@using CustomerApi.BlazorUI.Components.Shared
+@inherits LayoutComponentBase
+
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="brand">
+            <span class="brand-mark">C</span>
+            <div>
+                <strong>CustomerApi</strong>
+                <small>Clean UI</small>
+            </div>
+        </div>
+        <NavMenu />
+    </aside>
+
+    <main class="app-main">
+        <header class="topbar">
+            <div>
+                <strong>Blazor Dashboard</strong>
+                <span class="text-muted ms-2">DDD + CQRS + API</span>
+            </div>
+        </header>
+
+        <section class="content-area">
+            @Body
+        </section>
+    </main>
+</div>
+
+<ToastHost />

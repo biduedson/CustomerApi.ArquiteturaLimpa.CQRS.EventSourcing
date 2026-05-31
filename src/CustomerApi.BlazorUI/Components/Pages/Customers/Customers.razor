@@ -1,0 +1,90 @@
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin,Manager,Operator,Viewer")]
+@page "/customers"
+@inject CustomerApi.BlazorUI.Services.ICustomerApiClient CustomerApi
+@inject CustomerApi.BlazorUI.Services.ToastService Toast
+
+<PageTitle>Clientes</PageTitle>
+
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Cadastro</p>
+        <h1>Clientes</h1>
+        <p class="text-muted">Consulta do read side da sua API CQRS.</p>
+    </div>
+    <a href="customers/new" class="btn btn-primary rounded-pill">Novo cliente</a>
+</div>
+
+@if (_loading)
+{
+    <div class="skeleton-card"></div>
+}
+else if (_customers.Count == 0)
+{
+    <div class="empty-state">
+        <h3>Nenhum cliente encontrado</h3>
+        <p>Crie o primeiro cliente para validar o fluxo completo da UI para a API.</p>
+        <a href="customers/new" class="btn btn-primary rounded-pill">Cadastrar cliente</a>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Gênero</th>
+                        <th>Nascimento</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var customer in _customers)
+                {
+                    <tr>
+                        <td><strong>@customer.FirstName customer.LastName</strong></td>
+                        <td>@customer.Email</td>
+                        <td><span class="badge text-bg-light">@customer.Gender</span></td>
+                        <td>@customer.DateOfBirth.ToString("dd/MM/yyyy")</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" href="customers/@customer.Id/edit">Editar</a>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(customer.Id)">Excluir</button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _loading = true;
+    private List<CustomerApi.BlazorUI.Models.Customers.CustomerListItem> _customers = [];
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        var response = await CustomerApi.GetAllAsync();
+        _customers = response.Result?.ToList() ?? [];
+        _loading = false;
+    }
+
+    private async Task DeleteAsync(Guid id)
+    {
+        var response = await CustomerApi.DeleteAsync(id);
+        if (response.Success)
+        {
+            Toast.Success("Cliente removido com sucesso.");
+            await LoadAsync();
+            return;
+        }
+
+        Toast.Error(string.Join(" ", response.Errors));
+    }
+}

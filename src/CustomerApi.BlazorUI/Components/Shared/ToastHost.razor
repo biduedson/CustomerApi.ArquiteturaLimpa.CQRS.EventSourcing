@@ -1,0 +1,31 @@
+@implements IDisposable
+@inject CustomerApi.BlazorUI.Services.ToastService ToastService
+
+@if(!string.IsNullOrWhiteSpace(_message))
+{
+ <div class="toast-container position-fixed top-0 end-0 p-3">
+     <div class="alert alert-@_type shadow-lg rounded-4">@_message</div>
+ </div>
+}
+
+@code{
+    private string? _message;
+    private string _type = "info";
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnShow += Show;
+    }
+
+    private async void Show(string type, string message)
+    {
+        _type = type;
+        _message = message;
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(3500);
+        _message = null;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() => ToastService.OnShow -= Show;
+}

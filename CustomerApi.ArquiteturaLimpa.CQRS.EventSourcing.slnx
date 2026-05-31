@@ -5,6 +5,7 @@
   <Project Path="src/CustomerApi.Infrastructure/CustomerApi.Infrastructure.csproj" />
   <Project Path="src/CustomerApi.Query/CustomerApi.Query.csproj" />
   <Project Path="src/CustomerApi.WebApi/CustomerApi.WebApi.csproj" />
+  <Project Path="src/CustomerApi.BlazorUI/CustomerApi.BlazorUI.csproj" />
   <Project Path="tests/CustomerApi.IntegrationTests/CustomerApi.IntegrationTests.csproj" />
   <Project Path="tests/CustomerApi.UnitTests/CustomerApi.UnitTests.csproj" />
 </Solution>

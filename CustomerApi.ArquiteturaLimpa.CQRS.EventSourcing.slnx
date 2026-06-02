@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="src/CustomerApi.Application/CustomerApi.Application.csproj" />
+  <Project Path="src/CustomerApi.BlazorUI/CustomerApi.BlazorUI.csproj" />
   <Project Path="src/CustomerApi.Core/CustomerApi.Core.csproj" />
   <Project Path="src/CustomerApi.Domain/CustomerApi.Domain.csproj" />
   <Project Path="src/CustomerApi.Infrastructure/CustomerApi.Infrastructure.csproj" />

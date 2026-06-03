@@ -3,7 +3,7 @@
 using System.Globalization;
 using CorrelationId;
 using CorrelationId.DependencyInjection;
-using CustomerApi.Application;
+using CustomerApi.Application.Extensions.ServiceCollectionsExtensions;
 using CustomerApi.Core.Extensions.ServiceCollectionsExtensions;
 using CustomerApi.Infrastructure.Extensions.ServiceCollectionsExtensions;
 using CustomerApi.Query.Extensions.ServiceCollectionsExtensions;

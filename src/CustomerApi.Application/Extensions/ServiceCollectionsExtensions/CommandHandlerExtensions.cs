@@ -1,13 +1,13 @@
-﻿using System.Reflection;
+using System.Reflection;
 using CustomerApi.Application.Abstractions;
 using CustomerApi.Application.Behaviors;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CustomerApi.Application;
+namespace CustomerApi.Application.Extensions.ServiceCollectionsExtensions;
 
-public static class ConfigureServices
+public static class CommandHandlerExtensions
 {
     public static IServiceCollection AddCommandHandlers(this IServiceCollection services)
     {

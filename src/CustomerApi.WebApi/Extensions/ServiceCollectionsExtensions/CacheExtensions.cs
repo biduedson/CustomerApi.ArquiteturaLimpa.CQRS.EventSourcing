@@ -1,6 +1,6 @@
 using CustomerApi.Core.AppSettings;
 using CustomerApi.Core.Extensions;
-using CustomerApi.Infrastructure;
+using CustomerApi.Infrastructure.Extensions.ServiceCollectionsExtensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

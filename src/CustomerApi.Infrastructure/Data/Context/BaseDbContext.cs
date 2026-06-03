@@ -1,8 +1,9 @@
-﻿using CustomerApi.Infrastructure.Data.Extensions;
+using CustomerApi.Infrastructure.Extensions.ModelBuilderExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace CustomerApi.Infrastructure.Data.Context;
+
 public abstract class BaseDbContext<TContext>(DbContextOptions<TContext> dbOptions) : DbContext(dbOptions)
     where TContext : DbContext
 {
@@ -36,6 +37,5 @@ public abstract class BaseDbContext<TContext>(DbContextOptions<TContext> dbOptio
             .RemoveCascadeDeleteConvention();
 
         base.OnModelCreating(modelBuilder);
-
     }
 }

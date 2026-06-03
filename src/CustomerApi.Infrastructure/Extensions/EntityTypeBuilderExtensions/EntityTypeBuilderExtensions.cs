@@ -1,7 +1,7 @@
-﻿using CustomerApi.Core.SharedKernel;
+using CustomerApi.Core.SharedKernel;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace CustomerApi.Infrastructure.Data.Extensions;
+namespace CustomerApi.Infrastructure.Extensions.EntityTypeBuilderExtensions;
 
 internal static class EntityTypeBuilderExtensions
 {

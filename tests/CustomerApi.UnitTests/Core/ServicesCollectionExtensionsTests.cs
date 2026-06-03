@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using CustomerApi.Core;
 using CustomerApi.Core.AppSettings;
+using CustomerApi.Core.Extensions.ServiceCollectionsExtensions;
 using CustomerApi.Core.Extensions;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;

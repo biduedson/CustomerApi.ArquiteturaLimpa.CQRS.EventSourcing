@@ -1,6 +1,6 @@
-using CustomerApi.BlazorUI;
 using CustomerApi.BlazorUI.Components;
-using CustomerApi.BlazorUI.Extensions;
+using CustomerApi.BlazorUI.Extensions.EndpointRouteBuilderExtensions;
+using CustomerApi.BlazorUI.Extensions.ServiceCollectionsExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 

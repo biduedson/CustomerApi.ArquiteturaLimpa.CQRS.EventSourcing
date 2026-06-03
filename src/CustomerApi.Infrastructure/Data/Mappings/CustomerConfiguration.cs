@@ -1,5 +1,5 @@
-﻿using CustomerApi.Domain.Entities.CustomerAggregate;
-using CustomerApi.Infrastructure.Data.Extensions;
+using CustomerApi.Domain.Entities.CustomerAggregate;
+using CustomerApi.Infrastructure.Extensions.EntityTypeBuilderExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -7,14 +7,11 @@ namespace CustomerApi.Infrastructure.Data.Mappings;
 
 internal class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 {
-    
     public void Configure(EntityTypeBuilder<Customer> builder)
     {
-       
         builder
             .ConfigureBaseEntity();
 
-       
         builder
             .Property(customer => customer.FirstName)
             .IsRequired()
@@ -22,12 +19,12 @@ internal class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder
             .Property(customer => customer.LastName)
-            .IsRequired() 
+            .IsRequired()
             .HasMaxLength(100);
 
         builder
             .Property(customer => customer.Gender)
-            .IsRequired() 
+            .IsRequired()
             .HasMaxLength(6)
             .HasConversion<string>();
 
@@ -35,7 +32,7 @@ internal class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         {
             ownedNav
                 .Property(email => email.Address)
-                .IsRequired() 
+                .IsRequired()
                 .HasMaxLength(254)
                 .HasColumnName(nameof(Customer.Email));
 
@@ -46,7 +43,7 @@ internal class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder
             .Property(customer => customer.DateOfBirth)
-            .IsRequired() 
+            .IsRequired()
             .HasColumnType("DATE");
     }
 }

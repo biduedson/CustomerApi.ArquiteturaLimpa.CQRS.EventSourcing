@@ -1,6 +1,6 @@
 using CustomerApi.Domain.Entities.UserAggregate;
 using CustomerApi.Domain.ValueObjects;
-using CustomerApi.Infrastructure.Data.Extensions;
+using CustomerApi.Infrastructure.Extensions.EntityTypeBuilderExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -67,9 +67,9 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired();
 
         builder
-             .Property(user => user.CreatedAt)
-             .IsRequired()
-             .HasColumnType("DATETIME2");
+            .Property(user => user.CreatedAt)
+            .IsRequired()
+            .HasColumnType("DATETIME2");
 
         builder
             .Property(user => user.UpdatedAt)

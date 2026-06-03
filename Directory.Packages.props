@@ -13,6 +13,7 @@
     <PackageVersion Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
     <PackageVersion Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
     <PackageVersion Include="AutoMapper" Version="16.1.1" />
+    <PackageVersion Include="BCrypt.Net-Next" Version="4.2.0" />
     <PackageVersion Include="Bogus" Version="35.6.5" />
     <PackageVersion Include="CorrelationId" Version="3.0.1" />
     <PackageVersion Include="coverlet.collector" Version="10.0.0" />

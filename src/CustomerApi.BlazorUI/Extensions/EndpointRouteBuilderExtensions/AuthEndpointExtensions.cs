@@ -2,12 +2,11 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
-namespace CustomerApi.BlazorUI.Extensions;
+namespace CustomerApi.BlazorUI.Extensions.EndpointRouteBuilderExtensions;
 
 public static class AuthEndpointExtensions
 {
-    public static IEndpointRouteBuilder MapAuthEndpoints(
-         this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost("/auth/login", async (
             HttpContext httpContext,
@@ -62,7 +61,6 @@ public static class AuthEndpointExtensions
             }
             catch
             {
-
             }
 
             httpContext.Response.Cookies.Delete("access_token");

@@ -1,7 +1,8 @@
+using CustomerApi.BlazorUI.Extensions.ConfigurationExtensions;
 using CustomerApi.BlazorUI.Services;
 using CustomerApi.BlazorUI.Settings;
 
-namespace CustomerApi.BlazorUI.Extensions;
+namespace CustomerApi.BlazorUI.Extensions.ServiceCollectionsExtensions;
 
 public static class HttpClientExtensions
 {
@@ -21,14 +22,14 @@ public static class HttpClientExtensions
         });
 
         services.AddHttpClient<ICustomerApiClient, CustomerApiClient>(client =>
-       {
-           client.BaseAddress = new Uri(options!.BaseUrl!);
-       })
-       .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-       {
-           UseCookies = false
-       })
-       .AddHttpMessageHandler<CookieForwardingHandler>();
+        {
+            client.BaseAddress = new Uri(options!.BaseUrl!);
+        })
+        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        {
+            UseCookies = false
+        })
+        .AddHttpMessageHandler<CookieForwardingHandler>();
 
         return services;
     }

@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 
-namespace CustomerApi.BlazorUI.Extensions;
+namespace CustomerApi.BlazorUI.Extensions.ServiceCollectionsExtensions;
 
 public static class AuthenticationExtensions
 {
     public static IServiceCollection AddCustomerApiAuthentication(
-      this IServiceCollection services,
-      IConfiguration configuration)
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -24,8 +24,7 @@ public static class AuthenticationExtensions
 
         services.AddAuthorization();
         services.AddCascadingAuthenticationState();
-        services.AddScoped<AuthenticationStateProvider,
-                           ServerAuthenticationStateProvider>();
+        services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
 
         return services;
     }

@@ -79,6 +79,12 @@ internal static class ServicesCollectionExtensions
         }
         return services;
     }
+    public static IServiceCollection AddSecurityServices(
+        this IServiceCollection services,
+        IConfiguration configuration) =>
+        services.AddJwtAuthentication(configuration)
+                .AddAuthorizationPolicies();
+
     private static void ConfigureDbContext<TDbcontext>(
         IServiceProvider serviceProvider,
         DbContextOptionsBuilder optionsBuilder,

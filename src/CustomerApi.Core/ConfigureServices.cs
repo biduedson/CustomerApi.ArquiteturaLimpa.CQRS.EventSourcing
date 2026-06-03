@@ -1,4 +1,4 @@
-﻿using CustomerApi.Core.AppSettings;
+using CustomerApi.Core.AppSettings;
 using CustomerApi.Core.SharedKernel;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,7 +9,8 @@ public static class ConfigureServices
     public static IServiceCollection ConfigureAppSettings(this IServiceCollection services) =>
         services
         .AddOptionsWithValidation<ConnectionOptions>()
-        .AddOptionsWithValidation<CacheOptions>();
+        .AddOptionsWithValidation<CacheOptions>()
+        .AddOptionsWithValidation<JwtOptions>();
 
 
     private static IServiceCollection AddOptionsWithValidation<TOptions>(this IServiceCollection services)

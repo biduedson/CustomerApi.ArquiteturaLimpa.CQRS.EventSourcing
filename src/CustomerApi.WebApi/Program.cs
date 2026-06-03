@@ -75,7 +75,8 @@ builder.Services
        .AddReadOnlyRepositories()
        .AddCAcheService(builder.Configuration)
        .AddHealthChecks(builder.Configuration)
-       .AddDefaultCorrelationId();
+       .AddDefaultCorrelationId()
+       .AddSecurityServices(builder.Configuration);
 
 // Configura profiler da aplicação.
 builder.Services.AddMiniProfiler(options =>

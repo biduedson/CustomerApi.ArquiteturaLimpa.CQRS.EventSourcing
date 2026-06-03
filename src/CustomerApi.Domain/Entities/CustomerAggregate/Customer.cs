@@ -7,9 +7,9 @@ namespace CustomerApi.Domain.Entities.CustomerAggregate;
 
 public class Customer : BaseEntity, IAggregateRoot
 {
-    public bool _isDeleted;
+    private bool _isDeleted;
 
-    private Customer(string firstName, string lastName, EGender gender, Email email, DateTime dateOfBirth) 
+    private Customer(string firstName, string lastName, EGender gender, Email email, DateTime dateOfBirth)
     {
         FirstName = firstName;
         LastName = lastName;
@@ -17,16 +17,16 @@ public class Customer : BaseEntity, IAggregateRoot
         Email = email;
         DateOfBirth = dateOfBirth;
         AddDomainEvent(new CustomerCreatedEvent(Id, firstName, lastName, gender, email.Address!, dateOfBirth));
-        
+
     }
 
     public Customer() { }
 
-    public string  FirstName { get;} = string.Empty;
+    public string FirstName { get; } = string.Empty;
     public string LastName { get; } = string.Empty;
     public EGender Gender { get; }
-    public Email? Email { get; private set; } 
-    public DateTime DateOfBirth { get;}
+    public Email? Email { get; private set; }
+    public DateTime DateOfBirth { get; }
 
     public static Customer Create(string firstName, string lastName, EGender gender, string email, DateTime dateOfBirth)
     {

@@ -1,6 +1,7 @@
 using CustomerApi.Application.Abstractions.Auth;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Infrastructure.Auth;
+using CustomerApi.Infrastructure.Auth.Password;
 using CustomerApi.Infrastructure.Data;
 using CustomerApi.Infrastructure.Data.Context;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,5 +15,6 @@ public static class InfrastructureExtensions
             .AddScoped<WriteDbContext>()
             .AddScoped<EventStoreDbContext>()
             .AddScoped<IUnitOfWork, UnitOfWork>()
-            .AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+            .AddScoped<IJwtTokenGenerator, JwtTokenGenerator>()
+            .AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 }

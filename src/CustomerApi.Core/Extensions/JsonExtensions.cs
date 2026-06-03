@@ -38,7 +38,7 @@ public static class JsonExtensions
                 && jsonTypeInfo.CreateObject is null
                 && jsonTypeInfo.Type.GetConstructors(BindingFlags.Public | BindingFlags.Instance).Length == 0)
             {
-                
+
                 jsonTypeInfo.CreateObject = () => Activator.CreateInstance(jsonTypeInfo.Type, true)!;
             }
 

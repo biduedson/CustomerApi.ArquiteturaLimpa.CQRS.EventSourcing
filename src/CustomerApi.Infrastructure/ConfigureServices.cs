@@ -1,5 +1,8 @@
+using CustomerApi.Application.Abstractions.Auth;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.CustomerAggregate;
+using CustomerApi.Domain.Entities.UserAggregate;
+using CustomerApi.Infrastructure.Auth;
 using CustomerApi.Infrastructure.Data;
 using CustomerApi.Infrastructure.Data.Context;
 using CustomerApi.Infrastructure.Data.Repositories;
@@ -20,11 +23,13 @@ public static class ConfigureServices
       services
           .AddScoped<WriteDbContext>()
           .AddScoped<EventStoreDbContext>()
-          .AddScoped<IUnitOfWork, UnitOfWork>();
+          .AddScoped<IUnitOfWork, UnitOfWork>()
+          .AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
     public static IServiceCollection AddWriteOnlyRepositories(this IServiceCollection services) =>
      services
         .AddScoped<IEventStoreRepository, EventStoreRepository>()
-        .AddScoped<ICustomerWriteOnlyRepository, CustomerWriteOnlyRepository>();
+        .AddScoped<ICustomerWriteOnlyRepository, CustomerWriteOnlyRepository>()
+        .AddScoped<IUserWriteOnlyRepository, UserWriteOnlyRepository>();
 }
 

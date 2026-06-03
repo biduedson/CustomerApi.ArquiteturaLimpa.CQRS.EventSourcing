@@ -50,8 +50,9 @@ services:
     environment:                                   # Variáveis de ambiente vindas do .env local
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}     # 👉 senha real vem do .env e não fica hardcoded no compose
-      - MSSQL_PID=Developer
-      - MSSQL_COLLATION=Latin1_General_CI_AI
+      - JWTOPTIONS_SECRET=${JwtOptions__Secret}    # 👉 segredo do JWT também vem do .env para manter segurança e flexibilidade
+      - MSSQL_PID=Developer                        # 👉 edição Developer gratuita para desenvolvimento local 
+      - MSSQL_COLLATION=Latin1_General_CI_AI       # 👉 collation recomendado para evitar problemas de comparação de strings
     networks:
       - app-network
     volumes:

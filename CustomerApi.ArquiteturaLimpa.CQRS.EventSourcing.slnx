@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Itens de Solução/">
+    <File Path="AGENTS.md" />
+  </Folder>
   <Project Path="src/CustomerApi.Application/CustomerApi.Application.csproj" />
   <Project Path="src/CustomerApi.BlazorUI/CustomerApi.BlazorUI.csproj" />
   <Project Path="src/CustomerApi.Core/CustomerApi.Core.csproj" />

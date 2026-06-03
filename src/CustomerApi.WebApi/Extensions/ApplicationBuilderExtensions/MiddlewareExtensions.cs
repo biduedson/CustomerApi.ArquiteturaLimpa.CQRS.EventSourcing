@@ -1,7 +1,7 @@
 using CustomerApi.WebApi.Middlewares;
 using Microsoft.AspNetCore.Builder;
 
-namespace CustomerApi.WebApi.Extensions;
+namespace CustomerApi.WebApi.Extensions.ApplicationBuilderExtensions;
 
 public static class MiddlewareExtensions
 {

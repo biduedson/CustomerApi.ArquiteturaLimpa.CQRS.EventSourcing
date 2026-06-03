@@ -8,7 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-internal static class WebApplicationExtensions
+namespace CustomerApi.WebApi.Extensions.WebApplicationExtensions;
+
+public static class ApplicationStartupExtensions
 {
     public static async Task RunAppAsync(this WebApplication app)
     {

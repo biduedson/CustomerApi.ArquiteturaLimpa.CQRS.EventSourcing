@@ -3,7 +3,7 @@ using Ardalis.Result;
 using CustomerApi.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CustomerApi.WebApi.Extensions;
+namespace CustomerApi.WebApi.Extensions.ServiceCollectionsExtensions;
 
 public static class ResultExtensions
 {

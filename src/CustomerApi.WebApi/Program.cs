@@ -1,67 +1,30 @@
 
 
 using System.Globalization;
-using System.IO.Compression;
-using Asp.Versioning;
 using CorrelationId;
 using CorrelationId.DependencyInjection;
 using CustomerApi.Application;
 using CustomerApi.Core;
-using CustomerApi.Core.Extensions;
 using CustomerApi.Infrastructure;
 using CustomerApi.Query;
-using CustomerApi.WebApi.Extensions;
+using CustomerApi.WebApi.Extensions.ApplicationBuilderExtensions;
+using CustomerApi.WebApi.Extensions.ServiceCollectionsExtensions;
+using CustomerApi.WebApi.Extensions.WebApplicationExtensions;
 using FluentValidation;
 using FluentValidation.Resources;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Scalar.AspNetCore;
-using StackExchange.Profiling;
 
 // Cria o builder da aplicação.
 var builder = WebApplication.CreateBuilder(args);
 
 // Configura serviços base da API.
 builder.Services
-   .Configure<GzipCompressionProviderOptions>(compressionOptions => compressionOptions.Level = CompressionLevel.Fastest)
-   .Configure<JsonOptions>(jsonOptions => jsonOptions.JsonSerializerOptions.Configure())
-   .Configure<RouteOptions>(routeOptions => routeOptions.LowercaseUrls = true)
-   .AddHttpClient()
-   .AddHttpContextAccessor()
-   .AddResponseCompression(compressionOptions =>
-   {
-       compressionOptions.EnableForHttps = true;
-       compressionOptions.Providers.Add<GzipCompressionProvider>();
-   })
-   .AddEndpointsApiExplorer()
-   .AddApiVersioning(versioningOptions =>
-   {
-       versioningOptions.DefaultApiVersion = ApiVersion.Default;
-       versioningOptions.ReportApiVersions = true;
-       versioningOptions.AssumeDefaultVersionWhenUnspecified = true;
-   })
-   .AddApiExplorer(explorerOptions =>
-   {
-       explorerOptions.GroupNameFormat = "'v'VVV";
-       explorerOptions.SubstituteApiVersionInUrl = true;
-   });
-
-// Configura documentação e controllers.
-builder.Services.AddOpenApi();
-builder.Services.AddDataProtection();
-builder.Services.AddControllers()
-      .ConfigureApiBehaviorOptions(behaviorOptions =>
-      {
-          behaviorOptions.SuppressMapClientErrors = true;
-          behaviorOptions.SuppressModelStateInvalidFilter = true;
-      })
-      .AddJsonOptions(_ => { });
+       .AddApiConfiguration();
 
 // Registra módulos da aplicação.
 builder.Services
@@ -73,20 +36,11 @@ builder.Services
        .AddWriteOnlyRepositories()
        .AddReadDbContext()
        .AddReadOnlyRepositories()
-       .AddCAcheService(builder.Configuration)
+       .AddCacheService(builder.Configuration)
        .AddHealthChecks(builder.Configuration)
        .AddDefaultCorrelationId()
-       .AddSecurityServices(builder.Configuration);
-
-// Configura profiler da aplicação.
-builder.Services.AddMiniProfiler(options =>
-{
-    options.RouteBasePath = "/profiler";
-    options.ColorScheme = ColorScheme.Dark;
-    options.EnableServerTimingHeader = true;
-    options.TrackConnectionOpenClose = true;
-    options.EnableDebugMode = builder.Environment.IsDevelopment();
-}).AddEntityFramework();
+       .AddSecurityServices(builder.Configuration)
+       .AddObservability(builder.Environment);
 
 // Valida dependências no startup.
 builder.Host.UseDefaultServiceProvider((context, serviceProviderOptions) =>

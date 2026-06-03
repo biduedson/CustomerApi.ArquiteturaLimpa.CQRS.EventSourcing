@@ -1,50 +1,25 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using CustomerApi.Core.AppSettings;
 using CustomerApi.Core.Extensions;
-using CustomerApi.Infrastructure;
 using CustomerApi.Infrastructure.Data.Context;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver;
 
-namespace CustomerApi.WebApi.Extensions;
+namespace CustomerApi.WebApi.Extensions.ServiceCollectionsExtensions;
 
-[ExcludeFromCodeCoverage]
-internal static class ServicesCollectionExtensions
+public static class DatabaseExtensions
 {
     private const int DbMaxRetryCount = 3;
     private const int DBCommandTimeout = 30;
     private const string DbMigrationAssemblyName = "CustomerApi.WebApi";
-    private const string RedisInstanceName = "master";
     private const string TestingEnvironmentName = "Testing";
 
-    private static readonly string[] DbRelationalTags = ["database", "ef-core", "sqlserver", "realtional"];
-    private static readonly string[] DbNoSqlTags = ["database", "mongodb", "no-sql"];
 
 
-    public static IServiceCollection AddHealthChecks(this IServiceCollection services, IConfiguration configuration)
-    {
-        var options = configuration.GetOptions<ConnectionOptions>();
-
-        var hralthCheckBuilder = services
-            .AddHealthChecks()
-            .AddDbContextCheck<WriteDbContext>(tags: DbRelationalTags)
-            .AddDbContextCheck<EventStoreDbContext>(tags: DbRelationalTags)
-            .AddMongoDb(clientFactory: _ => new MongoClient(options!.NoSqlConnection), tags: DbNoSqlTags);
-
-        if (!options!.CacheConnectionInMemory())
-        {
-            hralthCheckBuilder.AddRedis(options.CacheConnection!);
-        }
-
-        return services;
-    }
     public static IServiceCollection AddWriteDbContext(this IServiceCollection services, IWebHostEnvironment environment)
     {
         if (!environment.IsEnvironment(TestingEnvironmentName))
@@ -60,30 +35,6 @@ internal static class ServicesCollectionExtensions
 
         return services;
     }
-    public static IServiceCollection AddCAcheService(this IServiceCollection services, IConfiguration configuration)
-    {
-        var options = configuration.GetOptions<ConnectionOptions>();
-        if (options!.CacheConnectionInMemory())
-        {
-            services.AddMemoryCacheService();
-            services.AddMemoryCache(memoryOptions => memoryOptions.TrackStatistics = true);
-        }
-        else
-        {
-            services.AddDistributedCacheService();
-            services.AddStackExchangeRedisCache(redisOptions =>
-            {
-                redisOptions.InstanceName = RedisInstanceName;
-                redisOptions.Configuration = options.CacheConnection;
-            });
-        }
-        return services;
-    }
-    public static IServiceCollection AddSecurityServices(
-        this IServiceCollection services,
-        IConfiguration configuration) =>
-        services.AddJwtAuthentication(configuration)
-                .AddAuthorizationPolicies();
 
     private static void ConfigureDbContext<TDbcontext>(
         IServiceProvider serviceProvider,
@@ -124,6 +75,4 @@ internal static class ServicesCollectionExtensions
             optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
         }
     }
-
-
 }

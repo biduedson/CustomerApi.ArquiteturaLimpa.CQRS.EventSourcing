@@ -1,4 +1,4 @@
-﻿using CustomerApi.Core.SharedKernel;
+using CustomerApi.Core.SharedKernel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 

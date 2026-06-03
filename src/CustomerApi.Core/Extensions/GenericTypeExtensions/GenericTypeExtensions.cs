@@ -1,4 +1,4 @@
-﻿namespace CustomerApi.Core.Extensions;
+namespace CustomerApi.Core.Extensions;
 
 public static class GenericTypeExtensions
 {

@@ -1,4 +1,3 @@
-﻿
 using CustomerApi.Core.SharedKernel;
 using Microsoft.Extensions.Configuration;
 

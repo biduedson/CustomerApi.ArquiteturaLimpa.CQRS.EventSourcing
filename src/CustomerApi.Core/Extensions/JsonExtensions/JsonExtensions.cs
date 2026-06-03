@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -15,6 +15,7 @@ public static class JsonExtensions
 
     public static string? ToJson<T>(this T value) =>
        !value.IsDefault() ? JsonSerializer.Serialize(value, LazyOptions.Value) : default;
+
     public static JsonSerializerOptions Configure(this JsonSerializerOptions jsonSettings)
     {
         jsonSettings.WriteIndented = false;
@@ -28,17 +29,14 @@ public static class JsonExtensions
 
     internal sealed class PrivateConstructorContractResolver : DefaultJsonTypeInfoResolver
     {
-
         public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
         {
             var jsonTypeInfo = base.GetTypeInfo(type, options);
-
 
             if (jsonTypeInfo.Kind == JsonTypeInfoKind.Object
                 && jsonTypeInfo.CreateObject is null
                 && jsonTypeInfo.Type.GetConstructors(BindingFlags.Public | BindingFlags.Instance).Length == 0)
             {
-
                 jsonTypeInfo.CreateObject = () => Activator.CreateInstance(jsonTypeInfo.Type, true)!;
             }
 

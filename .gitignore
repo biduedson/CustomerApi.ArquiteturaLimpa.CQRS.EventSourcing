@@ -374,3 +374,5 @@ appsettings.Development.json
 .env
 
 AGENTS.md
+
+docs/

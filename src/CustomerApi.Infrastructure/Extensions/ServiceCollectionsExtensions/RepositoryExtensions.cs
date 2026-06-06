@@ -1,6 +1,7 @@
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.CustomerAggregate;
 using CustomerApi.Domain.Entities.UserAggregate;
+using CustomerApi.Domain.Entities.UserSessionAggregate;
 using CustomerApi.Infrastructure.Data.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,5 +13,6 @@ public static class RepositoryExtensions
         services
             .AddScoped<IEventStoreRepository, EventStoreRepository>()
             .AddScoped<ICustomerWriteOnlyRepository, CustomerWriteOnlyRepository>()
-            .AddScoped<IUserWriteOnlyRepository, UserWriteOnlyRepository>();
+            .AddScoped<IUserWriteOnlyRepository, UserWriteOnlyRepository>()
+            .AddScoped<IUserSessionWriteOnlyRepository, UserSessionWriteOnlyRepository>();
 }

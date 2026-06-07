@@ -8,7 +8,7 @@ public class UserSession : BaseEntity, IAggregateRoot
     public Guid UserId { get; private set; }
     public string RefreshTokenHash { get; private set; } = string.Empty;
     public string UserAgent { get; private set; } = string.Empty;
-    public string? IpAddress { get; private set; }
+    public string? IpAddress { get; private set; } = string.Empty;
     public DateTime CreatedAt { get; private set; }
     public DateTime ExpiresAt { get; private set; }
     public DateTime? LastUsedAt { get; private set; }

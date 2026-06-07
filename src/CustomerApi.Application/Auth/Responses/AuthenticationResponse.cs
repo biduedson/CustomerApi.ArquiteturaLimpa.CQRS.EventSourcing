@@ -1,6 +1,6 @@
 using System;
 
-namespace CustomerApi.Application.Authentication.Responses;
+namespace CustomerApi.Application.Auth.Responses;
 
 public sealed record AuthenticationResponse(
     string AccessToken,

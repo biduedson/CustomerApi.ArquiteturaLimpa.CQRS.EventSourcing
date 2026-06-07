@@ -27,12 +27,20 @@ internal class UserWriteOnlyRepository(WriteDbContext dbContext)
               .AsNoTracking()
               .Any(user => user.Email!.Address == email && user.Id != currentId));
 
-
+    private static readonly Func<WriteDbContext, string, Task<User?>> GetByEmailCompiledAsync =
+       EF.CompileAsyncQuery((WriteDbContext dbContext, string email) =>
+           dbContext
+               .Users
+               .AsNoTracking()
+               .FirstOrDefault(user => user.Email!.Address == email));
     public Task<bool> ExistsByEmailAsync(Email email) =>
         ExistsByEmailCompiledAsync(DbContext, email.Address);
 
     public Task<bool> ExistsByEmailAndIdAsync(Email email, Guid currentId) =>
         ExistsByEmailAndIdCompiledAsync(DbContext, email.Address, currentId);
+
+    public Task<User?> GetByEmailAsync(Email email) =>
+        GetByEmailCompiledAsync(DbContext, email.Address);
 
     public Task<List<User>> GetAllActivedAsync() =>
         DbContext

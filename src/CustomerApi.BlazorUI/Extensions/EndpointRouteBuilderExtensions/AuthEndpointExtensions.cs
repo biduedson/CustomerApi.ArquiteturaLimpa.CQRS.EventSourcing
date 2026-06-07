@@ -19,7 +19,13 @@ public static class AuthEndpointExtensions
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
                 return Results.Redirect("/login?error=required");
 
+
             var client = httpClientFactory.CreateClient("CustomerApi");
+
+            var userAgent = httpContext.Request.Headers.UserAgent.ToString();
+            if (!string.IsNullOrWhiteSpace(userAgent))
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
+
             using var apiResponse = await client.PostAsJsonAsync("api/auth/login", new
             {
                 Email = email,

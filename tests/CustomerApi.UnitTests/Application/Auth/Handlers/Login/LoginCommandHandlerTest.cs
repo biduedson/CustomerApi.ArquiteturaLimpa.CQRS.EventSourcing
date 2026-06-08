@@ -6,17 +6,12 @@ using CustomerApi.Application.Abstractions.Auth;
 using CustomerApi.Application.Auth.Commands.Login;
 using CustomerApi.Application.Auth.Handlers.Login;
 using CustomerApi.Application.Auth.Responses;
-using CustomerApi.Core.AppSettings;
-using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.UserAggregate;
 using CustomerApi.Infrastructure.Auth.Password;
-using CustomerApi.Infrastructure.Data;
 using CustomerApi.Infrastructure.Data.Repositories;
 using CustomerApi.UnitTests.Fixtures;
+using CustomerApi.UnitTests.Helpers;
 using FluentAssertions;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
 using Xunit.Categories;
@@ -42,7 +37,7 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
     [Fact]
     public async Task Login_ValidCommand_ShouldReturnsSuccessResult()
     {
-        var user = await PersistUserAsync(CreateFakerUser(ValidPassword));
+        var user = await PersistUserAsync(UserTestBuilder.Create(ValidPassword));
 
         _jwtTokenGenerator.GenerateAccessToken(Arg.Any<User>()).Returns(AccessToken);
         _refreshTokenService.GenerateToken().Returns(RefreshToken);
@@ -81,7 +76,7 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
     [Fact]
     public async Task Login_UserInactive_ShouldReturnsUnauthorizedResult()
     {
-        var user = await PersistUserAsync(CreateFakerUser(SavedPassword, inactive: true));
+        var user = await PersistUserAsync(UserTestBuilder.Create(SavedPassword, inactive: true));
 
         var act = await CreateHandler().Handle(
             CreateCommand(user.Email.Address, SavedPassword),
@@ -93,7 +88,7 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
     [Fact]
     public async Task Login_PasswordError_ShouldReturnsUnauthorizedResult()
     {
-        var user = await PersistUserAsync(CreateFakerUser(SavedPassword));
+        var user = await PersistUserAsync(UserTestBuilder.Create(SavedPassword));
 
         var act = await CreateHandler().Handle(
             CreateCommand(user.Email.Address, WrongPassword),
@@ -112,12 +107,6 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
         act.Errors.Should().Contain(InvalidCredentialsMessage);
     }
 
-    private UnitOfWork CreateUnitOfWork() => new(
-        fixture.Context,
-        Substitute.For<IEventStoreRepository>(),
-        Substitute.For<IMediator>(),
-        Substitute.For<ILogger<UnitOfWork>>());
-
     private LoginCommandHandler CreateHandler() => new(
         _validator,
         new UserWriteOnlyRepository(fixture.Context),
@@ -125,27 +114,8 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
         _passwordHasher,
         _jwtTokenGenerator,
         _refreshTokenService,
-        CreateJwtOptions(),
-        CreateUnitOfWork());
-
-    private User CreateFakerUser(string password, bool inactive = false)
-    {
-        var user = new Faker<User>()
-            .CustomInstantiator(faker => User.Create(
-                faker.Person.UserName,
-                faker.Person.Email,
-                faker.PickRandom<UserRole>(),
-                faker.Person.FullName,
-                faker.Person.DateOfBirth,
-                "Gerente",
-                _passwordHasher.Hash(password)))
-            .Generate();
-
-        if (inactive)
-            user.Deactivate();
-
-        return user;
-    }
+        TestJwtOptions.Create(),
+        TestUnitOfWorkFactory.Create(fixture.Context));
 
     private static LoginCommand CreateCommand(string email, string password) =>
         new Faker<LoginCommand>()
@@ -165,19 +135,6 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
         fixture.Context.ChangeTracker.Clear();
 
         return user;
-    }
-
-    private static IOptions<JwtOptions> CreateJwtOptions()
-    {
-        var jwtOptions = new JwtOptions();
-
-        typeof(JwtOptions).GetProperty(nameof(JwtOptions.Issuer))!.SetValue(jwtOptions, "CustomerApi");
-        typeof(JwtOptions).GetProperty(nameof(JwtOptions.Audience))!.SetValue(jwtOptions, "CustomerApi.Tests");
-        typeof(JwtOptions).GetProperty(nameof(JwtOptions.Secret))!.SetValue(jwtOptions, "CHANGE_THIS_SECRET_TO_A_LONG_SECURE_KEY");
-        typeof(JwtOptions).GetProperty(nameof(JwtOptions.AccessTokenExpirationInMinutes))!.SetValue(jwtOptions, 15);
-        typeof(JwtOptions).GetProperty(nameof(JwtOptions.RefreshTokenExpirationInDays))!.SetValue(jwtOptions, 7);
-
-        return Options.Create(jwtOptions);
     }
 
     #endregion

@@ -7,12 +7,10 @@ using CustomerApi.Application.Customer.Commands;
 using CustomerApi.Application.Customer.Handlers;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.CustomerAggregate;
-using CustomerApi.Infrastructure.Data;
 using CustomerApi.Infrastructure.Data.Repositories;
 using CustomerApi.UnitTests.Fixtures;
+using CustomerApi.UnitTests.Helpers;
 using FluentAssertions;
-using MediatR;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using Xunit.Categories;
@@ -32,7 +30,7 @@ public class DeleteCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
         var customer = await PersistCustomerAsync(CreateCustomer());
         var command = new DeleteCustomerCommand(customer.Id);
 
-        var act = await CreateHandler(CreateUnitOfWork()).Handle(command, CancellationToken.None);
+        var act = await CreateHandler(TestUnitOfWorkFactory.Create(fixture.Context)).Handle(command, CancellationToken.None);
 
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
@@ -72,12 +70,6 @@ public class DeleteCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
             .And.OnlyHaveUniqueItems()
             .And.Contain(message);
     }
-
-    private UnitOfWork CreateUnitOfWork() => new(
-        fixture.Context,
-        Substitute.For<IEventStoreRepository>(),
-        Substitute.For<IMediator>(),
-        Substitute.For<ILogger<UnitOfWork>>());
 
     private DeleteCustomerCommandHandler CreateHandler(IUnitOfWork unitOfWork) => new(
         _validator,

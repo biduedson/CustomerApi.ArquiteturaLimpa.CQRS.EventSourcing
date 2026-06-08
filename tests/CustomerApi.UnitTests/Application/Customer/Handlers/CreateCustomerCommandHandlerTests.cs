@@ -8,12 +8,10 @@ using CustomerApi.Application.Customer.Handlers;
 using CustomerApi.Application.Customer.Responses;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.CustomerAggregate;
-using CustomerApi.Infrastructure.Data;
 using CustomerApi.Infrastructure.Data.Repositories;
 using CustomerApi.UnitTests.Fixtures;
+using CustomerApi.UnitTests.Helpers;
 using FluentAssertions;
-using MediatR;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using Xunit.Categories;
@@ -32,7 +30,7 @@ public class CreateCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
     {
         var command = CreateCustomerCommand();
 
-        var act = await CreateHandler(CreateUnitOfWork()).Handle(command, CancellationToken.None);
+        var act = await CreateHandler(TestUnitOfWorkFactory.Create(fixture.Context)).Handle(command, CancellationToken.None);
 
         act.Should().NotBeNull();
         act.IsCreated().Should().BeTrue();
@@ -85,12 +83,6 @@ public class CreateCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
             .And.OnlyHaveUniqueItems()
             .And.Contain(message);
     }
-
-    private UnitOfWork CreateUnitOfWork() => new(
-        fixture.Context,
-        Substitute.For<IEventStoreRepository>(),
-        Substitute.For<IMediator>(),
-        Substitute.For<ILogger<UnitOfWork>>());
 
     private CreateCustomerCommandHandler CreateHandler(IUnitOfWork unitOfWork) => new(
         _validator,

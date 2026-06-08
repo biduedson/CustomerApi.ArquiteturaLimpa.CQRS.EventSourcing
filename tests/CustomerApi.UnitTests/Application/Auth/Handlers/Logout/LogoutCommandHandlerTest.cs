@@ -4,14 +4,11 @@ using System.Threading.Tasks;
 using CustomerApi.Application.Abstractions.Auth;
 using CustomerApi.Application.Auth.Commands.Logout;
 using CustomerApi.Application.Auth.Handlers.Logout;
-using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.UserSessionAggregate;
-using CustomerApi.Infrastructure.Data;
 using CustomerApi.Infrastructure.Data.Repositories;
 using CustomerApi.UnitTests.Fixtures;
+using CustomerApi.UnitTests.Helpers;
 using FluentAssertions;
-using MediatR;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using Xunit.Categories;
@@ -71,16 +68,10 @@ public class LogoutCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<E
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();
     }
 
-    private UnitOfWork CreateUnitOfWork() => new(
-        fixture.Context,
-        Substitute.For<IEventStoreRepository>(),
-        Substitute.For<IMediator>(),
-        Substitute.For<ILogger<UnitOfWork>>());
-
     private LogoutCommandHandler CreateLogoutHandler() =>
          new(
             _validator,
             new UserSessionWriteOnlyRepository(fixture.Context),
             _refreshTokenService,
-            CreateUnitOfWork());
+            TestUnitOfWorkFactory.Create(fixture.Context));
 }

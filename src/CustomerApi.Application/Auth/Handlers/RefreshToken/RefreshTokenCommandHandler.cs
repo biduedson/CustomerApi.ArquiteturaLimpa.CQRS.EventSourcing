@@ -27,7 +27,6 @@ public class RefreshTokenCommandHandler(
 ) : IRequestHandler<RefreshTokenCommand, Result<AuthenticationResponse>>
 {
     private readonly JwtOptions _jwtOptions = jwtOptions.Value;
-
     public async Task<Result<AuthenticationResponse>> Handle(
         RefreshTokenCommand request,
         CancellationToken cancellationToken

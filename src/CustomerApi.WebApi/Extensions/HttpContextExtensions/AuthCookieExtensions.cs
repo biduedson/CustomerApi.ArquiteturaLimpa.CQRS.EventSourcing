@@ -28,6 +28,11 @@ public static class AuthCookieExtensions
         response.Cookies.Delete(RefreshTokenCookie, new CookieOptions { Path = "/api/auth" });
     }
 
+    public static string GetRefreshTokenCookies(this HttpRequest request)
+    {
+        return request.Cookies[RefreshTokenCookie] ?? string.Empty;
+    }
+
     private static CookieOptions CreateCookieOptions(DateTime expiresAt) =>
         new()
         {

@@ -2,6 +2,8 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using Asp.Versioning;
 using CustomerApi.Application.Auth.Commands.Login;
+using CustomerApi.Application.Auth.Commands.Logout;
+using CustomerApi.Application.Auth.Commands.RefreshToken;
 using CustomerApi.WebApi.Extensions;
 using CustomerApi.WebApi.Extensions.HttpContextExtensions;
 using CustomerApi.WebApi.Extensions.ResultExtensions;
@@ -43,5 +45,57 @@ public class AuthController(IMediator mediator) : ControllerBase
         return result.ToActionResult();
     }
 
+    ////////////////////////
+    // POST: /api/auth/refreshtoken
+    ////////////////////////
+    [HttpPost("refreshtoken")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var command = new RefreshTokenCommand
+        {
+            RefreshToken = Request.GetRefreshTokenCookies(),
+            UserAgent = Request.GetUserAgent(),
+            IpAddress = Request.GetIpAddress()
+        };
 
+        var result = await mediator.Send(command);
+
+        if (result.IsSuccess)
+        {
+            Response.AppendAuthCookies(result.Value);
+            return Ok();
+        }
+
+        return result.ToActionResult();
+    }
+
+    ////////////////////////
+    // POST: /api/auth/logout
+    ////////////////////////
+    [HttpPost("logout")]
+    [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Logout()
+    {
+        var command = new LogoutCommand
+        {
+            RefreshToken = Request.GetRefreshTokenCookies(),
+        };
+
+        var result = await mediator.Send(command);
+
+        if (result.IsSuccess)
+        {
+            Response.DeleteAuthCookies();
+            return Ok();
+        }
+
+        return result.ToActionResult();
+    }
 }

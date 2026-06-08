@@ -4,7 +4,7 @@ using Asp.Versioning;
 using CustomerApi.Application.Auth.Commands.Login;
 using CustomerApi.WebApi.Extensions;
 using CustomerApi.WebApi.Extensions.HttpContextExtensions;
-using CustomerApi.WebApi.Extensions.ServiceCollectionsExtensions;
+using CustomerApi.WebApi.Extensions.ResultExtensions;
 using CustomerApi.WebApi.Models;
 using MediatR;
 using Microsoft.AspNetCore.Http;

@@ -15,7 +15,7 @@ public class User : BaseEntity, IAggregateRoot
     public UserProfile Profile { get; private set; } = default!;
     public string PasswordHash { get; private set; } = string.Empty;
     public bool IsActive { get; private set; }
-    public DateTime CreatedAt { get; }
+    public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
     private User() { }

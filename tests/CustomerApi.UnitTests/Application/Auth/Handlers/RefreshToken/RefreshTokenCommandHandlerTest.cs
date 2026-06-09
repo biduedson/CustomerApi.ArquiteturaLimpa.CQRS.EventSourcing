@@ -6,12 +6,17 @@ using Bogus;
 using CustomerApi.Application.Abstractions.Auth;
 using CustomerApi.Application.Auth.Commands.RefreshToken;
 using CustomerApi.Application.Auth.Handlers.RefreshToken;
+using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.UserAggregate;
 using CustomerApi.Domain.Entities.UserSessionAggregate;
+using CustomerApi.Infrastructure.Auth.Password;
+using CustomerApi.Infrastructure.Data;
 using CustomerApi.Infrastructure.Data.Repositories;
 using CustomerApi.UnitTests.Fixtures;
 using CustomerApi.UnitTests.Helpers;
 using FluentAssertions;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using Xunit.Categories;
@@ -29,14 +34,22 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     private const string IpAddress = "192.168.1.100";
     private const string UserAgentDesktop = "Edge 126 / Windows 10 / Desktop";
     private const string UserAgentMobile = "Opera 126 / Windows 10 / Iphone14";
+    private const string ValidPassword = "Bidu1981@";
     private readonly RefreshTokenCommandValidator _validator = new();
     private readonly IJwtTokenGenerator _jwtTokenGenerator = Substitute.For<IJwtTokenGenerator>();
     private readonly IRefreshTokenService _refreshTokenService = Substitute.For<IRefreshTokenService>();
+    private readonly UserWriteOnlyRepository _userRepository = new(fixture.Context);
+    private readonly UserSessionWriteOnlyRepository _userSessionRepository = new(fixture.Context);
+    private readonly UnitOfWork _unitOfWork = new(
+        fixture.Context,
+        Substitute.For<IEventStoreRepository>(),
+        Substitute.For<IMediator>(),
+        Substitute.For<ILogger<UnitOfWork>>());
 
     [Fact]
-    public async Task RefreshToken_ValidCommand_ShouldReturnsSuccessResult()
+    public async Task RefreshToken_ValidCommand_ShouldReturnSuccessResult()
     {
-        var user = UserTestBuilder.Create("testPassword");
+        var user = CreateDefaultUser();
 
         var userSession = UserSession.Create(
             user.Id,
@@ -45,15 +58,28 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
             IpAddress,
             DateTime.UtcNow.AddDays(7));
 
-        await PersistUserAndUserSessionAsync(user, userSession);
+        _userRepository.Add(user);
+        _userSessionRepository.Add(userSession);
+
+        await fixture.Context.SaveChangesAsync();
+        fixture.Context.ChangeTracker.Clear();
 
         _refreshTokenService.HashToken(RefreshToken).Returns(RefreshTokenHash);
         _refreshTokenService.GenerateToken().Returns(NewRefreshToken);
         _refreshTokenService.HashToken(NewRefreshToken).Returns(NewRefreshTokenHash);
         _jwtTokenGenerator.GenerateAccessToken(Arg.Any<User>()).Returns(AccessToken);
 
-        var act = await CreateRefreshTokenHandler().Handle(
-            CreateRefreshTokenCommand(),
+        var validRefreshTokenCommand = new RefreshTokenCommand
+        {
+            RefreshToken = RefreshToken,
+            UserAgent = UserAgentDesktop,
+            IpAddress = IpAddress
+        };
+
+        var handler = CreateRefreshTokenCommandHandler();
+
+        var act = await handler.Handle(
+            validRefreshTokenCommand,
             CancellationToken.None);
 
         act.Should().NotBeNull();
@@ -63,11 +89,15 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     }
 
     [Fact]
-    public async Task RefreshToken_InValidCommand_ShouldReturnsFailResult()
+    public async Task RefreshToken_InvalidCommand_ShouldReturnFailResult()
     {
-        var act = await CreateRefreshTokenHandler().Handle(
-             new RefreshTokenCommand(),
-             CancellationToken.None);
+        var invalidRefreshTokenCommand = new RefreshTokenCommand();
+
+        var handler = CreateRefreshTokenCommandHandler();
+
+        var act = await handler.Handle(
+            invalidRefreshTokenCommand,
+            CancellationToken.None);
 
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
@@ -87,12 +117,24 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
 
         userSession.Revoke("Revogado para o teste");
 
-        await PersistUserSessionAsync(userSession);
+        _userSessionRepository.Add(userSession);
+
+        await fixture.Context.SaveChangesAsync();
+        fixture.Context.ChangeTracker.Clear();
 
         _refreshTokenService.HashToken(RefreshToken).Returns(RefreshTokenHash);
 
-        var act = await CreateRefreshTokenHandler().Handle(
-            CreateRefreshTokenCommand(),
+        var refreshTokenWithRevokedSessionCommand = new RefreshTokenCommand
+        {
+            RefreshToken = RefreshToken,
+            UserAgent = UserAgentDesktop,
+            IpAddress = IpAddress
+        };
+
+        var handler = CreateRefreshTokenCommandHandler();
+
+        var act = await handler.Handle(
+            refreshTokenWithRevokedSessionCommand,
             CancellationToken.None);
 
         act.Should().NotBeNull();
@@ -101,12 +143,21 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     }
 
     [Fact]
-    public async Task RefreshToken_SessionNotFoud_ShouldReturnUnauthorized()
+    public async Task RefreshToken_SessionNotFound_ShouldReturnUnauthorized()
     {
         _refreshTokenService.HashToken(RefreshToken).Returns(RefreshTokenHash);
 
-        var act = await CreateRefreshTokenHandler().Handle(
-            CreateRefreshTokenCommand(),
+        var refreshTokenWithNotFoundSessionCommand = new RefreshTokenCommand
+        {
+            RefreshToken = RefreshToken,
+            UserAgent = UserAgentDesktop,
+            IpAddress = IpAddress
+        };
+
+        var handler = CreateRefreshTokenCommandHandler();
+
+        var act = await handler.Handle(
+            refreshTokenWithNotFoundSessionCommand,
             CancellationToken.None);
 
         act.Should().NotBeNull();
@@ -117,7 +168,7 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     [Fact]
     public async Task RefreshToken_DeviceChangeDetected_ShouldReturnUnauthorized()
     {
-        var user = UserTestBuilder.Create("testPassword");
+        var user = CreateDefaultUser();
 
         var userSession = UserSession.Create(
             user.Id,
@@ -126,16 +177,25 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
             IpAddress,
             DateTime.UtcNow.AddDays(7));
 
-        await PersistUserAndUserSessionAsync(user, userSession);
+        _userRepository.Add(user);
+        _userSessionRepository.Add(userSession);
+
+        await fixture.Context.SaveChangesAsync();
+        fixture.Context.ChangeTracker.Clear();
 
         _refreshTokenService.HashToken(RefreshToken).Returns(RefreshTokenHash);
 
-        var command = CreateRefreshTokenCommand();
+        var refreshTokenWithDifferentDeviceCommand = new RefreshTokenCommand
+        {
+            RefreshToken = RefreshToken,
+            UserAgent = UserAgentMobile,
+            IpAddress = IpAddress
+        };
 
-        command.UserAgent = UserAgentMobile;
+        var handler = CreateRefreshTokenCommandHandler();
 
-        var act = await CreateRefreshTokenHandler().Handle(
-            command,
+        var act = await handler.Handle(
+            refreshTokenWithDifferentDeviceCommand,
             CancellationToken.None);
 
         act.Should().NotBeNull();
@@ -144,7 +204,7 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     }
 
     [Fact]
-    public async Task RefreshToken_UserNotFoud_ShouldReturnUnauthorized()
+    public async Task RefreshToken_UserNotFound_ShouldReturnUnauthorized()
     {
         var userSession = UserSession.Create(
           Guid.NewGuid(),
@@ -153,12 +213,24 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
           IpAddress,
           DateTime.UtcNow.AddDays(7));
 
-        await PersistUserSessionAsync(userSession);
+        _userSessionRepository.Add(userSession);
+
+        await fixture.Context.SaveChangesAsync();
+        fixture.Context.ChangeTracker.Clear();
 
         _refreshTokenService.HashToken(RefreshToken).Returns(RefreshTokenHash);
 
-        var act = await CreateRefreshTokenHandler().Handle(
-            CreateRefreshTokenCommand(),
+        var refreshTokenWithNotFoundUserCommand = new RefreshTokenCommand
+        {
+            RefreshToken = RefreshToken,
+            UserAgent = UserAgentDesktop,
+            IpAddress = IpAddress
+        };
+
+        var handler = CreateRefreshTokenCommandHandler();
+
+        var act = await handler.Handle(
+            refreshTokenWithNotFoundUserCommand,
             CancellationToken.None);
 
         act.Should().NotBeNull();
@@ -170,7 +242,7 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     [Fact]
     public async Task RefreshToken_InactiveUser_ShouldReturnUnauthorized()
     {
-        var user = UserTestBuilder.Create("testPassword");
+        var user = CreateDefaultUser();
 
         var userSession = UserSession.Create(
             user.Id,
@@ -181,12 +253,25 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
 
         user.Deactivate();
 
-        await PersistUserAndUserSessionAsync(user, userSession);
+        _userRepository.Add(user);
+        _userSessionRepository.Add(userSession);
+
+        await fixture.Context.SaveChangesAsync();
+        fixture.Context.ChangeTracker.Clear();
 
         _refreshTokenService.HashToken(RefreshToken).Returns(RefreshTokenHash);
 
-        var act = await CreateRefreshTokenHandler().Handle(
-            CreateRefreshTokenCommand(),
+        var refreshTokenWithInactiveUserCommand = new RefreshTokenCommand
+        {
+            RefreshToken = RefreshToken,
+            UserAgent = UserAgentDesktop,
+            IpAddress = IpAddress
+        };
+
+        var handler = CreateRefreshTokenCommandHandler();
+
+        var act = await handler.Handle(
+            refreshTokenWithInactiveUserCommand,
             CancellationToken.None);
 
         act.Should().NotBeNull();
@@ -197,41 +282,25 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
 
     #region Helpers
 
-    private RefreshTokenCommandHandler CreateRefreshTokenHandler() => new(
+    private RefreshTokenCommandHandler CreateRefreshTokenCommandHandler() => new(
         _validator,
-        new UserWriteOnlyRepository(fixture.Context),
-        new UserSessionWriteOnlyRepository(fixture.Context),
+        _userRepository,
+        _userSessionRepository,
         _jwtTokenGenerator,
         _refreshTokenService,
         TestJwtOptions.Create(),
-        TestUnitOfWorkFactory.Create(fixture.Context));
+        _unitOfWork);
 
-    private async Task PersistUserAndUserSessionAsync(User user, UserSession userSession)
-    {
-        var userRepository = new UserWriteOnlyRepository(fixture.Context);
-        var userSessionRepository = new UserSessionWriteOnlyRepository(fixture.Context);
-
-        userRepository.Add(user);
-        userSessionRepository.Add(userSession);
-
-        await fixture.Context.SaveChangesAsync();
-        fixture.Context.ChangeTracker.Clear();
-    }
-
-    private async Task PersistUserSessionAsync(UserSession userSession)
-    {
-        var userSessionRepository = new UserSessionWriteOnlyRepository(fixture.Context);
-        userSessionRepository.Add(userSession);
-
-        await fixture.Context.SaveChangesAsync();
-        fixture.Context.ChangeTracker.Clear();
-    }
-
-    private static RefreshTokenCommand CreateRefreshTokenCommand() =>
-        new Faker<RefreshTokenCommand>()
-            .RuleFor(command => command.RefreshToken, RefreshToken)
-            .RuleFor(command => command.UserAgent, UserAgentDesktop)
-            .RuleFor(command => command.IpAddress, faker => faker.Internet.Ip())
+    private static User CreateDefaultUser() =>
+        new Faker<User>()
+            .CustomInstantiator(faker => User.Create(
+                faker.Person.UserName,
+                faker.Person.Email,
+                faker.PickRandom<UserRole>(),
+                faker.Person.FullName,
+                faker.Person.DateOfBirth,
+                "Gerente",
+                new BCryptPasswordHasher().Hash(ValidPassword)))
             .Generate();
     #endregion
 

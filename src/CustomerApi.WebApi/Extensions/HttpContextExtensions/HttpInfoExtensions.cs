@@ -24,4 +24,5 @@ public static class HttpInfoExtensions
         return request.Headers["X-Forwarded-For"].FirstOrDefault()
             ?? request.HttpContext.Connection.RemoteIpAddress?.ToString();
     }
+
 }

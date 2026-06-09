@@ -4,11 +4,14 @@ using System.Threading.Tasks;
 using CustomerApi.Application.Abstractions.Auth;
 using CustomerApi.Application.Auth.Commands.Logout;
 using CustomerApi.Application.Auth.Handlers.Logout;
+using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.UserSessionAggregate;
+using CustomerApi.Infrastructure.Data;
 using CustomerApi.Infrastructure.Data.Repositories;
 using CustomerApi.UnitTests.Fixtures;
-using CustomerApi.UnitTests.Helpers;
 using FluentAssertions;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using Xunit.Categories;
@@ -24,12 +27,16 @@ public class LogoutCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<E
     private const string UserAgent = "Edge 126 / Windows 10 / Desktop";
     private readonly LogoutCommandValidator _validator = new();
     private readonly IRefreshTokenService _refreshTokenService = Substitute.For<IRefreshTokenService>();
+    private readonly UserSessionWriteOnlyRepository _userSessionRepository = new(fixture.Context);
+    private readonly UnitOfWork _unitOfWork = new(
+        fixture.Context,
+        Substitute.For<IEventStoreRepository>(),
+        Substitute.For<IMediator>(),
+        Substitute.For<ILogger<UnitOfWork>>());
 
     [Fact]
-    public async Task Logout_ValidCommand_ShouldReturnsSuccessResult()
+    public async Task Logout_ValidCommand_ShouldReturnSuccessResult()
     {
-        var userSessionRepository = new UserSessionWriteOnlyRepository(fixture.Context);
-
         var userSession = UserSession.Create(
            Guid.NewGuid(),
            RefreshTokenHash,
@@ -37,41 +44,44 @@ public class LogoutCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<E
            IpAddress,
            DateTime.UtcNow.AddDays(7));
 
-        userSessionRepository.Add(userSession);
+        _userSessionRepository.Add(userSession);
 
         await fixture.Context.SaveChangesAsync();
         fixture.Context.ChangeTracker.Clear();
 
         _refreshTokenService.HashToken(RefreshToken).Returns(RefreshTokenHash);
 
-        var command = new LogoutCommand { RefreshToken = RefreshToken };
+        var validLogoutCommand = new LogoutCommand
+        {
+            RefreshToken = RefreshToken
+        };
 
-        var logoutHandler = CreateLogoutHandler();
+        var handler = CreateLogoutCommandHandler();
 
-        var act = await logoutHandler.Handle(command, CancellationToken.None);
+        var act = await handler.Handle(validLogoutCommand, CancellationToken.None);
 
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
-    public async Task Logout_InValidCommand_ShouldReturnsFailResult()
+    public async Task Logout_InvalidCommand_ShouldReturnFailResult()
     {
-        var invalidCommand = new LogoutCommand();
+        var invalidLogoutCommand = new LogoutCommand();
 
-        var logoutHandler = CreateLogoutHandler();
+        var handler = CreateLogoutCommandHandler();
 
-        var act = await logoutHandler.Handle(invalidCommand, CancellationToken.None);
+        var act = await handler.Handle(invalidLogoutCommand, CancellationToken.None);
 
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();
     }
 
-    private LogoutCommandHandler CreateLogoutHandler() =>
+    private LogoutCommandHandler CreateLogoutCommandHandler() =>
          new(
             _validator,
-            new UserSessionWriteOnlyRepository(fixture.Context),
+            _userSessionRepository,
             _refreshTokenService,
-            TestUnitOfWorkFactory.Create(fixture.Context));
+            _unitOfWork);
 }

@@ -39,4 +39,8 @@
     <ProjectReference Include="..\CustomerApi.Domain\CustomerApi.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Account\Responses\" />
+  </ItemGroup>
+
 </Project>

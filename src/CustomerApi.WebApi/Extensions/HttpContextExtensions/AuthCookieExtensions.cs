@@ -1,4 +1,6 @@
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using CustomerApi.Application.Auth.Responses;
 using Microsoft.AspNetCore.Http;
 
@@ -32,6 +34,24 @@ public static class AuthCookieExtensions
     {
         return request.Cookies[RefreshTokenCookie] ?? string.Empty;
     }
+
+    public static string GetAccessTokenCookies(this HttpRequest request)
+    {
+        return request.Cookies[AccessTokenCookie] ?? string.Empty;
+    }
+
+    public static Guid GetUserIdFromAccessTokenCookie(this HttpRequest request)
+    {
+        var token = request.Cookies[AccessTokenCookie];
+        if (string.IsNullOrEmpty(token)) return Guid.Empty;
+
+        var handler = new JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(token);
+
+        var sub = jwt.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+        return Guid.TryParse(sub, out var userId) ? userId : Guid.Empty;
+    }
+
 
     private static CookieOptions CreateCookieOptions(DateTime expiresAt) =>
         new()

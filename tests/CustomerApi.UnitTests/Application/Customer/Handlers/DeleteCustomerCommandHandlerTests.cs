@@ -1,16 +1,17 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Ardalis.Result;
 using Bogus;
 using CustomerApi.Application.Customer.Commands;
 using CustomerApi.Application.Customer.Handlers;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.CustomerAggregate;
+using CustomerApi.Infrastructure.Data;
 using CustomerApi.Infrastructure.Data.Repositories;
 using CustomerApi.UnitTests.Fixtures;
-using CustomerApi.UnitTests.Helpers;
 using FluentAssertions;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using Xunit.Categories;
@@ -21,16 +22,29 @@ namespace CustomerApi.UnitTests.Application.Customer.Handlers;
 public class DeleteCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClassFixture<EfSqliteFixture>
 {
     private const string SuccessMessage = "Customer removido com sucesso!";
-
     private readonly DeleteCustomerCommandValidator _validator = new();
+    private readonly CustomerWriteOnlyRepository _customerRepository = new(fixture.Context);
+    private readonly UnitOfWork _unitOfWork = new(
+        fixture.Context,
+        Substitute.For<IEventStoreRepository>(),
+        Substitute.For<IMediator>(),
+        Substitute.For<ILogger<UnitOfWork>>());
 
     [Fact]
-    public async Task Delete_ValidCustomerId_ShouldReturnsSuccessResult()
+    public async Task Delete_ValidCustomerId_ShouldReturnSuccessResult()
     {
-        var customer = await PersistCustomerAsync(CreateCustomer());
-        var command = new DeleteCustomerCommand(customer.Id);
+        var customer = CreateCustomer();
 
-        var act = await CreateHandler(TestUnitOfWorkFactory.Create(fixture.Context)).Handle(command, CancellationToken.None);
+        _customerRepository.Add(customer);
+
+        await fixture.Context.SaveChangesAsync();
+        fixture.Context.ChangeTracker.Clear();
+
+        var validDeleteCustomerCommand = new DeleteCustomerCommand(customer.Id);
+
+        var handler = CreateDeleteCustomerCommandHandler(_unitOfWork);
+
+        var act = await handler.Handle(validDeleteCustomerCommand, CancellationToken.None);
 
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
@@ -38,26 +52,30 @@ public class DeleteCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
     }
 
     [Fact]
-    public async Task Delete_InvalidCustomerId_ShouldReturnsFailureResult()
+    public async Task Delete_InvalidCustomerId_ShouldReturnFailureResult()
     {
-        var command = new DeleteCustomerCommand(Guid.NewGuid());
+        var deleteCustomerWithNotFoundCustomerCommand = new DeleteCustomerCommand(Guid.NewGuid());
 
-        var act = await CreateHandler(Substitute.For<IUnitOfWork>())
-            .Handle(command, CancellationToken.None);
+        var handler = CreateDeleteCustomerCommandHandler(Substitute.For<IUnitOfWork>());
+
+        var act = await handler.Handle(deleteCustomerWithNotFoundCustomerCommand, CancellationToken.None);
 
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Errors.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()
-            .And.Contain($"Nenhum cliente encontrado com o Id: {command.Id}");
+            .And.Contain($"Nenhum cliente encontrado com o Id: {deleteCustomerWithNotFoundCustomerCommand.Id}");
     }
 
     [Fact]
-    public async Task Delete_InvalidCommand_ShouldReturnsFailResult()
+    public async Task Delete_InvalidCommand_ShouldReturnFailResult()
     {
-        var act = await CreateHandler(Substitute.For<IUnitOfWork>())
-            .Handle(new DeleteCustomerCommand(Guid.Empty), CancellationToken.None);
+        var invalidDeleteCustomerCommand = new DeleteCustomerCommand(Guid.Empty);
+
+        var handler = CreateDeleteCustomerCommandHandler(Substitute.For<IUnitOfWork>());
+
+        var act = await handler.Handle(invalidDeleteCustomerCommand, CancellationToken.None);
 
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
@@ -66,9 +84,9 @@ public class DeleteCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
 
     #region Helpers
 
-    private DeleteCustomerCommandHandler CreateHandler(IUnitOfWork unitOfWork) => new(
+    private DeleteCustomerCommandHandler CreateDeleteCustomerCommandHandler(IUnitOfWork unitOfWork) => new(
         _validator,
-        new CustomerWriteOnlyRepository(fixture.Context),
+        _customerRepository,
         unitOfWork);
 
     private static CustomerApi.Domain.Entities.CustomerAggregate.Customer CreateCustomer() =>
@@ -80,19 +98,6 @@ public class DeleteCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
                 faker.Person.Email,
                 faker.Person.DateOfBirth))
             .Generate();
-
-    private async Task<CustomerApi.Domain.Entities.CustomerAggregate.Customer> PersistCustomerAsync(
-        CustomerApi.Domain.Entities.CustomerAggregate.Customer customer)
-    {
-        var repository = new CustomerWriteOnlyRepository(fixture.Context);
-
-        repository.Add(customer);
-
-        await fixture.Context.SaveChangesAsync();
-        fixture.Context.ChangeTracker.Clear();
-
-        return customer;
-    }
 
     #endregion
 }

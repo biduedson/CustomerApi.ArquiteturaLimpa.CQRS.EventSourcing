@@ -5,7 +5,6 @@ using Ardalis.Result;
 using Bogus;
 using CustomerApi.Application.Customer.Commands;
 using CustomerApi.Application.Customer.Handlers;
-using CustomerApi.Application.Customer.Responses;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.CustomerAggregate;
 using CustomerApi.Infrastructure.Data.Repositories;
@@ -54,7 +53,12 @@ public class CreateCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
         var act = await CreateHandler(Substitute.For<IUnitOfWork>())
             .Handle(command, CancellationToken.None);
 
-        AssertError(act, DuplicateEmailMessage);
+        act.Should().NotBeNull();
+        act.IsSuccess.Should().BeFalse();
+        act.Errors.Should()
+            .NotBeNullOrEmpty()
+            .And.OnlyHaveUniqueItems()
+            .And.Contain(DuplicateEmailMessage);
     }
 
     [Fact]
@@ -73,16 +77,6 @@ public class CreateCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
     }
 
     #region Helpers
-
-    private static void AssertError(Result<CreatedCustomerResponse> act, string message)
-    {
-        act.Should().NotBeNull();
-        act.IsSuccess.Should().BeFalse();
-        act.Errors.Should()
-            .NotBeNullOrEmpty()
-            .And.OnlyHaveUniqueItems()
-            .And.Contain(message);
-    }
 
     private CreateCustomerCommandHandler CreateHandler(IUnitOfWork unitOfWork) => new(
         _validator,

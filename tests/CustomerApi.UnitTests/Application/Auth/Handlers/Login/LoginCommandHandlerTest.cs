@@ -5,7 +5,6 @@ using Bogus;
 using CustomerApi.Application.Abstractions.Auth;
 using CustomerApi.Application.Auth.Commands.Login;
 using CustomerApi.Application.Auth.Handlers.Login;
-using CustomerApi.Application.Auth.Responses;
 using CustomerApi.Domain.Entities.UserAggregate;
 using CustomerApi.Infrastructure.Auth.Password;
 using CustomerApi.Infrastructure.Data.Repositories;
@@ -70,7 +69,10 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
             CreateCommand("test@nonexistent.com", SavedPassword),
             CancellationToken.None);
 
-        AssertInvalidCredentials(act);
+        act.Should().NotBeNull();
+        act.IsSuccess.Should().BeFalse();
+        act.IsUnauthorized().Should().BeTrue();
+        act.Errors.Should().Contain(InvalidCredentialsMessage);
     }
 
     [Fact]
@@ -82,7 +84,10 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
             CreateCommand(user.Email.Address, SavedPassword),
             CancellationToken.None);
 
-        AssertInvalidCredentials(act);
+        act.Should().NotBeNull();
+        act.IsSuccess.Should().BeFalse();
+        act.IsUnauthorized().Should().BeTrue();
+        act.Errors.Should().Contain(InvalidCredentialsMessage);
     }
 
     [Fact]
@@ -94,18 +99,13 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
             CreateCommand(user.Email.Address, WrongPassword),
             CancellationToken.None);
 
-        AssertInvalidCredentials(act);
-    }
-
-    #region Helpers
-
-    private static void AssertInvalidCredentials(Result<AuthenticationResponse> act)
-    {
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.IsUnauthorized().Should().BeTrue();
         act.Errors.Should().Contain(InvalidCredentialsMessage);
     }
+
+    #region Helpers
 
     private LoginCommandHandler CreateHandler() => new(
         _validator,

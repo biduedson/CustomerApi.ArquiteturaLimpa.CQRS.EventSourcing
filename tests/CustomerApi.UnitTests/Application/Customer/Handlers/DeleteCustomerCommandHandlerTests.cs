@@ -45,7 +45,12 @@ public class DeleteCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
         var act = await CreateHandler(Substitute.For<IUnitOfWork>())
             .Handle(command, CancellationToken.None);
 
-        AssertError(act, $"Nenhum cliente encontrado com o Id: {command.Id}");
+        act.Should().NotBeNull();
+        act.IsSuccess.Should().BeFalse();
+        act.Errors.Should()
+            .NotBeNullOrEmpty()
+            .And.OnlyHaveUniqueItems()
+            .And.Contain($"Nenhum cliente encontrado com o Id: {command.Id}");
     }
 
     [Fact]
@@ -60,16 +65,6 @@ public class DeleteCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
     }
 
     #region Helpers
-
-    private static void AssertError(Result act, string message)
-    {
-        act.Should().NotBeNull();
-        act.IsSuccess.Should().BeFalse();
-        act.Errors.Should()
-            .NotBeNullOrEmpty()
-            .And.OnlyHaveUniqueItems()
-            .And.Contain(message);
-    }
 
     private DeleteCustomerCommandHandler CreateHandler(IUnitOfWork unitOfWork) => new(
         _validator,

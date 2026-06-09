@@ -48,7 +48,12 @@ public class UpdateCustomerCommandHandlerTest(EfSqliteFixture fixture) : IClassF
         var act = await CreateHandler(Substitute.For<IUnitOfWork>())
             .Handle(command, CancellationToken.None);
 
-        AssertError(act, DuplicateEmailMessage);
+        act.Should().NotBeNull();
+        act.IsSuccess.Should().BeFalse();
+        act.Errors.Should()
+            .NotBeNullOrEmpty()
+            .And.OnlyHaveUniqueItems()
+            .And.Contain(DuplicateEmailMessage);
     }
 
     [Fact]
@@ -59,20 +64,15 @@ public class UpdateCustomerCommandHandlerTest(EfSqliteFixture fixture) : IClassF
         var act = await CreateHandler(Substitute.For<IUnitOfWork>())
             .Handle(command, CancellationToken.None);
 
-        AssertError(act, $"Nenhum cliente encontrado com o Id: {command.Id}");
-    }
-
-    #region Helpers
-
-    private static void AssertError(Result act, string message)
-    {
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Errors.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()
-            .And.Contain(message);
+            .And.Contain($"Nenhum cliente encontrado com o Id: {command.Id}");
     }
+
+    #region Helpers
 
     private UpdateCustomerCommandHandler CreateHandler(IUnitOfWork unitOfWork) => new(
         _validator,

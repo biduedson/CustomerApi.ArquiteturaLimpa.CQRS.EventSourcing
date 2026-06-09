@@ -1,4 +1,3 @@
-﻿
 using Bogus;
 using CustomerApi.Domain.Entities.CustomerAggregate;
 using CustomerApi.Domain.Entities.CustomerAggregate.Events;
@@ -15,16 +14,7 @@ public class CustomerTests
     [Fact]
     public void Should_CustomerCreatedEvent_WhenCreate()
     {
-        var customerFaker = new Faker<Customer>()
-            .CustomInstantiator(faker => Customer.Create(
-                faker.Person.FirstName,
-                faker.Person.LastName,
-                faker.PickRandom<EGender>(),
-                faker.Person.Email,
-                faker.Person.DateOfBirth
-                ));
-
-        var act = customerFaker.Generate();
+        var act = CreateCustomer();
 
         act.DomainEvents.Should()
             .NotBeNullOrEmpty()
@@ -35,22 +25,11 @@ public class CustomerTests
     [Fact]
     public void Should_CustomerUpdatedEvent_WhenChangeEmail()
     {
-        var customerEntity = new Faker<Customer>()
-            .CustomInstantiator(faker => Customer.Create(
-                faker.Person.FirstName,
-                faker.Person.LastName,
-                faker.PickRandom<EGender>(),
-                faker.Person.Email,
-                faker.Person.DateOfBirth
-                )).Generate();
+        var customer = CreateCustomer();
 
-        var email = new Faker<Email>()
-            .CustomInstantiator(faker => Email.Create(faker.Person.Email))
-            .Generate();
+        customer.ChangeEmail(CreateEmail());
 
-        customerEntity.ChangeEmail(email);
-
-        customerEntity.DomainEvents.Should()
+        customer.DomainEvents.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()
             .And.ContainItemsAssignableTo<CustomerUpdatedEvent>();
@@ -59,20 +38,32 @@ public class CustomerTests
     [Fact]
     public void Should_CustomerDeleteEvent_WhenDelete()
     {
-        var customerEntity = new Faker<Customer>()
+        var customer = CreateCustomer();
+
+        customer.Delete();
+
+        customer.DomainEvents.Should()
+            .NotBeNullOrEmpty()
+            .And.OnlyHaveUniqueItems()
+            .And.ContainItemsAssignableTo<CustomerDeletedEvent>();
+    }
+
+    #region Helpers
+
+    private static Customer CreateCustomer() =>
+        new Faker<Customer>()
             .CustomInstantiator(faker => Customer.Create(
                 faker.Person.FirstName,
                 faker.Person.LastName,
                 faker.PickRandom<EGender>(),
                 faker.Person.Email,
-                faker.Person.DateOfBirth
-                )).Generate();
+                faker.Person.DateOfBirth))
+            .Generate();
 
-        customerEntity.Delete();
+    private static Email CreateEmail() =>
+        new Faker<Email>()
+            .CustomInstantiator(faker => Email.Create(faker.Person.Email))
+            .Generate();
 
-        customerEntity.DomainEvents.Should()
-            .NotBeNullOrEmpty()
-            .And.OnlyHaveUniqueItems()
-            .And.ContainItemsAssignableTo<CustomerDeletedEvent>();
-    }
+    #endregion
 }

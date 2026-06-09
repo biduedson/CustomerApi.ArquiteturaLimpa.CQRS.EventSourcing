@@ -1,4 +1,3 @@
-﻿
 using System.Collections.Generic;
 using CustomerApi.Core.AppSettings;
 using CustomerApi.Core.Extensions;
@@ -12,26 +11,35 @@ namespace CustomerApi.UnitTests.Core;
 [UnitTest]
 public class ConfigurationExtensionsTests
 {
+    private const int AbsoluteExpirationInHours = 4;
+    private const int SlidingExpirationInSeconds = 120;
+
     [Fact]
     public void Should_ReturnsClassOptions_WhenGetOptions()
     {
-        const int absoluteExpirationInHours = 4;
-        const int slidingExpirationInSeconds = 120;
-
-        var configurationBuilder = new ConfigurationBuilder();
-
-        configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            { "CacheOptions:AbsoluteExpirationInHours", absoluteExpirationInHours.ToString() },
-            { "CacheOptions:SlidingExpirationInSeconds", slidingExpirationInSeconds.ToString() }
-        });
-
-        var configuration = configurationBuilder.Build();
+        var configuration = CreateConfiguration();
 
         var act = configuration.GetOptions<CacheOptions>();
 
         act.Should().NotBeNull();
-        act.AbsoluteExpirationInHours.Should().Be(absoluteExpirationInHours);
-        act.SlidingExpirationInSeconds.Should().Be(slidingExpirationInSeconds);
+        act.AbsoluteExpirationInHours.Should().Be(AbsoluteExpirationInHours);
+        act.SlidingExpirationInSeconds.Should().Be(SlidingExpirationInSeconds);
     }
+
+    #region Helpers
+
+    private static IConfiguration CreateConfiguration()
+    {
+        var configurationBuilder = new ConfigurationBuilder();
+
+        configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            { "CacheOptions:AbsoluteExpirationInHours", AbsoluteExpirationInHours.ToString() },
+            { "CacheOptions:SlidingExpirationInSeconds", SlidingExpirationInSeconds.ToString() }
+        });
+
+        return configurationBuilder.Build();
+    }
+
+    #endregion
 }

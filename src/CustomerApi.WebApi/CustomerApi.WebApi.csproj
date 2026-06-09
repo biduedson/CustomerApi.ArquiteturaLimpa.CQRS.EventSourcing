@@ -60,6 +60,7 @@
     </PackageReference>
     <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="System.Text.RegularExpressions" />
+    <PackageReference Include="UAParser" />
   </ItemGroup>
 
   <ItemGroup>

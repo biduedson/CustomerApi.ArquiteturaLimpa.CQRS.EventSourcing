@@ -22,7 +22,6 @@ internal sealed class UserSessionWriteOnlyRepository(WriteDbContext dbContext)
         .UserSessions
         .Where(session =>
                  session.UserId == userId
-                 && session.IsActive
                  && session.RevokedAt == null
                  && session.ExpiresAt > DateTime.UtcNow)
         .ToListAsync();

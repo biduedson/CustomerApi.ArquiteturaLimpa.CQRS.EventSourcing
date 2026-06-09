@@ -8,7 +8,7 @@ using CustomerApi.Application.Customer.Commands;
 using CustomerApi.Application.Customer.Responses;
 using CustomerApi.Query.Application.Customer.Queries;
 using CustomerApi.Query.QueriesModel;
-using CustomerApi.WebApi.Extensions.ServiceCollectionsExtensions;
+using CustomerApi.WebApi.Extensions.ResultExtensions;
 using CustomerApi.WebApi.Models;
 using MediatR;
 using Microsoft.AspNetCore.Http;

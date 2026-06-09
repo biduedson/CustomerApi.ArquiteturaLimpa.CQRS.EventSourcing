@@ -5,12 +5,16 @@ using Bogus;
 using CustomerApi.Application.Abstractions.Auth;
 using CustomerApi.Application.Auth.Commands.Login;
 using CustomerApi.Application.Auth.Handlers.Login;
+using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.UserAggregate;
 using CustomerApi.Infrastructure.Auth.Password;
+using CustomerApi.Infrastructure.Data;
 using CustomerApi.Infrastructure.Data.Repositories;
 using CustomerApi.UnitTests.Fixtures;
 using CustomerApi.UnitTests.Helpers;
 using FluentAssertions;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using Xunit.Categories;
@@ -26,24 +30,48 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
     private const string AccessToken = "access-token";
     private const string RefreshToken = "refresh-token";
     private const string RefreshTokenHash = "refresh-token-hash";
+    private const string IpAddress = "192.168.1.100";
+    private const string UserAgent = "Edge 126 / Windows 10 / Desktop";
     private const string InvalidCredentialsMessage = "Credenciais inválidas.";
-
     private readonly LoginCommandValidator _validator = new();
     private readonly BCryptPasswordHasher _passwordHasher = new();
+    private readonly UserWriteOnlyRepository _userRepository = new(fixture.Context);
+    private readonly UserSessionWriteOnlyRepository _userSessionRepository = new(fixture.Context);
+    private readonly UnitOfWork _unitOfWork = new(
+        fixture.Context,
+        Substitute.For<IEventStoreRepository>(),
+        Substitute.For<IMediator>(),
+        Substitute.For<ILogger<UnitOfWork>>());
+
     private readonly IJwtTokenGenerator _jwtTokenGenerator = Substitute.For<IJwtTokenGenerator>();
     private readonly IRefreshTokenService _refreshTokenService = Substitute.For<IRefreshTokenService>();
 
     [Fact]
-    public async Task Login_ValidCommand_ShouldReturnsSuccessResult()
+    public async Task Login_ValidCommand_ShouldReturnSuccessResult()
     {
-        var user = await PersistUserAsync(UserTestBuilder.Create(ValidPassword));
+        var user = CreateDefaultUser(ValidPassword);
+
+        _userRepository.Add(user);
+
+        await fixture.Context.SaveChangesAsync();
+        fixture.Context.ChangeTracker.Clear();
 
         _jwtTokenGenerator.GenerateAccessToken(Arg.Any<User>()).Returns(AccessToken);
         _refreshTokenService.GenerateToken().Returns(RefreshToken);
         _refreshTokenService.HashToken(RefreshToken).Returns(RefreshTokenHash);
 
-        var act = await CreateHandler().Handle(
-            CreateCommand(user.Email.Address, ValidPassword),
+        var validLoginCommand = new LoginCommand
+        {
+            Email = user.Email.Address,
+            Password = ValidPassword,
+            UserAgent = UserAgent,
+            IpAddress = IpAddress
+        };
+
+        var handler = CreateLoginCommandHandler();
+
+        var act = await handler.Handle(
+            validLoginCommand,
             CancellationToken.None);
 
         act.Should().NotBeNull();
@@ -53,9 +81,13 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
     }
 
     [Fact]
-    public async Task Login_InvalidCommand_ShouldReturnsFailResult()
+    public async Task Login_InvalidCommand_ShouldReturnFailResult()
     {
-        var act = await CreateHandler().Handle(new LoginCommand(), CancellationToken.None);
+        var invalidLoginCommand = new LoginCommand();
+
+        var handler = CreateLoginCommandHandler();
+
+        var act = await handler.Handle(invalidLoginCommand, CancellationToken.None);
 
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
@@ -63,10 +95,20 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
     }
 
     [Fact]
-    public async Task Login_UserNotFound_ShouldReturnsUnauthorizedResult()
+    public async Task Login_UserNotFound_ShouldReturnUnauthorizedResult()
     {
-        var act = await CreateHandler().Handle(
-            CreateCommand("test@nonexistent.com", SavedPassword),
+        var loginWithNotFoundUserCommand = new LoginCommand
+        {
+            Email = "test@nonexistent.com",
+            Password = SavedPassword,
+            UserAgent = UserAgent,
+            IpAddress = IpAddress
+        };
+
+        var handler = CreateLoginCommandHandler();
+
+        var act = await handler.Handle(
+            loginWithNotFoundUserCommand,
             CancellationToken.None);
 
         act.Should().NotBeNull();
@@ -76,12 +118,28 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
     }
 
     [Fact]
-    public async Task Login_UserInactive_ShouldReturnsUnauthorizedResult()
+    public async Task Login_UserInactive_ShouldReturnUnauthorizedResult()
     {
-        var user = await PersistUserAsync(UserTestBuilder.Create(SavedPassword, inactive: true));
+        var user = CreateDefaultUser(SavedPassword);
+        user.Deactivate();
 
-        var act = await CreateHandler().Handle(
-            CreateCommand(user.Email.Address, SavedPassword),
+        _userRepository.Add(user);
+
+        await fixture.Context.SaveChangesAsync();
+        fixture.Context.ChangeTracker.Clear();
+
+        var loginWithInactiveUserCommand = new LoginCommand
+        {
+            Email = user.Email.Address,
+            Password = SavedPassword,
+            UserAgent = UserAgent,
+            IpAddress = IpAddress
+        };
+
+        var handler = CreateLoginCommandHandler();
+
+        var act = await handler.Handle(
+            loginWithInactiveUserCommand,
             CancellationToken.None);
 
         act.Should().NotBeNull();
@@ -91,12 +149,27 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
     }
 
     [Fact]
-    public async Task Login_PasswordError_ShouldReturnsUnauthorizedResult()
+    public async Task Login_PasswordError_ShouldReturnUnauthorizedResult()
     {
-        var user = await PersistUserAsync(UserTestBuilder.Create(SavedPassword));
+        var user = CreateDefaultUser(SavedPassword);
 
-        var act = await CreateHandler().Handle(
-            CreateCommand(user.Email.Address, WrongPassword),
+        _userRepository.Add(user);
+
+        await fixture.Context.SaveChangesAsync();
+        fixture.Context.ChangeTracker.Clear();
+
+        var loginWithWrongPasswordCommand = new LoginCommand
+        {
+            Email = user.Email.Address,
+            Password = WrongPassword,
+            UserAgent = UserAgent,
+            IpAddress = IpAddress
+        };
+
+        var handler = CreateLoginCommandHandler();
+
+        var act = await handler.Handle(
+            loginWithWrongPasswordCommand,
             CancellationToken.None);
 
         act.Should().NotBeNull();
@@ -107,35 +180,26 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
 
     #region Helpers
 
-    private LoginCommandHandler CreateHandler() => new(
+    private LoginCommandHandler CreateLoginCommandHandler() => new(
         _validator,
-        new UserWriteOnlyRepository(fixture.Context),
-        new UserSessionWriteOnlyRepository(fixture.Context),
+        _userRepository,
+        _userSessionRepository,
         _passwordHasher,
         _jwtTokenGenerator,
         _refreshTokenService,
         TestJwtOptions.Create(),
-        TestUnitOfWorkFactory.Create(fixture.Context));
+        _unitOfWork);
 
-    private static LoginCommand CreateCommand(string email, string password) =>
-        new Faker<LoginCommand>()
-            .RuleFor(command => command.Email, email)
-            .RuleFor(command => command.Password, password)
-            .RuleFor(command => command.UserAgent, faker => faker.Internet.UserAgent())
-            .RuleFor(command => command.IpAddress, faker => faker.Internet.Ip())
-            .Generate();
-
-    private async Task<User> PersistUserAsync(User user)
-    {
-        var repository = new UserWriteOnlyRepository(fixture.Context);
-
-        repository.Add(user);
-
-        await fixture.Context.SaveChangesAsync();
-        fixture.Context.ChangeTracker.Clear();
-
-        return user;
-    }
+    private User CreateDefaultUser(string password) => new Faker<User>()
+        .CustomInstantiator(faker => User.Create(
+            faker.Person.UserName,
+            faker.Person.Email,
+            faker.PickRandom<UserRole>(),
+            faker.Person.FullName,
+            faker.Person.DateOfBirth,
+            "Gerente",
+            _passwordHasher.Hash(password)))
+        .Generate();
 
     #endregion
 }

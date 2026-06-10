@@ -2,20 +2,20 @@
 using System.Threading.Tasks;
 using Ardalis.Result;
 using Ardalis.Result.FluentValidation;
-using CustomerApi.Application.Customer.Commands;
+using CustomerApi.Application.Customers.Commands.Update;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.CustomerAggregate;
 using CustomerApi.Domain.ValueObjects;
 using FluentValidation;
 using MediatR;
 
-namespace CustomerApi.Application.Customer.Handlers;
+namespace CustomerApi.Application.Customers.Handlers.Update;
 
 public class UpdateCustomerCommandHandler(
     IValidator<UpdateCustomerCommand> validator,
     ICustomerWriteOnlyRepository repository,
     IUnitOfWork unitOfWork
-    ) : IRequestHandler<UpdateCustomerCommand ,Result>
+    ) : IRequestHandler<UpdateCustomerCommand, Result>
 {
     public async Task<Result> Handle(
         UpdateCustomerCommand request,

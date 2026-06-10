@@ -2,15 +2,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.Result;
 using Ardalis.Result.FluentValidation;
-using CustomerApi.Application.Customer.Commands;
-using CustomerApi.Application.Customer.Responses;
+using CustomerApi.Application.Customers.Commands.Create;
+using CustomerApi.Application.Customers.Responses;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.CustomerAggregate;
 using CustomerApi.Domain.ValueObjects;
 using FluentValidation;
 using MediatR;
 
-namespace CustomerApi.Application.Customer.Handlers;
+namespace CustomerApi.Application.Customers.Handlers.Create;
 
 public class CreateCustomerCommandHandler(
     IValidator<CreateCustomerCommand> validator,

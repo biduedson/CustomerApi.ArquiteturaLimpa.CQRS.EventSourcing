@@ -1,7 +1,5 @@
-﻿using Ardalis.Result;
-using FluentValidation;
-
-namespace CustomerApi.Application.Customer.Commands;
+﻿using FluentValidation;
+namespace CustomerApi.Application.Customers.Commands.Delete;
 
 public class DeleteCustomerCommandValidator : AbstractValidator<DeleteCustomerCommand>
 {

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Ardalis.Result;
-using CustomerApi.Application.Customer.Responses;
+using CustomerApi.Application.Customers.Responses;
 using CustomerApi.Domain.Entities.CustomerAggregate;
 using MediatR;
 
-namespace CustomerApi.Application.Customer.Commands;
+namespace CustomerApi.Application.Customers.Commands.Create;
 
 public class CreateCustomerCommand : IRequest<Result<CreatedCustomerResponse>>
 {

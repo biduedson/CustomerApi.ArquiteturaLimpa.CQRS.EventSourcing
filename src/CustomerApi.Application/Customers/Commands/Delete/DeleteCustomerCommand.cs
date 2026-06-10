@@ -2,7 +2,7 @@
 using Ardalis.Result;
 using MediatR;
 
-namespace CustomerApi.Application.Customer.Commands;
+namespace CustomerApi.Application.Customers.Commands.Delete;
 
 public class DeleteCustomerCommand(Guid id) : IRequest<Result>
 {

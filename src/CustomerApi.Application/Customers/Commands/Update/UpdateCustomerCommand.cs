@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Ardalis.Result;
 using MediatR;
 
-namespace CustomerApi.Application.Customer.Commands;
+namespace CustomerApi.Application.Customers.Commands.Update;
 
 public class UpdateCustomerCommand() : IRequest<Result>
 {

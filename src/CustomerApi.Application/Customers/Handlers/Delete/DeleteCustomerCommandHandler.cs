@@ -2,13 +2,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.Result;
 using Ardalis.Result.FluentValidation;
-using CustomerApi.Application.Customer.Commands;
+using CustomerApi.Application.Customers.Commands.Delete;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.CustomerAggregate;
 using FluentValidation;
 using MediatR;
 
-namespace CustomerApi.Application.Customer.Handlers;
+namespace CustomerApi.Application.Customers.Handlers.Delete;
 
 public class DeleteCustomerCommandHandler(
     IValidator<DeleteCustomerCommand> validator,

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Ardalis.Result;
 using MediatR;
 
-namespace CustomerApi.Application.Account.Commands.ChangePassword;
+namespace CustomerApi.Application.Account.Commands.Passwords.Change;
 
 public class ChangePasswordCommand() : IRequest<Result>
 {

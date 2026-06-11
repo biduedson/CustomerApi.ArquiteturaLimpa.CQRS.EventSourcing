@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Ardalis.Result;
 using Ardalis.Result.FluentValidation;
 using CustomerApi.Application.Abstractions.Auth;
-using CustomerApi.Application.Account.Commands.ChangePassword;
+using CustomerApi.Application.Account.Commands.Passwords.Change;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.UserAggregate;
 using CustomerApi.Domain.Entities.UserSessionAggregate;
@@ -11,7 +11,7 @@ using CustomerApi.Domain.ValueObjects;
 using FluentValidation;
 using MediatR;
 
-namespace CustomerApi.Application.Account.Handlers.ChangePassword;
+namespace CustomerApi.Application.Account.Handlers.Passwords.Change;
 
 public class ChangePasswordCommandHandler(
     IValidator<ChangePasswordCommand> validator,
@@ -33,7 +33,7 @@ public class ChangePasswordCommandHandler(
 
         var user = await userRepository.GetByIdAsync(request.UserId);
 
-        if (user == null)
+        if (user is null)
             return Result.Unauthorized();
 
         var currentPasswordIsValid = passwordHasher.Verify(
@@ -48,6 +48,8 @@ public class ChangePasswordCommandHandler(
         var newPasswordHash = passwordHasher.Hash(newPassword.Value);
 
         user.ChangePassword(newPasswordHash);
+
+        userRepository.Update(user);
 
         await userSessionRepository.RevokeAllByUserIdAsync(
             user.Id,

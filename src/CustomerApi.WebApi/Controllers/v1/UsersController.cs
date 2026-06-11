@@ -26,6 +26,7 @@ namespace CustomerApi.WebApi.Controllers.v1;
 [Route("api/[controller]")]
 public class UsersController(IMediator mediator) : ControllerBase
 {
+     #region Controller Write
     ////////////////////////
     // POST: /api/users
     ////////////////////////
@@ -89,6 +90,9 @@ public class UsersController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> UpdateRole([FromBody][Required] UpdateUserRoleCommand command) =>
         (await mediator.Send(command)).ToActionResult();
 
+    #endregion
+
+    #region Controller Read
     ///////////////////////////
     // GET: /api/users/{id}
     ///////////////////////////
@@ -113,4 +117,6 @@ public class UsersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAll() =>
         (await mediator.Send(new GetAllUserQuery())).ToActionResult();
+
+    #endregion
 }

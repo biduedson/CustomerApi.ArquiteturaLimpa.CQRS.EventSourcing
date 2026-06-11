@@ -3,8 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.Result;
 using Bogus;
-using CustomerApi.Application.Account.Commands.ChangePassword;
-using CustomerApi.Application.Account.Handlers.ChangePassword;
+using CustomerApi.Application.Account.Commands.Passwords.Change;
+using CustomerApi.Application.Account.Handlers.Passwords.Change;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.UserAggregate;
 using CustomerApi.Domain.Entities.UserSessionAggregate;
@@ -19,7 +19,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Categories;
 
-namespace CustomerApi.UnitTests.Application.Account.Handlers.ChangePassword;
+namespace CustomerApi.UnitTests.Application.Account.Handlers.Passwords.Change;
 
 [UnitTest]
 public class ChangePasswordCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<EfSqliteFixture>, IAsyncLifetime

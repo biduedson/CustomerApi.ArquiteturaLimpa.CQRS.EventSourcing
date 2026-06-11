@@ -1,6 +1,6 @@
 namespace CustomerApi.Domain.Entities.UserAggregate.Events;
 
-public class UserEmailChangedEvent(
+public class UserUpdatedEvent(
         Guid id,
         string userName,
         string email,

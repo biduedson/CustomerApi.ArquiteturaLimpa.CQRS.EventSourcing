@@ -12,7 +12,7 @@ using CustomerApi.Domain.ValueObjects;
 using CustomerApi.Infrastructure.Data.Context;
 using CustomerApi.IntegrationTests.Extensions;
 using CustomerApi.Query.Abstractions;
-using CustomerApi.Query.Data;
+using CustomerApi.Query.Data.Context;
 using CustomerApi.Query.Data.Repositories.Abstractions;
 using CustomerApi.Query.QueriesModel;
 using CustomerApi.WebApi.Models;

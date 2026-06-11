@@ -9,5 +9,8 @@ namespace CustomerApi.Query.Extensions.ServiceCollectionsExtensions;
 public static class ReadOnlyRepositoryExtensions
 {
     public static IServiceCollection AddReadOnlyRepositories(this IServiceCollection services) =>
-        services.AddScoped<ICustomerReadOnlyRepository, CustomerReadOnlyRepository>();
+     services
+        .AddScoped<ICustomerReadOnlyRepository, CustomerReadOnlyRepository>()
+        .AddScoped<IUserReadOnlyRepository, UserReadOnlyRepository>();
+
 }

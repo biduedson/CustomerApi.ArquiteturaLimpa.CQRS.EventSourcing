@@ -1,7 +1,8 @@
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Asp.Versioning;
-using CustomerApi.Application.Account.Commands.ChangePassword;
+using CustomerApi.Application.Account.Commands.Emails.Change;
+using CustomerApi.Application.Account.Commands.Passwords.Change;
 using CustomerApi.WebApi.Extensions;
 using CustomerApi.WebApi.Extensions.ResultExtensions;
 using CustomerApi.WebApi.Models;
@@ -39,6 +40,37 @@ public class AccountController(IMediator mediator) : ControllerBase
             NewPassword = request.NewPassword,
             ConfirmPassword = request.ConfirmPassword,
 
+        };
+
+        var result = await _mediator.Send(command);
+
+        if (result.IsSuccess)
+        {
+            Response.DeleteAuthCookies();
+            return Ok(result);
+        }
+
+        return result.ToActionResult();
+    }
+
+    /////////////////////////////////
+    // POST: /api/account/changeemail
+    /////////////////////////////////
+    [HttpPost("changeemail")]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ChangeEmail([FromBody] ChangeEmailDto request)
+    {
+        var userId = Request.GetUserIdFromAccessTokenCookie();
+
+        var command = new ChangeEmailCommand
+        {
+            UserId = userId,
+            Email = request.Email
         };
 
         var result = await _mediator.Send(command);

@@ -13,6 +13,13 @@ namespace CustomerApi.Infrastructure.Data.Repositories;
 internal class UserWriteOnlyRepository(WriteDbContext dbContext)
     : BaseWriteOnlyRepository<User, Guid>(dbContext), IUserWriteOnlyRepository
 {
+    private static readonly Func<WriteDbContext, string, Task<bool>> ExistsByUserNameCompiledAsync =
+    EF.CompileAsyncQuery((WriteDbContext dbContext, string userName) =>
+        dbContext
+            .Users
+            .AsNoTracking()
+            .Any(user => user.UserName == userName));
+
     private static readonly Func<WriteDbContext, string, Task<bool>> ExistsByEmailCompiledAsync =
     EF.CompileAsyncQuery((WriteDbContext dbContext, string email) =>
         dbContext
@@ -33,6 +40,10 @@ internal class UserWriteOnlyRepository(WriteDbContext dbContext)
                .Users
                .AsNoTracking()
                .FirstOrDefault(user => user.Email!.Address == email));
+
+    public Task<bool> ExistsByUserNameAsync(string userName) =>
+        ExistsByUserNameCompiledAsync(DbContext, userName);
+
     public Task<bool> ExistsByEmailAsync(Email email) =>
         ExistsByEmailCompiledAsync(DbContext, email.Address);
 

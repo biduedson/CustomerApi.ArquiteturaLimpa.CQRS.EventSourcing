@@ -56,6 +56,9 @@ public class User : BaseEntity, IAggregateRoot
 
     public void ChangeProfile(UserProfile newProfile)
     {
+        if (newProfile.Equals(Profile))
+            return;
+
         Profile = newProfile;
 
         MarkAsUpdated();
@@ -76,6 +79,7 @@ public class User : BaseEntity, IAggregateRoot
     {
         if (Email!.Equals(newEmail))
             return;
+
         Email = newEmail;
 
         MarkAsUpdated();

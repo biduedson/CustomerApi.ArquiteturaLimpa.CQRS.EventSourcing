@@ -17,6 +17,11 @@ internal sealed class UserSessionWriteOnlyRepository(WriteDbContext dbContext)
         .UserSessions
         .FirstOrDefaultAsync(session => session.RefreshTokenHash == refreshTokenHash);
 
+    public Task<UserSession?> GetByUserAgentAsync(string userAgent) =>
+       DbContext
+       .UserSessions
+       .FirstOrDefaultAsync(session => session.UserAgent == userAgent);
+
     public Task<List<UserSession>> GetActiveByUserIdAsync(Guid userId) =>
         DbContext
         .UserSessions

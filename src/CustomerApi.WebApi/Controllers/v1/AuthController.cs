@@ -9,6 +9,7 @@ using CustomerApi.WebApi.Extensions.HttpContextExtensions;
 using CustomerApi.WebApi.Extensions.ResultExtensions;
 using CustomerApi.WebApi.Models;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,6 +49,7 @@ public class AuthController(IMediator mediator) : ControllerBase
     ////////////////////////
     // POST: /api/auth/refreshtoken
     ////////////////////////
+    [Authorize]
     [HttpPost("refreshtoken")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]

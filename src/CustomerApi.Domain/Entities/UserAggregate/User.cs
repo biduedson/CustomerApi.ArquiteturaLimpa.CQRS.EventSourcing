@@ -62,7 +62,7 @@ public class User : BaseEntity, IAggregateRoot
         Profile = newProfile;
 
         MarkAsUpdated();
-        AddDomainEvent(new UserProfileUpdatedEvent(
+        AddDomainEvent(new UserUpdatedEvent(
          Id,
          UserName,
          Email.Address,
@@ -83,7 +83,7 @@ public class User : BaseEntity, IAggregateRoot
         Email = newEmail;
 
         MarkAsUpdated();
-        AddDomainEvent(new UserEmailChangedEvent(
+        AddDomainEvent(new UserUpdatedEvent(
          Id,
          UserName,
          Email.Address,
@@ -101,7 +101,7 @@ public class User : BaseEntity, IAggregateRoot
         Role = newRole;
 
         MarkAsUpdated();
-        AddDomainEvent(new UserRoleChangedEvent(
+        AddDomainEvent(new UserUpdatedEvent(
          Id,
          UserName,
          Email.Address,
@@ -146,7 +146,7 @@ public class User : BaseEntity, IAggregateRoot
         IsActive = true;
 
         MarkAsUpdated();
-        AddDomainEvent(new UserActivatedEvent(
+        AddDomainEvent(new UserUpdatedEvent(
          Id,
          UserName,
          Email.Address,
@@ -166,7 +166,7 @@ public class User : BaseEntity, IAggregateRoot
         IsActive = false;
 
         MarkAsUpdated();
-        AddDomainEvent(new UserDeactivatedEvent(
+        AddDomainEvent(new UserUpdatedEvent(
          Id,
          UserName,
          Email.Address,

@@ -14,13 +14,13 @@ using MongoDB.Driver;
 using Polly;
 using Polly.Retry;
 
-namespace CustomerApi.Query.Data;
+namespace CustomerApi.Query.Data.Context;
 
 public class NoSqlDbContext : IReadDbContext, ISynchronizeDb
 {
     #region Construtor
 
-    private const string DatabseName = "CustomerApi";
+    private const string DatabaseName = "CustomerApi";
     private const int RetryCount = 2;
 
     private static readonly ReplaceOptions DefaultReplaceOptions = new()
@@ -44,7 +44,7 @@ public class NoSqlDbContext : IReadDbContext, ISynchronizeDb
         ConnectionString = options.Value.NoSqlConnection;
 
         _mongoClient = new MongoClient(options.Value.NoSqlConnection);
-        _mongoDatabase = _mongoClient.GetDatabase(DatabseName);
+        _mongoDatabase = _mongoClient.GetDatabase(DatabaseName);
         _logger = logger;
         _mongoRetryPolicy = CreateRetriPolicy(logger);
 
@@ -84,12 +84,19 @@ public class NoSqlDbContext : IReadDbContext, ISynchronizeDb
     {
         _logger.LogInformation("----- MongoDB: criando índices...");
 
-        var indexDefinition = Builders<CustomerQueryModel>.IndexKeys.Ascending(model => model.Email);
-        var indexModel = new CreateIndexModel<CustomerQueryModel>(indexDefinition, DefaultCreateIndexOptions);
-        var collection = GetCollection<CustomerQueryModel>();
+        var customerIndexDefinition = Builders<CustomerQueryModel>.IndexKeys.Ascending(model => model.Email);
+        var customerIndexModel = new CreateIndexModel<CustomerQueryModel>(customerIndexDefinition, DefaultCreateIndexOptions);
+        var customerCollection = GetCollection<CustomerQueryModel>();
 
-        var indexName = await collection.Indexes.CreateOneAsync(indexModel);
-        _logger.LogInformation("----- MongoDB: índices criados com sucesso - {indexName}", indexName);
+        await customerCollection.Indexes.CreateOneAsync(customerIndexModel);
+
+        var userIndexDefinition = Builders<UserQueryModel>.IndexKeys.Ascending(model => model.Email);
+        var userIndexModel = new CreateIndexModel<UserQueryModel>(userIndexDefinition, DefaultCreateIndexOptions);
+        var userCollection = GetCollection<UserQueryModel>();
+
+        await userCollection.Indexes.CreateOneAsync(userIndexModel);
+
+        _logger.LogInformation("----- MongoDB: índices criados com sucesso");
     }
     private static List<string> GetCollectionNamesFromAssembly() =>
     [..Assembly

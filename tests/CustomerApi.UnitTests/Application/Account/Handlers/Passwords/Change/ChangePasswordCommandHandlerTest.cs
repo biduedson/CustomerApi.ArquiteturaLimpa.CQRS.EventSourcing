@@ -24,11 +24,11 @@ namespace CustomerApi.UnitTests.Application.Account.Handlers.Passwords.Change;
 [UnitTest]
 public class ChangePasswordCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<EfSqliteFixture>, IAsyncLifetime
 {
-    private const string ValidPassword = "Bidu1981@";
-    private const string NewValidPassword = "BiduzaoBidu1981@";
+    private const string ValidPassword = "ValidTestPassword1!";
+    private const string NewValidPassword = "NewValidTestPassword1!";
     private const string CurrentPassword = ValidPassword;
     private const string WrongCurrentPassword = "WrongPassword";
-    private const string DifferentConfirmPassword = "DifferentBidu1981@";
+    private const string DifferentConfirmPassword = "DifferentTestPassword1!";
     private const string RefreshTokenHash = "refresh-token-hash";
     private readonly ChangePasswordCommandValidator _validator = new();
     private readonly BCryptPasswordHasher _passwordHasher = new();

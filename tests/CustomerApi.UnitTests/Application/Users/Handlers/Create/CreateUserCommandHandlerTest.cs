@@ -22,7 +22,7 @@ namespace CustomerApi.UnitTests.Application.Users.Handlers.Create;
 [UnitTest]
 public class CreateUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<EfSqliteFixture>, IAsyncLifetime
 {
-    private const string ValidPassword = "Bidu1981@";
+    private const string ValidPassword = "ValidTestPassword1!";
     private const string PasswordHash = "password-hash";
     private const string DuplicateUserNameMessage = "O Username informado esta indisponível.";
     private const string DuplicateEmailMessage = "O endereço de e-mail informado já está em uso.";

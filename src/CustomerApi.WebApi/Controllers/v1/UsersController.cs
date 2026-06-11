@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mime;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ using CustomerApi.Application.Users.Commands.Delete;
 using CustomerApi.Application.Users.Commands.Update.Profile;
 using CustomerApi.Application.Users.Commands.Update.Role;
 using CustomerApi.Application.Users.Responses;
+using CustomerApi.Query.Application.User.Queries;
+using CustomerApi.Query.QueriesModel;
 using CustomerApi.WebApi.Extensions.ResultExtensions;
 using CustomerApi.WebApi.Models;
 using MediatR;
@@ -23,6 +26,7 @@ namespace CustomerApi.WebApi.Controllers.v1;
 [Route("api/[controller]")]
 public class UsersController(IMediator mediator) : ControllerBase
 {
+     #region Controller Write
     ////////////////////////
     // POST: /api/users
     ////////////////////////
@@ -85,4 +89,34 @@ public class UsersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateRole([FromBody][Required] UpdateUserRoleCommand command) =>
         (await mediator.Send(command)).ToActionResult();
+
+    #endregion
+
+    #region Controller Read
+    ///////////////////////////
+    // GET: /api/users/{id}
+    ///////////////////////////
+    [Authorize(Roles = "Admin,Operator")]
+    [HttpGet("{id:guid}")]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ApiResponse<UserQueryModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetById([Required] Guid id) =>
+        (await mediator.Send(new GetUserByIdQuery(id))).ToActionResult();
+
+    //////////////////////
+    // GET: /api/users
+    //////////////////////
+    [Authorize(Roles = "Admin,Operator")]
+    [HttpGet]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<UserQueryModel>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetAll() =>
+        (await mediator.Send(new GetAllUserQuery())).ToActionResult();
+
+    #endregion
 }

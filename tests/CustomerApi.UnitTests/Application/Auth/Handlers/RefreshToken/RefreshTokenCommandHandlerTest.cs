@@ -34,7 +34,7 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     private const string IpAddress = "192.168.1.100";
     private const string UserAgentDesktop = "Edge 126 / Windows 10 / Desktop";
     private const string UserAgentMobile = "Opera 126 / Windows 10 / Iphone14";
-    private const string ValidPassword = "Bidu1981@";
+    private const string ValidPassword = "ValidTestPassword1!";
     private readonly RefreshTokenCommandValidator _validator = new();
     private readonly IJwtTokenGenerator _jwtTokenGenerator = Substitute.For<IJwtTokenGenerator>();
     private readonly IRefreshTokenService _refreshTokenService = Substitute.For<IRefreshTokenService>();

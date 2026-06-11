@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using CustomerApi.Query.Abstractions;
-using CustomerApi.Query.Data;
+using CustomerApi.Query.Data.Context;
 using CustomerApi.Query.Data.Mappings;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
@@ -48,6 +48,7 @@ public static class ReadDbContextExtensions
                 }, _ => true);
 
             new CustomerMap().Configure();
+            new UserMap().Configure();
 
             _configured = true;
         }

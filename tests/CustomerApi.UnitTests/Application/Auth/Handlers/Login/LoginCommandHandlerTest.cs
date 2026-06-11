@@ -24,9 +24,9 @@ namespace CustomerApi.UnitTests.Application.Auth.Handlers.Login;
 [UnitTest]
 public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<EfSqliteFixture>
 {
-    private const string ValidPassword = "Bidu1981@";
-    private const string SavedPassword = "passwordTest";
-    private const string WrongPassword = "passwordErrorTest";
+    private const string ValidPassword = "ValidTestPassword1!";
+    private const string SavedPassword = "SavedTestPassword1!";
+    private const string WrongPassword = "WrongTestPassword1!";
     private const string AccessToken = "access-token";
     private const string RefreshToken = "refresh-token";
     private const string RefreshTokenHash = "refresh-token-hash";

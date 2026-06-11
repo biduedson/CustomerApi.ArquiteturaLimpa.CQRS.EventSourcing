@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Bogus;
-using CustomerApi.Application.Customer.Commands;
-using CustomerApi.Application.Customer.Handlers;
+using CustomerApi.Application.Customers.Commands.Update;
+using CustomerApi.Application.Customers.Handlers.Update;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.CustomerAggregate;
 using CustomerApi.Infrastructure.Data;
@@ -17,7 +17,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Categories;
 
-namespace CustomerApi.UnitTests.Application.Customer.Handlers;
+namespace CustomerApi.UnitTests.Application.Customers.Handlers.Update;
 
 [UnitTest]
 public class UpdateCustomerCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<EfSqliteFixture>

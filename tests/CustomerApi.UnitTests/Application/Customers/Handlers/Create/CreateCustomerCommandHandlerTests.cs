@@ -2,8 +2,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.Result;
-using CustomerApi.Application.Customer.Commands;
-using CustomerApi.Application.Customer.Handlers;
+using CustomerApi.Application.Customers.Commands.Create;
+using CustomerApi.Application.Customers.Handlers.Create;
 using CustomerApi.Core.SharedKernel;
 using CustomerApi.Domain.Entities.CustomerAggregate;
 using CustomerApi.Infrastructure.Data;
@@ -16,7 +16,7 @@ using NSubstitute;
 using Xunit;
 using Xunit.Categories;
 
-namespace CustomerApi.UnitTests.Application.Customer.Handlers;
+namespace CustomerApi.UnitTests.Application.Customers.Handlers.Create;
 
 [UnitTest]
 public class CreateCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClassFixture<EfSqliteFixture>

@@ -85,6 +85,9 @@ namespace CustomerApi.WebApi.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserName")
+                        .IsUnique();
+
                     b.ToTable("Users");
                 });
 

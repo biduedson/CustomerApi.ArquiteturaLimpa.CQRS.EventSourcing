@@ -35,6 +35,7 @@ internal sealed class JwtTokenGenerator(
                 issuer: _jwtOptions.Issuer,
                 audience: _jwtOptions.Audience,
                 claims: claims,
+                notBefore: DateTime.UtcNow,
                 expires: expiresAt,
                 signingCredentials: signingCredentials
                 );
@@ -74,8 +75,9 @@ internal sealed class JwtTokenGenerator(
            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
            new Claim(ClaimTypes.Name, user.UserName),
            new Claim(ClaimTypes.Email, user.Email.Address),
-           new Claim(ClaimTypes.Role, user.Role.ToString())
-        ];
+           new Claim(ClaimTypes.Role, user.Role.ToString()),
+           new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+           new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)];
 
     }
 }

@@ -13,21 +13,22 @@ public static class AuthCookieExtensions
 
     public static void AppendAuthCookies(this HttpResponse response, AuthenticationResponse authentication)
     {
+
         response.Cookies.Append(
             AccessTokenCookie,
             authentication.AccessToken,
-            CreateCookieOptions(authentication.AccessTokenExpiresAt));
+            CreateAccessTokenOptions(authentication.AccessTokenExpiresAt));
 
         response.Cookies.Append(
             RefreshTokenCookie,
             authentication.RefreshToken,
-            CreateCookieOptions(authentication.RefreshTokenExpiresAt));
+            CreateRefreshTokenOptions(authentication.RefreshTokenExpiresAt));
     }
 
     public static void DeleteAuthCookies(this HttpResponse response)
     {
-        response.Cookies.Delete(AccessTokenCookie, new CookieOptions { Path = "/api/auth" });
-        response.Cookies.Delete(RefreshTokenCookie, new CookieOptions { Path = "/api/auth" });
+        response.Cookies.Delete(AccessTokenCookie, new CookieOptions { Path = "/" });
+        response.Cookies.Delete(RefreshTokenCookie, new CookieOptions { Path = "/api/auth/refreshtoken" });
     }
 
     public static string GetRefreshTokenCookies(this HttpRequest request)
@@ -53,13 +54,23 @@ public static class AuthCookieExtensions
     }
 
 
-    private static CookieOptions CreateCookieOptions(DateTime expiresAt) =>
+    private static CookieOptions CreateAccessTokenOptions(DateTime expiresAt) =>
+     new()
+     {
+         HttpOnly = true,
+         Secure = true,
+         SameSite = SameSiteMode.Lax,
+         Expires = expiresAt,
+         Path = "/"
+     };
+
+    private static CookieOptions CreateRefreshTokenOptions(DateTime expiresAt) =>
         new()
         {
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Lax,
             Expires = expiresAt,
-            Path = "/api/auth"
+            Path = "/api/auth/refreshtoken"
         };
 }

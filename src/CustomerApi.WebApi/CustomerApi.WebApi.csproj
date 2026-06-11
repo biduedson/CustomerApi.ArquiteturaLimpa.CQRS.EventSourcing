@@ -75,4 +75,8 @@
     <InternalsVisibleTo Include="CustomerApi.UnitTests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\User\" />
+  </ItemGroup>
+
 </Project>

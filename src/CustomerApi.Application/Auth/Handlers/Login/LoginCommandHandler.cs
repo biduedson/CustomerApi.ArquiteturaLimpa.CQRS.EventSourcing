@@ -49,14 +49,27 @@ IUnitOfWork unitOfWork
         var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_jwtOptions.AccessTokenExpirationInMinutes);
         var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpirationInDays);
 
-        var session = UserSession.Create(
+        var existingDeviceSession = await sessionRepository.GetByUserAgentAsync(request.UserAgent);
+
+        if (existingDeviceSession?.IsActive == true)
+        {
+            existingDeviceSession.Revoke(
+                reason: "Usuário efetuou novo login no mesmo dispositivo",
+                replacedByTokenHash: refreshTokenHash);
+
+            sessionRepository.Update(existingDeviceSession);
+        }
+        else
+        {
+            var session = UserSession.Create(
             user.Id,
+            refreshTokenHash,
             request.UserAgent,
             request.IpAddress ?? string.Empty,
-            refreshTokenHash,
             accessTokenExpiresAt);
 
-        sessionRepository.Add(session);
+            sessionRepository.Add(session);
+        }
 
         await unitOfWork.SaveChangesAsync();
 

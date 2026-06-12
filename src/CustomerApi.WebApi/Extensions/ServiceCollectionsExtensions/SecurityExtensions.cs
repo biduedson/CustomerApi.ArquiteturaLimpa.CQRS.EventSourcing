@@ -54,7 +54,7 @@ public static class SecurityExtensions
                {
                    OnMessageReceived = context =>
                    {
-                       context.Token = context.Request.Cookies["access_token"];
+                       context.Token = context.Request.Cookies["access_Token"];
 
                        return Task.CompletedTask;
                    }

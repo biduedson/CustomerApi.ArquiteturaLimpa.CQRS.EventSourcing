@@ -1,6 +1,6 @@
 namespace CustomerApi.BlazorUI.Services;
 
-public sealed class CookieForwardingHandler(HttpContextAccessor httpContextAccessor) : DelegatingHandler
+public sealed class CookieForwardingHandler(IHttpContextAccessor httpContextAccessor) : DelegatingHandler
 {
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {

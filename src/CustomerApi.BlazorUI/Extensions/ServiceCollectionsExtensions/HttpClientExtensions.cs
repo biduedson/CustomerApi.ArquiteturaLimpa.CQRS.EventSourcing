@@ -12,6 +12,8 @@ public static class HttpClientExtensions
     {
         var options = configuration.GetOptions<CustomerApiSettings>();
 
+        services.AddTransient<CookieForwardingHandler>();
+
         services.AddHttpClient("CustomerApi", client =>
         {
             client.BaseAddress = new Uri(options!.BaseUrl!);

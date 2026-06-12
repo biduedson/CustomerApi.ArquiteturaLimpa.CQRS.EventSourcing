@@ -33,6 +33,7 @@ public class CreateCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
     [Fact]
     public async Task Add_ValidCommand_ShouldCreateResult()
     {
+        // Prepara o cenario.
         var validCreateCustomerCommand = new CreateCustomerCommand
         {
             FirstName = "John",
@@ -44,8 +45,10 @@ public class CreateCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
 
         var handler = CreateCustomerCommandHandler(_unitOfWork);
 
+        // Executa a acao.
         var act = await handler.Handle(validCreateCustomerCommand, CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsCreated().Should().BeTrue();
         act.Value.Should().NotBeNull();
@@ -55,6 +58,7 @@ public class CreateCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
     [Fact]
     public async Task Add_DuplicateEmailCommand_ShouldReturnFailResult()
     {
+        // Prepara o cenario.
         var createCustomerWithDuplicateEmailCommand = new CreateCustomerCommand
         {
             FirstName = "John",
@@ -64,6 +68,7 @@ public class CreateCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
             DateOfBirth = new DateTime(1990, 1, 1)
         };
 
+        // Executa a acao.
         var customer = CustomerApi.Domain.Entities.CustomerAggregate.Customer.Create(
             createCustomerWithDuplicateEmailCommand.FirstName,
             createCustomerWithDuplicateEmailCommand.LastName,
@@ -80,6 +85,7 @@ public class CreateCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
 
         var act = await handler.Handle(createCustomerWithDuplicateEmailCommand, CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Errors.Should()
@@ -91,12 +97,15 @@ public class CreateCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
     [Fact]
     public async Task Add_InvalidCommand_ShouldReturnFailResult()
     {
+        // Prepara o cenario.
         var invalidCreateCustomerCommand = new CreateCustomerCommand();
 
         var handler = CreateCustomerCommandHandler(Substitute.For<IUnitOfWork>());
 
+        // Executa a acao.
         var act = await handler.Handle(invalidCreateCustomerCommand, CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();

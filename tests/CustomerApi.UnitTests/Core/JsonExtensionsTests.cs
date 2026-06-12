@@ -1,4 +1,4 @@
-﻿using CustomerApi.Core.Extensions;
+using CustomerApi.Core.Extensions;
 using FluentAssertions;
 using Xunit;
 using Xunit.Categories;
@@ -14,20 +14,26 @@ public class JsonExtensionsTests
     [Fact]
     public void Should_ReturnJsonString_WhenSerialize()
     {
+        // Prepara o cenario.
         var user = new User("John Doe", "john.doe@hotmail.com", EStatus.Active);
 
+        // Executa a acao.
         var act = user.ToJson();
 
+        // Valida o resultado.
         act.Should().NotBeNullOrWhiteSpace().And.BeEquivalentTo(UserJson);
     }
 
     [Fact]
     public void Should_ReturnEntity_WhenDeserializeTyped()
     {
+        // Prepara o cenario.
         var expectedUser = new User("John Doe", "john.doe@hotmail.com", EStatus.Active);
 
+        // Executa a acao.
         var act = UserJson.FromJson<User>();
 
+        // Valida o resultado.
         act.Should().NotBeNull().And.BeEquivalentTo(expectedUser);
         act.UserName.Should().Be(expectedUser.UserName);
         act.Email.Should().NotBeNullOrWhiteSpace();
@@ -38,23 +44,26 @@ public class JsonExtensionsTests
     [Fact]
     public void Should_ReturnNull_WhenSerializeNullValue()
     {
-        // Arrange
+        // Prepara o cenario.
         User? user = null;
 
-        // Act
+        // Executa a acao.
         var act = user.ToJson();
 
-        // Assert
+        // Valida o resultado.
         act.Should().BeNull();
     }
 
     [Fact]
     public void Should_ReturnNull_WhenDeserializeNullValueTyped()
     {
+        // Prepara o cenario.
         const string? strJson = null;
 
+        // Executa a acao.
         var act = strJson?.FromJson<User>();
 
+        // Valida o resultado.
         act.Should().BeNull();
     }
     private enum EStatus

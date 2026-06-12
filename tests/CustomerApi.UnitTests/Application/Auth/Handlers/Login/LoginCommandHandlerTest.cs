@@ -49,6 +49,7 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
     [Fact]
     public async Task Login_ValidCommand_ShouldReturnSuccessResult()
     {
+        // Prepara o cenario.
         var user = CreateDefaultUser(ValidPassword);
 
         _userRepository.Add(user);
@@ -70,10 +71,12 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
 
         var handler = CreateLoginCommandHandler();
 
+        // Executa a acao.
         var act = await handler.Handle(
             validLoginCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
         act.Value.AccessToken.Should().Be(AccessToken);
@@ -83,12 +86,15 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
     [Fact]
     public async Task Login_InvalidCommand_ShouldReturnFailResult()
     {
+        // Prepara o cenario.
         var invalidLoginCommand = new LoginCommand();
 
         var handler = CreateLoginCommandHandler();
 
+        // Executa a acao.
         var act = await handler.Handle(invalidLoginCommand, CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();
@@ -97,6 +103,7 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
     [Fact]
     public async Task Login_UserNotFound_ShouldReturnUnauthorizedResult()
     {
+        // Prepara o cenario.
         var loginWithNotFoundUserCommand = new LoginCommand
         {
             Email = "test@nonexistent.com",
@@ -107,10 +114,12 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
 
         var handler = CreateLoginCommandHandler();
 
+        // Executa a acao.
         var act = await handler.Handle(
             loginWithNotFoundUserCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.IsUnauthorized().Should().BeTrue();
@@ -120,6 +129,7 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
     [Fact]
     public async Task Login_UserInactive_ShouldReturnUnauthorizedResult()
     {
+        // Prepara o cenario.
         var user = CreateDefaultUser(SavedPassword);
         user.Deactivate();
 
@@ -138,10 +148,12 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
 
         var handler = CreateLoginCommandHandler();
 
+        // Executa a acao.
         var act = await handler.Handle(
             loginWithInactiveUserCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.IsUnauthorized().Should().BeTrue();
@@ -151,6 +163,7 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
     [Fact]
     public async Task Login_PasswordError_ShouldReturnUnauthorizedResult()
     {
+        // Prepara o cenario.
         var user = CreateDefaultUser(SavedPassword);
 
         _userRepository.Add(user);
@@ -168,10 +181,12 @@ public class LoginCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<Ef
 
         var handler = CreateLoginCommandHandler();
 
+        // Executa a acao.
         var act = await handler.Handle(
             loginWithWrongPasswordCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.IsUnauthorized().Should().BeTrue();

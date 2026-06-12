@@ -43,6 +43,7 @@ public class ChangePasswordCommandHandlerTest(EfSqliteFixture fixture) : IClassF
     [Fact]
     public async Task ChangePassword_ValidCommand_ShouldReturnSuccessResult()
     {
+        // Prepara o cenario.
         var user = CreateDefaultUser();
 
         _userRepository.Add(user);
@@ -64,10 +65,12 @@ public class ChangePasswordCommandHandlerTest(EfSqliteFixture fixture) : IClassF
 
         var handler = CreateChangePasswordCommandHandler();
 
+        // Executa a acao.
         var act = await handler.Handle(
             validChangePasswordCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
     }
@@ -75,14 +78,17 @@ public class ChangePasswordCommandHandlerTest(EfSqliteFixture fixture) : IClassF
     [Fact]
     public async Task ChangePassword_InvalidCommand_ShouldReturnFailResult()
     {
+        // Prepara o cenario.
         var invalidChangePasswordCommand = new ChangePasswordCommand();
 
         var handler = CreateChangePasswordCommandHandler();
 
+        // Executa a acao.
         var act = await handler.Handle(
            invalidChangePasswordCommand,
            CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();
@@ -91,6 +97,7 @@ public class ChangePasswordCommandHandlerTest(EfSqliteFixture fixture) : IClassF
     [Fact]
     public async Task ChangePassword_ConfirmPasswordDifferentFromNewPassword_ShouldReturnFailResult()
     {
+        // Prepara o cenario.
         var changePasswordWithDifferentConfirmPasswordCommand = new ChangePasswordCommand
         {
             UserId = Guid.NewGuid(),
@@ -101,10 +108,12 @@ public class ChangePasswordCommandHandlerTest(EfSqliteFixture fixture) : IClassF
 
         var handler = CreateChangePasswordCommandHandler();
 
+        // Executa a acao.
         var act = await handler.Handle(
             changePasswordWithDifferentConfirmPasswordCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should()
@@ -116,6 +125,7 @@ public class ChangePasswordCommandHandlerTest(EfSqliteFixture fixture) : IClassF
     [Fact]
     public async Task ChangePassword_NotFoundUser_ShouldReturnUnauthorized()
     {
+        // Prepara o cenario.
         var changePasswordWithNotFoundUserCommand = new ChangePasswordCommand
         {
             UserId = Guid.NewGuid(),
@@ -126,10 +136,12 @@ public class ChangePasswordCommandHandlerTest(EfSqliteFixture fixture) : IClassF
 
         var handler = CreateChangePasswordCommandHandler();
 
+        // Executa a acao.
         var act = await handler.Handle(
             changePasswordWithNotFoundUserCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Status.Should().Be(ResultStatus.Unauthorized);
@@ -138,6 +150,7 @@ public class ChangePasswordCommandHandlerTest(EfSqliteFixture fixture) : IClassF
     [Fact]
     public async Task ChangePassword_WrongCurrentPassword_ShouldReturnUnauthorized()
     {
+        // Prepara o cenario.
         var user = CreateDefaultUser();
 
         _userRepository.Add(user);
@@ -159,10 +172,12 @@ public class ChangePasswordCommandHandlerTest(EfSqliteFixture fixture) : IClassF
 
         var handler = CreateChangePasswordCommandHandler();
 
+        // Executa a acao.
         var act = await handler.Handle(
             changePasswordWithWrongCurrentPasswordCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Status.Should().Be(ResultStatus.Unauthorized);

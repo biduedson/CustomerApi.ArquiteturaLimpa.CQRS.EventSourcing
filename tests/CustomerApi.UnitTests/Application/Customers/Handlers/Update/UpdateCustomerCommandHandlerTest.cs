@@ -35,6 +35,7 @@ public class UpdateCustomerCommandHandlerTest(EfSqliteFixture fixture) : IClassF
     [Fact]
     public async Task Update_ValidCommand_ShouldReturnSuccessResult()
     {
+        // Prepara o cenario.
         var customer = CreateCustomer();
 
         _customerRepository.Add(customer);
@@ -50,8 +51,10 @@ public class UpdateCustomerCommandHandlerTest(EfSqliteFixture fixture) : IClassF
 
         var handler = CreateUpdateCustomerCommandHandler(_unitOfWork);
 
+        // Executa a acao.
         var act = await handler.Handle(validUpdateCustomerCommand, CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
         act.SuccessMessage.Should().Be(SuccessMessage);
@@ -60,6 +63,7 @@ public class UpdateCustomerCommandHandlerTest(EfSqliteFixture fixture) : IClassF
     [Fact]
     public async Task Update_DuplicateEmailCommand_ShouldReturnFailResult()
     {
+        // Prepara o cenario.
         var customers = CreateCustomers(2);
 
         foreach (var customer in customers)
@@ -78,8 +82,10 @@ public class UpdateCustomerCommandHandlerTest(EfSqliteFixture fixture) : IClassF
 
         var handler = CreateUpdateCustomerCommandHandler(Substitute.For<IUnitOfWork>());
 
+        // Executa a acao.
         var act = await handler.Handle(updateCustomerWithDuplicateEmailCommand, CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Errors.Should()
@@ -91,6 +97,7 @@ public class UpdateCustomerCommandHandlerTest(EfSqliteFixture fixture) : IClassF
     [Fact]
     public async Task Update_NotFoundCustomer_ShouldReturnFailResult()
     {
+        // Prepara o cenario.
         var updateCustomerWithNotFoundCustomerCommand = new UpdateCustomerCommand
         {
             Id = Guid.NewGuid(),
@@ -99,8 +106,10 @@ public class UpdateCustomerCommandHandlerTest(EfSqliteFixture fixture) : IClassF
 
         var handler = CreateUpdateCustomerCommandHandler(Substitute.For<IUnitOfWork>());
 
+        // Executa a acao.
         var act = await handler.Handle(updateCustomerWithNotFoundCustomerCommand, CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Errors.Should()

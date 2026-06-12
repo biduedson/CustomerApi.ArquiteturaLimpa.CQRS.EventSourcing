@@ -32,6 +32,7 @@ public class DeleteUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
     [Fact]
     public async Task Delete_ValidUserId_ShouldReturnSuccessResult()
     {
+        // Prepara o cenario.
         var user = CreateUser();
 
         _userRepository.Add(user);
@@ -42,8 +43,10 @@ public class DeleteUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
         var command = new DeleteUserCommand(user.Id);
         var handler = CreateDeleteUserCommandHandler(_unitOfWork);
 
+        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
     }
@@ -51,11 +54,14 @@ public class DeleteUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
     [Fact]
     public async Task Delete_InvalidUserId_ShouldReturnFailureResult()
     {
+        // Prepara o cenario.
         var command = new DeleteUserCommand(Guid.NewGuid());
         var handler = CreateDeleteUserCommandHandler(Substitute.For<IUnitOfWork>());
 
+        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Errors.Should()
@@ -67,11 +73,14 @@ public class DeleteUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
     [Fact]
     public async Task Delete_InvalidCommand_ShouldReturnFailResult()
     {
+        // Prepara o cenario.
         var command = new DeleteUserCommand(Guid.Empty);
         var handler = CreateDeleteUserCommandHandler(Substitute.For<IUnitOfWork>());
 
+        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();

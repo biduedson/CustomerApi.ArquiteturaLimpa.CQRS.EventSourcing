@@ -49,8 +49,10 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     [Fact]
     public async Task RefreshToken_ValidCommand_ShouldReturnSuccessResult()
     {
+        // Prepara o cenario.
         var user = CreateDefaultUser();
 
+        // Executa a acao.
         var userSession = UserSession.Create(
             user.Id,
             RefreshTokenHash,
@@ -82,6 +84,7 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
             validRefreshTokenCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
         act.Value.AccessToken.Should().Be(AccessToken);
@@ -91,14 +94,17 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     [Fact]
     public async Task RefreshToken_InvalidCommand_ShouldReturnFailResult()
     {
+        // Prepara o cenario.
         var invalidRefreshTokenCommand = new RefreshTokenCommand();
 
         var handler = CreateRefreshTokenCommandHandler();
 
+        // Executa a acao.
         var act = await handler.Handle(
             invalidRefreshTokenCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();
@@ -107,7 +113,9 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     [Fact]
     public async Task RefreshToken_RevokedSessionReuse_ShouldReturnUnauthorized()
     {
+        // Prepara o cenario.
 
+        // Executa a acao.
         var userSession = UserSession.Create(
             Guid.NewGuid(),
             RefreshTokenHash,
@@ -137,6 +145,7 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
             refreshTokenWithRevokedSessionCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Status.Should().Be(ResultStatus.Unauthorized);
@@ -145,6 +154,7 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     [Fact]
     public async Task RefreshToken_SessionNotFound_ShouldReturnUnauthorized()
     {
+        // Prepara o cenario.
         _refreshTokenService.HashToken(RefreshToken).Returns(RefreshTokenHash);
 
         var refreshTokenWithNotFoundSessionCommand = new RefreshTokenCommand
@@ -156,10 +166,12 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
 
         var handler = CreateRefreshTokenCommandHandler();
 
+        // Executa a acao.
         var act = await handler.Handle(
             refreshTokenWithNotFoundSessionCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Status.Should().Be(ResultStatus.Unauthorized);
@@ -168,8 +180,10 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     [Fact]
     public async Task RefreshToken_DeviceChangeDetected_ShouldReturnUnauthorized()
     {
+        // Prepara o cenario.
         var user = CreateDefaultUser();
 
+        // Executa a acao.
         var userSession = UserSession.Create(
             user.Id,
             RefreshTokenHash,
@@ -198,6 +212,7 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
             refreshTokenWithDifferentDeviceCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Status.Should().Be(ResultStatus.Unauthorized);
@@ -206,6 +221,8 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     [Fact]
     public async Task RefreshToken_UserNotFound_ShouldReturnUnauthorized()
     {
+        // Prepara o cenario.
+        // Executa a acao.
         var userSession = UserSession.Create(
           Guid.NewGuid(),
           RefreshTokenHash,
@@ -233,6 +250,7 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
             refreshTokenWithNotFoundUserCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Status.Should().Be(ResultStatus.Unauthorized);
@@ -242,8 +260,10 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     [Fact]
     public async Task RefreshToken_InactiveUser_ShouldReturnUnauthorized()
     {
+        // Prepara o cenario.
         var user = CreateDefaultUser();
 
+        // Executa a acao.
         var userSession = UserSession.Create(
             user.Id,
             RefreshTokenHash,
@@ -274,6 +294,7 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
             refreshTokenWithInactiveUserCommand,
             CancellationToken.None);
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Status.Should().Be(ResultStatus.Unauthorized);

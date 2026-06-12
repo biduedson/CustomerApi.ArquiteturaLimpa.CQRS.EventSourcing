@@ -17,10 +17,13 @@ public class ConfigurationExtensionsTests
     [Fact]
     public void Should_ReturnsClassOptions_WhenGetOptions()
     {
+        // Prepara o cenario.
         var configuration = CreateConfiguration();
 
+        // Executa a acao.
         var act = configuration.GetOptions<CacheOptions>();
 
+        // Valida o resultado.
         act.Should().NotBeNull();
         act.AbsoluteExpirationInHours.Should().Be(AbsoluteExpirationInHours);
         act.SlidingExpirationInSeconds.Should().Be(SlidingExpirationInSeconds);

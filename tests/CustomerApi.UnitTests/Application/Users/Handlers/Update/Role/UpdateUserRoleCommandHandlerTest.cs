@@ -36,7 +36,6 @@ public class UpdateUserRoleCommandHandlerTest(EfSqliteFixture fixture) : IClassF
     [Fact]
     public async Task UpdateRole_ValidCommand_ShouldReturnSuccessResult()
     {
-        // Prepara o cenario.
         var user = CreateUser(UserRole.Viewer);
 
         _userRepository.Add(user);
@@ -53,10 +52,8 @@ public class UpdateUserRoleCommandHandlerTest(EfSqliteFixture fixture) : IClassF
 
         var handler = CreateUpdateUserRoleCommandHandler();
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
     }
@@ -64,15 +61,12 @@ public class UpdateUserRoleCommandHandlerTest(EfSqliteFixture fixture) : IClassF
     [Fact]
     public async Task UpdateRole_InvalidCommand_ShouldReturnFailResult()
     {
-        // Prepara o cenario.
         var command = new UpdateUserRoleCommand();
 
         var handler = CreateUpdateUserRoleCommandHandler();
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();
@@ -81,7 +75,6 @@ public class UpdateUserRoleCommandHandlerTest(EfSqliteFixture fixture) : IClassF
     [Fact]
     public async Task UpdateRole_InvalidRole_ShouldReturnFailResult()
     {
-        // Prepara o cenario.
         var command = new UpdateUserRoleCommand
         {
             Id = Guid.NewGuid(),
@@ -90,10 +83,8 @@ public class UpdateUserRoleCommandHandlerTest(EfSqliteFixture fixture) : IClassF
 
         var handler = CreateUpdateUserRoleCommandHandler();
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();
@@ -102,7 +93,6 @@ public class UpdateUserRoleCommandHandlerTest(EfSqliteFixture fixture) : IClassF
     [Fact]
     public async Task UpdateRole_NotFoundUser_ShouldReturnNotFound()
     {
-        // Prepara o cenario.
         var command = new UpdateUserRoleCommand
         {
             Id = Guid.NewGuid(),
@@ -111,10 +101,8 @@ public class UpdateUserRoleCommandHandlerTest(EfSqliteFixture fixture) : IClassF
 
         var handler = CreateUpdateUserRoleCommandHandler();
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Status.Should().Be(ResultStatus.NotFound);

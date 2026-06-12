@@ -19,13 +19,10 @@ public class ServicesCollectionExtensionsTests
     [Fact]
     public void Should_ReturnClassOptions_WhenConfigureAppSettings()
     {
-        // Prepara o cenario.
         var serviceProvider = CreateServiceProvider();
 
-        // Executa a acao.
         var act = serviceProvider.GetOptions<CacheOptions>();
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.AbsoluteExpirationInHours.Should().Be(AbsoluteExpirationInHours);
         act.SlidingExpirationInSeconds.Should().Be(SlidingExpirationInSeconds);

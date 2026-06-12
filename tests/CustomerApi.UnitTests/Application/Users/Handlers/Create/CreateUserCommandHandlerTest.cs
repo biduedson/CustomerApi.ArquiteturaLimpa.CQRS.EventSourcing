@@ -38,15 +38,12 @@ public class CreateUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
     [Fact]
     public async Task Create_ValidCommand_ShouldReturnCreatedResult()
     {
-        // Prepara o cenario.
         var command = CreateValidCommand();
         await SetAuthenticatedUserAsync(command);
         var handler = CreateUserCommandHandler(_unitOfWork);
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsCreated().Should().BeTrue();
         act.Value.Should().NotBeNull();
@@ -58,7 +55,6 @@ public class CreateUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
     [Fact]
     public async Task Create_DuplicateUserNameCommand_ShouldReturnFailResult()
     {
-        // Prepara o cenario.
         var command = CreateValidCommand();
         await SetAuthenticatedUserAsync(command);
         var user = CreateUser(command.Username, CreateUniqueEmail("existing-user-with-different-email"));
@@ -70,10 +66,8 @@ public class CreateUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
 
         var handler = CreateUserCommandHandler(Substitute.For<IUnitOfWork>());
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Errors.Should()
@@ -85,7 +79,6 @@ public class CreateUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
     [Fact]
     public async Task Create_DuplicateEmailCommand_ShouldReturnFailResult()
     {
-        // Prepara o cenario.
         var command = CreateValidCommand();
         await SetAuthenticatedUserAsync(command);
         var user = CreateUser(CreateUniqueUserName("existing-user-with-different-username"), command.Email);
@@ -97,10 +90,8 @@ public class CreateUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
 
         var handler = CreateUserCommandHandler(Substitute.For<IUnitOfWork>());
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Errors.Should()
@@ -112,14 +103,11 @@ public class CreateUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
     [Fact]
     public async Task Create_InvalidCommand_ShouldReturnFailResult()
     {
-        // Prepara o cenario.
         var command = new CreateUserCommand();
         var handler = CreateUserCommandHandler(Substitute.For<IUnitOfWork>());
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();

@@ -37,8 +37,6 @@ public class LogoutCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<E
     [Fact]
     public async Task Logout_ValidCommand_ShouldReturnSuccessResult()
     {
-        // Prepara o cenario.
-        // Executa a acao.
         var userSession = UserSession.Create(
            Guid.NewGuid(),
            RefreshTokenHash,
@@ -62,7 +60,6 @@ public class LogoutCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<E
 
         var act = await handler.Handle(validLogoutCommand, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
     }
@@ -70,15 +67,12 @@ public class LogoutCommandHandlerTest(EfSqliteFixture fixture) : IClassFixture<E
     [Fact]
     public async Task Logout_InvalidCommand_ShouldReturnFailResult()
     {
-        // Prepara o cenario.
         var invalidLogoutCommand = new LogoutCommand();
 
         var handler = CreateLogoutCommandHandler();
 
-        // Executa a acao.
         var act = await handler.Handle(invalidLogoutCommand, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();

@@ -15,11 +15,8 @@ public class UserTests
     [Fact]
     public void Should_UserCreatedEvent_WhenCreate()
     {
-        // Prepara o cenario.
-        // Executa a acao.
         var act = CreateUser();
 
-        // Valida o resultado.
         act.DomainEvents.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()
@@ -29,13 +26,10 @@ public class UserTests
     [Fact]
     public void Should_UserUpdatedEvent_WhenChangeEmail()
     {
-        // Prepara o cenario.
         var user = CreateUser();
 
-        // Executa a acao.
         user.ChangeEmail(CreateEmail());
 
-        // Valida o resultado.
         user.DomainEvents.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()
@@ -45,13 +39,10 @@ public class UserTests
     [Fact]
     public void Should_UserUpdatedEvent_WhenChangeProfile()
     {
-        // Prepara o cenario.
         var user = CreateUser();
 
-        // Executa a acao.
         user.ChangeProfile(CreateUserProfile());
 
-        // Valida o resultado.
         user.DomainEvents.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()
@@ -61,13 +52,10 @@ public class UserTests
     [Fact]
     public void Should_UserUpdatedEvent_WhenChangeRole()
     {
-        // Prepara o cenario.
         var user = CreateUser();
 
-        // Executa a acao.
         user.ChangeRole(UserRole.Admin);
 
-        // Valida o resultado.
         user.DomainEvents.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()
@@ -77,13 +65,10 @@ public class UserTests
     [Fact]
     public void Should_UserPasswordChangedEvent_WhenChangePassword()
     {
-        // Prepara o cenario.
         var user = CreateUser();
 
-        // Executa a acao.
         user.ChangePassword("new-password-hash");
 
-        // Valida o resultado.
         user.DomainEvents.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()
@@ -93,13 +78,10 @@ public class UserTests
     [Fact]
     public void Should_UserUpdatedEvent_WhenDeactivate()
     {
-        // Prepara o cenario.
         var user = CreateUser();
 
-        // Executa a acao.
         user.Deactivate();
 
-        // Valida o resultado.
         user.DomainEvents.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()
@@ -109,14 +91,11 @@ public class UserTests
     [Fact]
     public void Should_UserUpdatedEvent_WhenActivate()
     {
-        // Prepara o cenario.
         var user = CreateUser();
 
-        // Executa a acao.
         user.Deactivate();
         user.Activate();
 
-        // Valida o resultado.
         user.DomainEvents.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()
@@ -126,13 +105,10 @@ public class UserTests
     [Fact]
     public void Should_UserDeletedEvent_WhenDelete()
     {
-        // Prepara o cenario.
         var user = CreateUser();
 
-        // Executa a acao.
         user.Delete();
 
-        // Valida o resultado.
         user.DomainEvents.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()

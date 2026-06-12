@@ -1,4 +1,4 @@
-using CustomerApi.Domain.Exceptions;
+﻿using CustomerApi.Domain.Exceptions;
 using CustomerApi.Domain.ValueObjects;
 using FluentAssertions;
 using NSubstitute.ExceptionExtensions;
@@ -25,11 +25,8 @@ public class EmailTests
     [InlineData("12@hostname.com")]
     public void Should_ReturnsSuccess_When_CreateEmailIsValid(string emailAddress)
     {
-        // Prepara o cenario.
-        // Executa a acao.
         var act = Email.Create(emailAddress);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.Should().NotBeNull().And.BeOfType<Email>();
         act.Address.Should().NotBeNullOrEmpty().And.Be(emailAddress.ToLowerInvariant());
@@ -50,11 +47,8 @@ public class EmailTests
     [InlineData("ma@jjf.")]             // Nada após o ponto final
     public void Should_ReturnsFail_When_CreateEmailInvalid(string emailAddress) 
     {
-        // Prepara o cenario.
-        // Executa a acao.
         var act = () => Email.Create(emailAddress);
 
-        // Valida o resultado.
         act.Should().ThrowExactly<DomainException>()
         .WithMessage("O endereço de e-mail é inválido.");
     }
@@ -65,10 +59,7 @@ public class EmailTests
     [InlineData(null)]
     public void Should_ReturnsFail_When_CreateEmailIsEmptyOrNull(string? emailAddress)
     {
-        // Prepara o cenario.
-        // Executa a acao.
         var act = () => Email.Create(emailAddress!);
-        // Valida o resultado.
         act.Should().ThrowExactly<DomainException>()
             .WithMessage("O endereço de e-mail deve ser fornecido.");
     }

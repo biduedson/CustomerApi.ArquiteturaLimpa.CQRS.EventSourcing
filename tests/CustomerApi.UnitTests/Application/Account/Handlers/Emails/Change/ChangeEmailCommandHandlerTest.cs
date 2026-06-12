@@ -38,7 +38,6 @@ public class ChangeEmailCommandHandlerTest(EfSqliteFixture fixture) : IClassFixt
     [Fact]
     public async Task ChangeEmail_ValidCommand_ShouldReturnSuccessResult()
     {
-        // Prepara o cenario.
         var user = CreateUser();
 
         _userRepository.Add(user);
@@ -55,10 +54,8 @@ public class ChangeEmailCommandHandlerTest(EfSqliteFixture fixture) : IClassFixt
 
         var handler = CreateChangeEmailCommandHandler();
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
     }
@@ -66,7 +63,6 @@ public class ChangeEmailCommandHandlerTest(EfSqliteFixture fixture) : IClassFixt
     [Fact]
     public async Task ChangeEmail_DuplicateEmailCommand_ShouldReturnFailResult()
     {
-        // Prepara o cenario.
         var users = CreateUsers(2);
 
         foreach (var user in users)
@@ -85,10 +81,8 @@ public class ChangeEmailCommandHandlerTest(EfSqliteFixture fixture) : IClassFixt
 
         var handler = CreateChangeEmailCommandHandler();
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Errors.Should()
@@ -100,15 +94,12 @@ public class ChangeEmailCommandHandlerTest(EfSqliteFixture fixture) : IClassFixt
     [Fact]
     public async Task ChangeEmail_InvalidCommand_ShouldReturnFailResult()
     {
-        // Prepara o cenario.
         var command = new ChangeEmailCommand();
 
         var handler = CreateChangeEmailCommandHandler();
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();
@@ -117,7 +108,6 @@ public class ChangeEmailCommandHandlerTest(EfSqliteFixture fixture) : IClassFixt
     [Fact]
     public async Task ChangeEmail_NotFoundUser_ShouldReturnNotFound()
     {
-        // Prepara o cenario.
         var command = new ChangeEmailCommand
         {
             UserId = Guid.NewGuid(),
@@ -126,10 +116,8 @@ public class ChangeEmailCommandHandlerTest(EfSqliteFixture fixture) : IClassFixt
 
         var handler = CreateChangeEmailCommandHandler();
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Status.Should().Be(ResultStatus.NotFound);

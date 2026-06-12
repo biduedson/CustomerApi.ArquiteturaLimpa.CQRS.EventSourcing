@@ -36,7 +36,6 @@ public class UpdateUserProfileCommandHandlerTest(EfSqliteFixture fixture) : ICla
     [Fact]
     public async Task UpdateProfile_ValidCommand_ShouldReturnSuccessResult()
     {
-        // Prepara o cenario.
         var user = CreateUser();
 
         _userRepository.Add(user);
@@ -55,10 +54,8 @@ public class UpdateUserProfileCommandHandlerTest(EfSqliteFixture fixture) : ICla
 
         var handler = CreateUpdateUserProfileCommandHandler();
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
     }
@@ -66,7 +63,6 @@ public class UpdateUserProfileCommandHandlerTest(EfSqliteFixture fixture) : ICla
     [Fact]
     public async Task UpdateProfile_PartialCommand_ShouldReturnSuccessResult()
     {
-        // Prepara o cenario.
         var user = CreateUser();
 
         _userRepository.Add(user);
@@ -83,10 +79,8 @@ public class UpdateUserProfileCommandHandlerTest(EfSqliteFixture fixture) : ICla
 
         var handler = CreateUpdateUserProfileCommandHandler();
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
     }
@@ -94,15 +88,12 @@ public class UpdateUserProfileCommandHandlerTest(EfSqliteFixture fixture) : ICla
     [Fact]
     public async Task UpdateProfile_InvalidCommand_ShouldReturnFailResult()
     {
-        // Prepara o cenario.
         var command = new UpdateUserProfileCommand();
 
         var handler = CreateUpdateUserProfileCommandHandler();
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();
@@ -111,7 +102,6 @@ public class UpdateUserProfileCommandHandlerTest(EfSqliteFixture fixture) : ICla
     [Fact]
     public async Task UpdateProfile_NotFoundUser_ShouldReturnNotFound()
     {
-        // Prepara o cenario.
         var command = new UpdateUserProfileCommand
         {
             Id = Guid.NewGuid(),
@@ -122,10 +112,8 @@ public class UpdateUserProfileCommandHandlerTest(EfSqliteFixture fixture) : ICla
 
         var handler = CreateUpdateUserProfileCommandHandler();
 
-        // Executa a acao.
         var act = await handler.Handle(command, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Status.Should().Be(ResultStatus.NotFound);

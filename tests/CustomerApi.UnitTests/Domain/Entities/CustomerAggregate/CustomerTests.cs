@@ -14,11 +14,8 @@ public class CustomerTests
     [Fact]
     public void Should_CustomerCreatedEvent_WhenCreate()
     {
-        // Prepara o cenario.
-        // Executa a acao.
         var act = CreateCustomer();
 
-        // Valida o resultado.
         act.DomainEvents.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()
@@ -28,13 +25,10 @@ public class CustomerTests
     [Fact]
     public void Should_CustomerUpdatedEvent_WhenChangeEmail()
     {
-        // Prepara o cenario.
         var customer = CreateCustomer();
 
-        // Executa a acao.
         customer.ChangeEmail(CreateEmail());
 
-        // Valida o resultado.
         customer.DomainEvents.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()
@@ -44,13 +38,10 @@ public class CustomerTests
     [Fact]
     public void Should_CustomerDeleteEvent_WhenDelete()
     {
-        // Prepara o cenario.
         var customer = CreateCustomer();
 
-        // Executa a acao.
         customer.Delete();
 
-        // Valida o resultado.
         customer.DomainEvents.Should()
             .NotBeNullOrEmpty()
             .And.OnlyHaveUniqueItems()

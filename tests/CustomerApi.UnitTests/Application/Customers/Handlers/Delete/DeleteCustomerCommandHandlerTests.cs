@@ -33,7 +33,6 @@ public class DeleteCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
     [Fact]
     public async Task Delete_ValidCustomerId_ShouldReturnSuccessResult()
     {
-        // Prepara o cenario.
         var customer = CreateCustomer();
 
         _customerRepository.Add(customer);
@@ -45,10 +44,8 @@ public class DeleteCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
 
         var handler = CreateDeleteCustomerCommandHandler(_unitOfWork);
 
-        // Executa a acao.
         var act = await handler.Handle(validDeleteCustomerCommand, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeTrue();
         act.SuccessMessage.Should().Be(SuccessMessage);
@@ -57,15 +54,12 @@ public class DeleteCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
     [Fact]
     public async Task Delete_InvalidCustomerId_ShouldReturnFailureResult()
     {
-        // Prepara o cenario.
         var deleteCustomerWithNotFoundCustomerCommand = new DeleteCustomerCommand(Guid.NewGuid());
 
         var handler = CreateDeleteCustomerCommandHandler(Substitute.For<IUnitOfWork>());
 
-        // Executa a acao.
         var act = await handler.Handle(deleteCustomerWithNotFoundCustomerCommand, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.Errors.Should()
@@ -77,15 +71,12 @@ public class DeleteCustomerCommandHandlerTests(EfSqliteFixture fixture) : IClass
     [Fact]
     public async Task Delete_InvalidCommand_ShouldReturnFailResult()
     {
-        // Prepara o cenario.
         var invalidDeleteCustomerCommand = new DeleteCustomerCommand(Guid.Empty);
 
         var handler = CreateDeleteCustomerCommandHandler(Substitute.For<IUnitOfWork>());
 
-        // Executa a acao.
         var act = await handler.Handle(invalidDeleteCustomerCommand, CancellationToken.None);
 
-        // Valida o resultado.
         act.Should().NotBeNull();
         act.IsSuccess.Should().BeFalse();
         act.ValidationErrors.Should().NotBeNullOrEmpty().And.OnlyHaveUniqueItems();

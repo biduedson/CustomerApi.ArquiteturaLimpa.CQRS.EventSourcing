@@ -1,13 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Net.Http;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Bogus;
 using CustomerApi.Application.Customers.Commands.Create;
 using CustomerApi.Application.Customers.Responses;
 using CustomerApi.Core.Extensions;
 using CustomerApi.Domain.Entities.CustomerAggregate;
+using CustomerApi.Domain.Entities.UserAggregate;
 using CustomerApi.Domain.ValueObjects;
 using CustomerApi.Infrastructure.Data.Context;
 using CustomerApi.IntegrationTests.Extensions;
@@ -26,6 +31,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using NSubstitute;
 using Xunit;
 using Xunit.Categories;
@@ -37,6 +43,9 @@ public class CustomersControllerTests : IAsyncLifetime
 {
     private const string ConnectionString = "Data Source=:memory:"; // String de conexão para banco em memória SQLite
     private const string Endpoint = "/api/customers"; // Endpoint base da API de clientes
+    private const string JwtIssuer = "CustomerApi";
+    private const string JwtAudience = "CustomerApi.BlazorUI";
+    private const string JwtSecret = "CHANGE_THIS_SECRET_TO_A_LONG_SECURE_KEY_WITH_AT_LEAST_32_CHARACTERS";
 
     // Conexões SQLite em memória para simular bancos de dados separados
     private readonly SqliteConnection _eventStoreDbContextSqlite = new(ConnectionString); // Banco para Event Store (eventos de domínio)
@@ -60,10 +69,6 @@ public class CustomersControllerTests : IAsyncLifetime
 
         using var jsoncontent = command.ToJsonHttpContent();
         using var act = await httpClient.PostAsync(Endpoint, jsoncontent);
-
-        var rawContent = await act.Content.ReadAsStringAsync();
-        Console.WriteLine($"StatusCode: {act.StatusCode}");
-        Console.WriteLine($"Response: {rawContent}");
 
         act.Should().NotBeNull();
         act.IsSuccessStatusCode.Should().BeTrue();
@@ -358,6 +363,7 @@ public class CustomersControllerTests : IAsyncLifetime
         });
 
         using var httpClient = webApplicationFactory.CreateClient(CreateClientOptions());
+        AuthenticateAsAdmin(httpClient);
 
 
         using var act = await httpClient.DeleteAsync($"{Endpoint}/{customer.Id}");
@@ -380,6 +386,7 @@ public class CustomersControllerTests : IAsyncLifetime
 
         await using var webApplicationFactory = InitializeWebAppFactory();
         using var httpClient = webApplicationFactory.CreateClient(CreateClientOptions());
+        AuthenticateAsAdmin(httpClient);
 
 
         using var act = await httpClient.DeleteAsync($"{Endpoint}/{Guid.Empty}");
@@ -404,6 +411,7 @@ public class CustomersControllerTests : IAsyncLifetime
 
         await using var webApplicationFactory = InitializeWebAppFactory();
         using var httpClient = webApplicationFactory.CreateClient(CreateClientOptions());
+        AuthenticateAsAdmin(httpClient);
 
 
         using var act = await httpClient.DeleteAsync($"{Endpoint}/{customerId}");
@@ -502,5 +510,39 @@ public class CustomersControllerTests : IAsyncLifetime
     }
 
     private static WebApplicationFactoryClientOptions CreateClientOptions() => new() { AllowAutoRedirect = false };
+
+    private static void AuthenticateAsAdmin(HttpClient httpClient)
+    {
+        var token = CreateAccessToken(UserRole.Admin);
+        httpClient.DefaultRequestHeaders.Add("Cookie", $"access_Token={token}");
+    }
+
+    private static string CreateAccessToken(UserRole role)
+    {
+        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSecret));
+        var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+        var userId = Guid.NewGuid();
+
+        var claims = new[]
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Name, "admin.test"),
+            new Claim(ClaimTypes.Email, "admin.test@test.com"),
+            new Claim(ClaimTypes.Role, role.ToString()),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
+        };
+
+        var token = new JwtSecurityToken(
+            issuer: JwtIssuer,
+            audience: JwtAudience,
+            claims: claims,
+            notBefore: DateTime.UtcNow,
+            expires: DateTime.UtcNow.AddMinutes(15),
+            signingCredentials: signingCredentials);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
     #endregion
 }

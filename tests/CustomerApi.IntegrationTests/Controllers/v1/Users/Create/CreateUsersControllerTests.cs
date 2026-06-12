@@ -152,8 +152,10 @@ public class CreateUsersControllerTests : ControllerTestsBase
             faker.Person.FullName,
             faker.Person.DateOfBirth,
             faker.Name.JobTitle(),
-            "P@ssw0rd123!");
+            CreateValidFakePassword());
     }
+
+    private static string CreateValidFakePassword() => $"{nameof(CreateValidFakePassword)}1!";
 
     private static User CreateUser(UserRole role = UserRole.Operator)
     {

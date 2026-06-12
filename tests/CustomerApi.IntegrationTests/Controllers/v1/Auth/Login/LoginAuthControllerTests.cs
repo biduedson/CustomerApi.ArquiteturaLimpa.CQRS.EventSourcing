@@ -45,7 +45,7 @@ public class LoginAuthControllerTests : ControllerTestsBase
         var command = new LoginCommand
         {
             Email = "admin@test.com",
-            Password = "P@ssw0rd123!"
+            Password = "fake-login-password"
         };
 
         using var jsonContent = command.ToJsonHttpContent();

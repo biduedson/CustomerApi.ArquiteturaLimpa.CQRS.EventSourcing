@@ -44,9 +44,9 @@ public class ChangePasswordAccountControllerTests : ControllerTestsBase
         AuthenticateAs(httpClient, UserRole.Operator, userId);
 
         var request = new ChangePasswordDto(
-            "P@ssw0rd123!",
-            "N3wP@ssw0rd!",
-            "N3wP@ssw0rd!");
+            "fake-current-password",
+            "fake-new-password",
+            "fake-new-password");
 
         using var jsonContent = request.ToJsonHttpContent();
         // Executa a chamada HTTP.
@@ -92,8 +92,8 @@ public class ChangePasswordAccountControllerTests : ControllerTestsBase
 
         var request = new ChangePasswordDto(
             "wrong-password",
-            "N3wP@ssw0rd!",
-            "N3wP@ssw0rd!");
+            "fake-new-password",
+            "fake-new-password");
 
         using var jsonContent = request.ToJsonHttpContent();
         // Executa a chamada HTTP.

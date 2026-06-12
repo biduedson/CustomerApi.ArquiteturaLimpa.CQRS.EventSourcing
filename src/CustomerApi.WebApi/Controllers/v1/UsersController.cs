@@ -12,8 +12,10 @@ using CustomerApi.Application.Users.Commands.Update.Role;
 using CustomerApi.Application.Users.Responses;
 using CustomerApi.Query.Application.User.Queries;
 using CustomerApi.Query.QueriesModel;
+using CustomerApi.WebApi.Extensions;
 using CustomerApi.WebApi.Extensions.ResultExtensions;
 using CustomerApi.WebApi.Models;
+using CustomerApi.WebApi.Models.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -26,7 +28,7 @@ namespace CustomerApi.WebApi.Controllers.v1;
 [Route("api/[controller]")]
 public class UsersController(IMediator mediator) : ControllerBase
 {
-     #region Controller Write
+    #region Controller Write
     ////////////////////////
     // POST: /api/users
     ////////////////////////
@@ -39,8 +41,24 @@ public class UsersController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
 
-    public async Task<IActionResult> Create([FromBody] CreateUserCommand command) =>
-        (await mediator.Send(command)).ToActionResult();
+    public async Task<IActionResult> Create([FromBody] CreateUserDto request)
+    {
+        var authenticatedUserId = Request.GetUserIdFromAccessTokenCookie();
+
+        var command = new CreateUserCommand
+        {
+            AuthenticatedUserId = authenticatedUserId,
+            Username = request.Username,
+            Email = request.Email,
+            Role = request.Role,
+            FullName = request.FullName,
+            DateOfBirth = request.DateOfBirth,
+            JobTitle = request.JobTitle,
+            Password = request.Password
+        };
+
+        return (await mediator.Send(command)).ToActionResult();
+    }
 
     //////////////////////////////
     // DELETE: /api/users/{id}

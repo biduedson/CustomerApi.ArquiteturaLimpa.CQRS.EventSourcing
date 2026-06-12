@@ -10,6 +10,9 @@ namespace CustomerApi.Application.Users.Commands.Create;
 public class CreateUserCommand : IRequest<Result<CreateUserResponse>>
 {
     [Required]
+    public Guid AuthenticatedUserId { get; set; }
+
+    [Required]
     [DataType(DataType.Text)]
     [MaxLength(50)]
     public string Username { get; set; } = string.Empty;

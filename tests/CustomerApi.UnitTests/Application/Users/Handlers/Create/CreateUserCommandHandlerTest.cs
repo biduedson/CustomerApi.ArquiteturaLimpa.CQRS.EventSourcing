@@ -39,6 +39,7 @@ public class CreateUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
     public async Task Create_ValidCommand_ShouldReturnCreatedResult()
     {
         var command = CreateValidCommand();
+        await SetAuthenticatedUserAsync(command);
         var handler = CreateUserCommandHandler(_unitOfWork);
 
         var act = await handler.Handle(command, CancellationToken.None);
@@ -55,6 +56,7 @@ public class CreateUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
     public async Task Create_DuplicateUserNameCommand_ShouldReturnFailResult()
     {
         var command = CreateValidCommand();
+        await SetAuthenticatedUserAsync(command);
         var user = CreateUser(command.Username, CreateUniqueEmail("existing-user-with-different-email"));
 
         _userRepository.Add(user);
@@ -78,6 +80,7 @@ public class CreateUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
     public async Task Create_DuplicateEmailCommand_ShouldReturnFailResult()
     {
         var command = CreateValidCommand();
+        await SetAuthenticatedUserAsync(command);
         var user = CreateUser(CreateUniqueUserName("existing-user-with-different-username"), command.Email);
 
         _userRepository.Add(user);
@@ -141,6 +144,20 @@ public class CreateUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
             new DateTime(1990, 1, 1),
             "Developer",
             PasswordHash);
+
+    private async Task SetAuthenticatedUserAsync(CreateUserCommand command)
+    {
+        var authenticatedUser = CreateUser(
+            CreateUniqueUserName("authenticated-user"),
+            CreateUniqueEmail("authenticated-user"));
+
+        _userRepository.Add(authenticatedUser);
+
+        await fixture.Context.SaveChangesAsync();
+        fixture.Context.ChangeTracker.Clear();
+
+        command.AuthenticatedUserId = authenticatedUser.Id;
+    }
 
     // O teste cria usuarios no SQLite; se repetir UserName, o SaveChanges falha por causa do indice unico.
     private static string CreateUniqueUserName(string scenario) =>

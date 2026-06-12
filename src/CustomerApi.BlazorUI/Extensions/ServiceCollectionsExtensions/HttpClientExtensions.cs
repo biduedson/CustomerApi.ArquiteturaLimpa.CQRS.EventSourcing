@@ -12,6 +12,8 @@ public static class HttpClientExtensions
     {
         var options = configuration.GetOptions<CustomerApiSettings>();
 
+        services.AddTransient<CookieForwardingHandler>();
+
         services.AddHttpClient("CustomerApi", client =>
         {
             client.BaseAddress = new Uri(options!.BaseUrl!);
@@ -22,6 +24,16 @@ public static class HttpClientExtensions
         });
 
         services.AddHttpClient<ICustomerApiClient, CustomerApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(options!.BaseUrl!);
+        })
+        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        {
+            UseCookies = false
+        })
+        .AddHttpMessageHandler<CookieForwardingHandler>();
+
+        services.AddHttpClient<IUserApiClient, UserApiClient>(client =>
         {
             client.BaseAddress = new Uri(options!.BaseUrl!);
         })

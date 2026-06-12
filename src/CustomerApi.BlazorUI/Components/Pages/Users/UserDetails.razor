@@ -1,0 +1,88 @@
+@using CustomerApi.BlazorUI.Models.Users
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin,Operator")]
+@page "/users/{Id:guid}"
+@inject CustomerApi.BlazorUI.Services.IUserApiClient UserApi
+@inject CustomerApi.BlazorUI.Services.ToastService Toast
+@inject NavigationManager Navigation
+
+<PageTitle>Detalhes do usuário</PageTitle>
+
+@if (_loading)
+{
+    <div class="skeleton-card"></div>
+}
+else if (_user is not null)
+{
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Usuário</p>
+            <h1>@_user.FullName</h1>
+            <p class="text-muted">@_user.Email</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-light rounded-pill px-4" href="users">Voltar</a>
+            <AuthorizeView Roles="Admin">
+                <button class="btn btn-outline-danger rounded-pill px-4" @onclick="DeleteAsync">Excluir</button>
+            </AuthorizeView>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <span class="text-muted d-block">Nome de usuário</span>
+                <strong>@_user.UserName</strong>
+            </div>
+            <div class="col-md-6">
+                <span class="text-muted d-block">Role</span>
+                <strong>@_user.Role</strong>
+            </div>
+            <div class="col-md-6">
+                <span class="text-muted d-block">Cargo</span>
+                <strong>@_user.JobTitle</strong>
+            </div>
+            <div class="col-md-6">
+                <span class="text-muted d-block">Nascimento</span>
+                <strong>@_user.DateOfBirth.ToString("dd/MM/yyyy")</strong>
+            </div>
+            <div class="col-md-6">
+                <span class="text-muted d-block">Status</span>
+                <strong>@(_user.IsActive ? "Ativo" : "Inativo")</strong>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private bool _loading = true;
+    private UserListItem? _user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await UserApi.GetByIdAsync(Id);
+        _user = response.Result;
+        _loading = false;
+
+        if (_user is null)
+        {
+            Toast.Error("Usuário não encontrado.");
+            Navigation.NavigateTo("/users");
+        }
+    }
+
+    private async Task DeleteAsync()
+    {
+        var response = await UserApi.DeleteAsync(Id);
+        if (response.Success)
+        {
+            Toast.Success("Usuário removido com sucesso.");
+            Navigation.NavigateTo("/users");
+            return;
+        }
+
+        Toast.Error(string.Join(" ", response.Errors));
+    }
+}

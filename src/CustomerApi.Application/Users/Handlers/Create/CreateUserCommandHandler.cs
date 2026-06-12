@@ -31,6 +31,14 @@ public class CreateUserCommandHandler(
         if (!validationResul.IsValid)
             return Result<CreateUserResponse>.Invalid(validationResul.AsErrors());
 
+        var authenticatedUser = await repository.GetByIdAsync(request.AuthenticatedUserId);
+
+        if (authenticatedUser is null)
+            return Result<CreateUserResponse>.Unauthorized();
+
+        if (request.Role == UserRole.Admin && authenticatedUser.Role != UserRole.Admin)
+            return Result<CreateUserResponse>.Forbidden();
+
         var existingUserName = await repository.ExistsByUserNameAsync(request.Username);
 
         if (existingUserName)

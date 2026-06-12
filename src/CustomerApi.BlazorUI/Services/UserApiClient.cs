@@ -1,35 +1,29 @@
 using CustomerApi.BlazorUI.Models;
-using CustomerApi.BlazorUI.Models.Customers;
+using CustomerApi.BlazorUI.Models.Users;
 using System.Text.Json;
 
 namespace CustomerApi.BlazorUI.Services;
 
-public sealed class CustomerApiClient(HttpClient httpClient) : ICustomerApiClient
+public sealed class UserApiClient(HttpClient httpClient) : IUserApiClient
 {
-    private const string BaseRoute = "api/customers";
+    private const string BaseRoute = "api/users";
 
-    public async Task<ApiResponse<IEnumerable<CustomerListItem>>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<ApiResponse<IEnumerable<UserListItem>>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await SendAsync<IEnumerable<CustomerListItem>>(
+        return await SendAsync<IEnumerable<UserListItem>>(
             () => httpClient.GetAsync(BaseRoute, cancellationToken), cancellationToken);
     }
 
-    public async Task<ApiResponse<CustomerListItem>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ApiResponse<UserListItem>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await SendAsync<CustomerListItem>(
+        return await SendAsync<UserListItem>(
             () => httpClient.GetAsync($"{BaseRoute}/{id}", cancellationToken), cancellationToken);
     }
 
-    public async Task<ApiResponse> CreateAsync(CreateCustomerRequest request, CancellationToken cancellationToken = default)
+    public async Task<ApiResponse> CreateAsync(CreateUserRequest request, CancellationToken cancellationToken = default)
     {
         return await SendAsync(
             () => httpClient.PostAsJsonAsync(BaseRoute, request, cancellationToken), cancellationToken);
-    }
-
-    public async Task<ApiResponse> UpdateAsync(UpdateCustomerRequest request, CancellationToken cancellationToken = default)
-    {
-        return await SendAsync(
-            () => httpClient.PutAsJsonAsync(BaseRoute, request, cancellationToken), cancellationToken);
     }
 
     public async Task<ApiResponse> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
@@ -37,7 +31,10 @@ public sealed class CustomerApiClient(HttpClient httpClient) : ICustomerApiClien
         return await SendAsync(
             () => httpClient.DeleteAsync($"{BaseRoute}/{id}", cancellationToken), cancellationToken);
     }
-    private static async Task<ApiResponse<T>> SendAsync<T>(Func<Task<HttpResponseMessage>> request, CancellationToken cancellationToken)
+
+    private static async Task<ApiResponse<T>> SendAsync<T>(
+        Func<Task<HttpResponseMessage>> request,
+        CancellationToken cancellationToken)
     {
         using var response = await request();
 
@@ -49,7 +46,9 @@ public sealed class CustomerApiClient(HttpClient httpClient) : ICustomerApiClien
             ?? CreateEmptyResponse<T>(response);
     }
 
-    private static async Task<ApiResponse> SendAsync(Func<Task<HttpResponseMessage>> request, CancellationToken cancellationToken)
+    private static async Task<ApiResponse> SendAsync(
+        Func<Task<HttpResponseMessage>> request,
+        CancellationToken cancellationToken)
     {
         using var response = await request();
 

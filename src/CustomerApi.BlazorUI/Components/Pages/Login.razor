@@ -25,6 +25,8 @@
         }
 
         <form method="post" action="/auth/login" class="mt-4">
+            <AntiforgeryToken />
+
             <div class="mb-3">
                 <label class="form-label">Email</label>
                 <input class="form-control form-control-lg" name="email" type="email" autocomplete="username" required />

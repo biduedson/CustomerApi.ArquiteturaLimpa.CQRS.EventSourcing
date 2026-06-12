@@ -1,5 +1,5 @@
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin,Manager,Operator,Viewer")]
+@attribute [Authorize(Roles = "Admin,Operator,Viewer")]
 @page "/customers"
 @inject CustomerApi.BlazorUI.Services.ICustomerApiClient CustomerApi
 @inject CustomerApi.BlazorUI.Services.ToastService Toast
@@ -45,13 +45,15 @@ else
                 @foreach (var customer in _customers)
                 {
                     <tr>
-                        <td><strong>@customer.FirstName customer.LastName</strong></td>
+                        <td><strong>@customer.FirstName @customer.LastName</strong></td>
                         <td>@customer.Email</td>
                         <td><span class="badge text-bg-light">@customer.Gender</span></td>
                         <td>@customer.DateOfBirth.ToString("dd/MM/yyyy")</td>
                         <td class="text-end">
                             <a class="btn btn-sm btn-outline-primary" href="customers/@customer.Id/edit">Editar</a>
-                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(customer.Id)">Excluir</button>
+                            <AuthorizeView Roles="Admin">
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(customer.Id)">Excluir</button>
+                            </AuthorizeView>
                         </td>
                     </tr>
                 }

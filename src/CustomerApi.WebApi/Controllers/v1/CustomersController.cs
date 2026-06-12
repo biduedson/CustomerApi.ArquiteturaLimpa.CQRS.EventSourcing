@@ -13,6 +13,7 @@ using CustomerApi.Query.QueriesModel;
 using CustomerApi.WebApi.Extensions.ResultExtensions;
 using CustomerApi.WebApi.Models;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -55,6 +56,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     //////////////////////////////
     // DELETE: /api/customers/{id}
     //////////////////////////////
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}")]
     [Consumes(MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]

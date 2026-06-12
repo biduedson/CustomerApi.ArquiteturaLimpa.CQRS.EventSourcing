@@ -1,6 +1,6 @@
 @using CustomerApi.BlazorUI.Models.Customers
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin,Manager")]
+@attribute [Authorize(Roles = "Admin")]
 @page "/customers/{Id:guid}/edit"
 @inject CustomerApi.BlazorUI.Services.ICustomerApiClient CustomerApi
 @inject CustomerApi.BlazorUI.Services.ToastService Toast

@@ -3,13 +3,11 @@
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
                 <NotAuthorized>
-                    <LayoutView Layout="typeof(Layout.MainLayout)">
-                        <div class="empty-state">
-                            <h3>Login necessário</h3>
-                            <p>Você precisa estar autenticado para acessar esta página.</p>
-                            <a class="btn btn-primary rounded-pill" href="login">Entrar</a>
-                        </div>
-                    </LayoutView>
+                    <div class="empty-state">
+                        <h3>Login necessário</h3>
+                        <p>Você precisa estar autenticado para acessar esta página.</p>
+                        <a class="btn btn-primary rounded-pill" href="login">Entrar</a>
+                    </div>
                 </NotAuthorized>
             </AuthorizeRouteView>
             <FocusOnNavigate RouteData="routeData" Selector="h1" />

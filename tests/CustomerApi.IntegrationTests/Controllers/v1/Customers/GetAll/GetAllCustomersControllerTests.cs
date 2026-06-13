@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Bogus;
 using CustomerApi.Core.Extensions;
 using CustomerApi.Domain.Entities.CustomerAggregate;
+using CustomerApi.Domain.Entities.UserAggregate;
 using CustomerApi.Domain.ValueObjects;
 using CustomerApi.IntegrationTests.Extensions;
 using CustomerApi.Query.Data.Repositories.Abstractions;
@@ -48,6 +49,7 @@ public class GetAllCustomersControllerTests : ControllerTestsBase
         });
 
         using var httpClient = webApplicationFactory.CreateClient(CreateClientOptions());
+        AuthenticateAs(httpClient, UserRole.Operator);
 
         // Executa a chamada HTTP.
         using var act = await httpClient.GetAsync(Endpoint);

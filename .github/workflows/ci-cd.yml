@@ -17,68 +17,40 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
+      # baixa o código do repositório
       - name: Baixar código
         uses: actions/checkout@v4
 
+      # instala o .NET na versão configurada
       - name: Instalar .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      # restaura os pacotes NuGet do projeto
       - name: Restaurar pacotes
         run: dotnet restore ${{ env.SOLUTION_NAME }}
 
+      # compila o projeto em modo Release
       - name: Build
         run: dotnet build ${{ env.SOLUTION_NAME }} --configuration Release --no-restore
 
+      # roda todos os testes — se falhar, o pipeline para aqui
       - name: Testes
         run: dotnet test ${{ env.SOLUTION_NAME }} --configuration Release --no-build --verbosity normal
 
-  run-migrations:
+  build-and-push-image:
+    # só roda se build-and-test passou
     needs: build-and-test
     runs-on: ubuntu-latest
+    # só roda quando há push na master — não roda em PR
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
+      # baixa o código para gerar a imagem Docker
       - name: Baixar código
         uses: actions/checkout@v4
 
-      - name: Instalar .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Restaurar pacotes
-        run: dotnet restore ${{ env.SOLUTION_NAME }}
-
-      - name: Instalar EF Core tools
-        run: dotnet tool install --global dotnet-ef
-
-      - name: Rodar migrations
-        env:
-          ConnectionStrings__SqlConnection: ${{ secrets.SQL_CONNECTION_STRING }}
-          ConnectionStrings__NoSqlConnection: ${{ secrets.MONGODB_CONNECTION_STRING }}
-          ConnectionStrings__CacheConnection: ${{ secrets.REDIS_CONNECTION_STRING }}
-        run: |
-          dotnet ef database update \
-            --project src/CustomerApi.WebApi \
-            --startup-project src/CustomerApi.WebApi \
-            --context EventStoreDbContext \
-            --connection "${{ secrets.SQL_CONNECTION_STRING }}"
-
-          dotnet ef database update \
-            --project src/CustomerApi.WebApi \
-            --startup-project src/CustomerApi.WebApi \
-            --context WriteDbContext \
-            --connection "${{ secrets.SQL_CONNECTION_STRING }}"
-
-  build-and-push-image:
-    needs: run-migrations
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    steps:
-      - name: Baixar código
-        uses: actions/checkout@v4
-
+      # faz login no Azure Container Registry
       - name: Login no ACR
         uses: azure/docker-login@v2
         with:
@@ -86,6 +58,8 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
+      # gera a imagem Docker com a tag do commit
+      # sobe a imagem com a tag do commit e também como latest
       - name: Build e Push da imagem Docker
         run: |
           IMAGE_TAG=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}

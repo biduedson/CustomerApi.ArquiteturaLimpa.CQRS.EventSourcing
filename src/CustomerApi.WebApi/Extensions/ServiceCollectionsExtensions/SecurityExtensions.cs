@@ -5,6 +5,7 @@ using CustomerApi.Core.AppSettings;
 using CustomerApi.Core.Extensions;
 using CustomerApi.Domain.Entities.UserAggregate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -54,7 +55,18 @@ public static class SecurityExtensions
                {
                    OnMessageReceived = context =>
                    {
+
                        context.Token = context.Request.Cookies["access_Token"];
+                       return Task.CompletedTask;
+                   },
+                   OnAuthenticationFailed = context =>
+                   {
+                       if (context.Exception is SecurityTokenExpiredException)
+                       {
+                           context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                           context.Response.ContentType = "application/json";
+                           return context.Response.WriteAsync("{\"error\":\"Token expirado\"}");
+                       }
 
                        return Task.CompletedTask;
                    }

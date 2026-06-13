@@ -67,7 +67,7 @@ public sealed class CustomerApiClient(HttpClient httpClient) : ICustomerApiClien
         {
             Success = response.IsSuccessStatusCode,
             StatusCode = (int)response.StatusCode,
-            Errors = response.IsSuccessStatusCode ? [] : [$"A API retornou {response.StatusCode}."]
+            Errors = response.IsSuccessStatusCode ? [] : [new ApiErrorResponse { Message = $"A API retornou {response.StatusCode}." }]
         };
     }
 
@@ -77,7 +77,7 @@ public sealed class CustomerApiClient(HttpClient httpClient) : ICustomerApiClien
         {
             Success = response.IsSuccessStatusCode,
             StatusCode = (int)response.StatusCode,
-            Errors = response.IsSuccessStatusCode ? [] : [$"A API retornou {response.StatusCode}."]
+            Errors = response.IsSuccessStatusCode ? [] : [new ApiErrorResponse { Message = $"A API retornou {response.StatusCode}." }]
         };
     }
 }

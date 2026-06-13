@@ -1,8 +1,11 @@
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using CustomerApi.BlazorUI.Models.Customers
 @attribute [Authorize(Roles = "Admin,Operator,Viewer")]
 @page "/customers"
 @inject CustomerApi.BlazorUI.Services.ICustomerApiClient CustomerApi
 @inject CustomerApi.BlazorUI.Services.ToastService Toast
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Clientes</PageTitle>
 
@@ -10,9 +13,11 @@
     <div>
         <p class="eyebrow">Cadastro</p>
         <h1>Clientes</h1>
-        <p class="text-muted">Consulta do read side da sua API CQRS.</p>
+        <p class="text-muted">Consulta e manutenção do read side da sua API CQRS.</p>
     </div>
-    <a href="customers/new" class="btn btn-primary rounded-pill">Novo cliente</a>
+    <AuthorizeView Roles="Admin,Operator">
+        <button class="btn btn-primary rounded-pill" type="button" @onclick="OpenCreateModal">Novo cliente</button>
+    </AuthorizeView>
 </div>
 
 @if (_loading)
@@ -24,7 +29,9 @@ else if (_customers.Count == 0)
     <div class="empty-state">
         <h3>Nenhum cliente encontrado</h3>
         <p>Crie o primeiro cliente para validar o fluxo completo da UI para a API.</p>
-        <a href="customers/new" class="btn btn-primary rounded-pill">Cadastrar cliente</a>
+        <AuthorizeView Roles="Admin,Operator">
+            <button class="btn btn-primary rounded-pill" type="button" @onclick="OpenCreateModal">Cadastrar cliente</button>
+        </AuthorizeView>
     </div>
 }
 else
@@ -50,7 +57,7 @@ else
                         <td><span class="badge text-bg-light">@customer.Gender</span></td>
                         <td>@customer.DateOfBirth.ToString("dd/MM/yyyy")</td>
                         <td class="text-end">
-                            <a class="btn btn-sm btn-outline-primary" href="customers/@customer.Id/edit">Editar</a>
+                            <button class="btn btn-sm btn-outline-primary" type="button" @onclick="() => OpenCustomerModal(customer)">Gerenciar</button>
                             <AuthorizeView Roles="Admin">
                                 <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(customer.Id)">Excluir</button>
                             </AuthorizeView>
@@ -63,9 +70,25 @@ else
     </div>
 }
 
+<CustomerManagementModal Customer="_selectedCustomer"
+                         CanDelete="_isAdmin"
+                         ErrorMessages="_modalErrors"
+                         OnClose="CloseCustomerModal"
+                         OnSave="UpdateAsync"
+                         OnDelete="DeleteAsync" />
+
+<CustomerCreateModal IsOpen="_showCreateModal"
+                     ErrorMessages="_modalErrors"
+                     OnClose="CloseCreateModal"
+                     OnSave="CreateAsync" />
+
 @code {
     private bool _loading = true;
-    private List<CustomerApi.BlazorUI.Models.Customers.CustomerListItem> _customers = [];
+    private bool _isAdmin;
+    private List<CustomerListItem> _customers = [];
+    private CustomerListItem? _selectedCustomer;
+    private bool _showCreateModal;
+    private List<string> _modalErrors = [];
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
@@ -74,19 +97,83 @@ else
         _loading = true;
         var response = await CustomerApi.GetAllAsync();
         _customers = response.Result?.ToList() ?? [];
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _isAdmin = authState.User.IsInRole("Admin");
         _loading = false;
     }
 
-    private async Task DeleteAsync(Guid id)
+    private async Task CreateAsync(CreateCustomerRequest request)
     {
-        var response = await CustomerApi.DeleteAsync(id);
+        _modalErrors = [];
+        var response = await CustomerApi.CreateAsync(request);
         if (response.Success)
         {
-            Toast.Success("Cliente removido com sucesso.");
+            Toast.Success("Cliente cadastrado com sucesso.");
+            _showCreateModal = false;
             await LoadAsync();
             return;
         }
 
-        Toast.Error(string.Join(" ", response.Errors));
+        ShowApiErrors(response.ErrorMessages);
+    }
+
+    private async Task UpdateAsync(UpdateCustomerRequest request)
+    {
+        _modalErrors = [];
+        var response = await CustomerApi.UpdateAsync(request);
+        if (response.Success)
+        {
+            Toast.Success("Cliente atualizado com sucesso.");
+            _selectedCustomer = null;
+            await LoadAsync();
+            return;
+        }
+
+        ShowApiErrors(response.ErrorMessages);
+    }
+
+    private async Task DeleteAsync(Guid id)
+    {
+        _modalErrors = [];
+        var response = await CustomerApi.DeleteAsync(id);
+        if (response.Success)
+        {
+            Toast.Success("Cliente removido com sucesso.");
+            _selectedCustomer = null;
+            await LoadAsync();
+            return;
+        }
+
+        ShowApiErrors(response.ErrorMessages);
+    }
+
+    private void OpenCustomerModal(CustomerListItem customer)
+    {
+        _modalErrors = [];
+        _selectedCustomer = customer;
+    }
+
+    private void CloseCustomerModal()
+    {
+        _modalErrors = [];
+        _selectedCustomer = null;
+    }
+
+    private void OpenCreateModal()
+    {
+        _modalErrors = [];
+        _showCreateModal = true;
+    }
+
+    private void CloseCreateModal()
+    {
+        _modalErrors = [];
+        _showCreateModal = false;
+    }
+
+    private void ShowApiErrors(List<string> errors)
+    {
+        _modalErrors = errors.Count > 0 ? errors : ["Não foi possível concluir a operação."];
+        Toast.Error(string.Join(" ", _modalErrors));
     }
 }

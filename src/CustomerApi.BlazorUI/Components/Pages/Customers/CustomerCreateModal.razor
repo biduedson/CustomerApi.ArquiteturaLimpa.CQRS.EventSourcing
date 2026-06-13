@@ -1,0 +1,98 @@
+@using CustomerApi.BlazorUI.Models.Customers
+
+@if (IsOpen)
+{
+    <div class="modal-backdrop-shell" @onclick="Close">
+        <section class="management-modal" @onclick:stopPropagation="true">
+            <header class="modal-header-clean">
+                <div>
+                    <p class="eyebrow mb-1">Novo cliente</p>
+                    <h2>Cadastrar cliente</h2>
+                    <p class="text-muted mb-0">Registra um cliente no fluxo principal da API.</p>
+                </div>
+                <button class="btn-close" type="button" aria-label="Fechar" @onclick="Close"></button>
+            </header>
+
+            <EditForm Model="_model" OnValidSubmit="SaveAsync">
+                <AntiforgeryToken />
+                <DataAnnotationsValidator />
+                <ValidationSummary class="validation-box" />
+
+                @if (ErrorMessages.Count > 0)
+                {
+                    <div class="api-error-box">
+                        @foreach (var error in ErrorMessages)
+                        {
+                            <div>@error</div>
+                        }
+                    </div>
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nome</label>
+                        <InputText class="form-control" @bind-Value="_model.FirstName" />
+                        <ValidationMessage For="() => _model.FirstName" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Sobrenome</label>
+                        <InputText class="form-control" @bind-Value="_model.LastName" />
+                        <ValidationMessage For="() => _model.LastName" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <InputText class="form-control" @bind-Value="_model.Email" />
+                        <ValidationMessage For="() => _model.Email" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Gênero</label>
+                        <InputSelect class="form-select" @bind-Value="_model.Gender">
+                            <option value="Male">Masculino</option>
+                            <option value="Female">Feminino</option>
+                            <option value="Other">Outro</option>
+                        </InputSelect>
+                        <ValidationMessage For="() => _model.Gender" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Nascimento</label>
+                        <InputDate class="form-control" @bind-Value="_model.DateOfBirth" />
+                        <ValidationMessage For="() => _model.DateOfBirth" />
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-light" type="button" @onclick="Close">Cancelar</button>
+                    <button class="btn btn-primary" type="submit">Criar cliente</button>
+                </div>
+            </EditForm>
+        </section>
+    </div>
+}
+
+@code {
+    private CustomerFormModel _model = new();
+
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public IReadOnlyList<string> ErrorMessages { get; set; } = [];
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<CreateCustomerRequest> OnSave { get; set; }
+
+    private async Task SaveAsync()
+    {
+        if (_model.DateOfBirth is null)
+            return;
+
+        await OnSave.InvokeAsync(new CreateCustomerRequest
+        {
+            FirstName = _model.FirstName,
+            LastName = _model.LastName,
+            Gender = _model.Gender,
+            Email = _model.Email,
+            DateOfBirth = _model.DateOfBirth.Value
+        });
+
+        _model = new();
+    }
+
+    private async Task Close() => await OnClose.InvokeAsync();
+}

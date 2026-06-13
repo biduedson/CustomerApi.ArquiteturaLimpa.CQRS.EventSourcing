@@ -35,6 +35,21 @@ public static class DatabaseMigrationExtensions
     {
         var dbName = dbContext.Database.GetDbConnection().Database;
 
+        app.Logger.LogInformation("----- {DbName}: verificando banco de dados...", dbName);
+        var exists = await dbContext.Database.CanConnectAsync();
+
+        if (!exists)
+        {
+            // banco não existe — cria e aplica todas as migrations
+            app.Logger.LogInformation("----- {DbName}: banco não encontrado — criando...", dbName);
+
+            await dbContext.Database.MigrateAsync();
+
+            app.Logger.LogInformation("----- {DbName}: banco criado com sucesso!", dbName);
+
+            return;
+        }
+
         app.Logger.LogInformation("----- {DbName}: verificando migrações pendentes...", dbName);
 
         if (dbContext.Database.HasPendingModelChanges())

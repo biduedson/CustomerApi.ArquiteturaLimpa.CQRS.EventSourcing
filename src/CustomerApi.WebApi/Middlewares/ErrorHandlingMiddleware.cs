@@ -2,6 +2,7 @@ using System;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using CustomerApi.Core.Extensions;
+using CustomerApi.Domain.Exceptions;
 using CustomerApi.WebApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
@@ -26,19 +27,31 @@ public class ErrorHandlingMiddleware(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Uma exceção inesperada foi lançada: {Message}", ex.Message);
-            httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            switch (ex)
+            {
+                case DomainException domainEx:
+                    httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    await httpContext.Response.WriteAsJsonAsync(
+                        ApiResponse.BadRequest(domainEx.Message));
+                    break;
 
-            if (enviroment.IsDevelopment())
-            {
-                httpContext.Response.ContentType = MediaTypeNames.Text.Plain;
-                await httpContext.Response.WriteAsync(ex.ToString());
-            }
-            else
-            {
-                httpContext.Response.ContentType = MediaTypeNames.Application.Json;
-                await httpContext.Response.WriteAsync(ApiResponseJson);
+                default:
+                    logger.LogError(ex, "Uma exceção inesperada foi lançada: {Message}", ex.Message);
+                    httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+                    if (enviroment.IsDevelopment())
+                    {
+                        httpContext.Response.ContentType = MediaTypeNames.Text.Plain;
+                        await httpContext.Response.WriteAsync(ex.ToString());
+                    }
+                    else
+                    {
+                        httpContext.Response.ContentType = MediaTypeNames.Application.Json;
+                        await httpContext.Response.WriteAsync(ApiResponseJson);
+                    }
+                    break;
             }
         }
     }
+
 }

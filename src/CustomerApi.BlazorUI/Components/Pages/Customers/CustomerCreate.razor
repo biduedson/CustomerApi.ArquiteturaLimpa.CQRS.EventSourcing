@@ -30,7 +30,7 @@
             Navigation.NavigateTo("/customers");
          }
 
-         Toast.Error(string.Join("", response.Errors));
+         Toast.Error(string.Join(" ", response.ErrorMessages));
      }
 
 }

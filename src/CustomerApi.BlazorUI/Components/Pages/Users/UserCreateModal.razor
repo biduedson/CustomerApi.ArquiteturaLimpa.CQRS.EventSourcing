@@ -1,0 +1,110 @@
+@using CustomerApi.BlazorUI.Models.Users
+
+@if (IsOpen)
+{
+    <div class="modal-backdrop-shell" @onclick="Close">
+        <section class="management-modal" @onclick:stopPropagation="true">
+            <header class="modal-header-clean">
+                <div>
+                    <p class="eyebrow mb-1">Novo acesso</p>
+                    <h2>Cadastrar usuário</h2>
+                    <p class="text-muted mb-0">Cria um usuário no write side e publica no read side.</p>
+                </div>
+                <button class="btn-close" type="button" aria-label="Fechar" @onclick="Close"></button>
+            </header>
+
+            <EditForm Model="_model" OnValidSubmit="SaveAsync">
+                <AntiforgeryToken />
+                <DataAnnotationsValidator />
+                <ValidationSummary class="validation-box" />
+
+                @if (ErrorMessages.Count > 0)
+                {
+                    <div class="api-error-box">
+                        @foreach (var error in ErrorMessages)
+                        {
+                            <div>@error</div>
+                        }
+                    </div>
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Username</label>
+                        <InputText class="form-control" @bind-Value="_model.Username" />
+                        <ValidationMessage For="() => _model.Username" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <InputText class="form-control" @bind-Value="_model.Email" />
+                        <ValidationMessage For="() => _model.Email" />
+                    </div>
+                    <div class="col-md-7">
+                        <label class="form-label">Nome completo</label>
+                        <InputText class="form-control" @bind-Value="_model.FullName" />
+                        <ValidationMessage For="() => _model.FullName" />
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">Cargo</label>
+                        <InputText class="form-control" @bind-Value="_model.JobTitle" />
+                        <ValidationMessage For="() => _model.JobTitle" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Role</label>
+                        <InputSelect class="form-select" @bind-Value="_model.Role">
+                            <option value="1">Viewer</option>
+                            <option value="2">Operator</option>
+                            <option value="3">Admin</option>
+                        </InputSelect>
+                        <ValidationMessage For="() => _model.Role" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Nascimento</label>
+                        <InputDate class="form-control" @bind-Value="_model.DateOfBirth" />
+                        <ValidationMessage For="() => _model.DateOfBirth" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Senha inicial</label>
+                        <InputText type="password" class="form-control" @bind-Value="_model.Password" />
+                        <ValidationMessage For="() => _model.Password" />
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-light" type="button" @onclick="Close">Cancelar</button>
+                    <button class="btn btn-primary" type="submit">Criar usuário</button>
+                </div>
+            </EditForm>
+        </section>
+    </div>
+}
+
+@code {
+    private UserCreateFormModel _model = new();
+
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public IReadOnlyList<string> ErrorMessages { get; set; } = [];
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<CreateUserRequest> OnSave { get; set; }
+
+    private async Task SaveAsync()
+    {
+        if (_model.DateOfBirth is null)
+            return;
+
+        await OnSave.InvokeAsync(new CreateUserRequest
+        {
+            Username = _model.Username,
+            Email = _model.Email,
+            Role = _model.Role,
+            FullName = _model.FullName,
+            DateOfBirth = _model.DateOfBirth.Value,
+            JobTitle = _model.JobTitle,
+            Password = _model.Password
+        });
+
+        _model = new();
+    }
+
+    private async Task Close() => await OnClose.InvokeAsync();
+}

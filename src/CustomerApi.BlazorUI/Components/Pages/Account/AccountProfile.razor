@@ -1,0 +1,167 @@
+@using CustomerApi.BlazorUI.Models.Account
+@using CustomerApi.BlazorUI.Models.Users
+@using System.Security.Claims
+@attribute [Authorize]
+@page "/account"
+@inject CustomerApi.BlazorUI.Services.IUserApiClient UserApi
+@inject CustomerApi.BlazorUI.Services.IAccountApiClient AccountApi
+@inject CustomerApi.BlazorUI.Services.ToastService Toast
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Meu perfil</PageTitle>
+
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Conta</p>
+        <h1>Meu perfil</h1>
+        <p class="text-muted">Dados e credenciais do usuário autenticado.</p>
+    </div>
+</div>
+
+@if (_loading)
+{
+    <div class="skeleton-card"></div>
+}
+else
+{
+    <div class="profile-grid">
+        <section class="work-card">
+            <p class="eyebrow">Identidade</p>
+            <h2>@(_currentUser?.FullName ?? _email)</h2>
+            <div class="detail-list mt-3">
+                <div><span>Email</span><strong>@(_currentUser?.Email ?? _email)</strong></div>
+                <div><span>Username</span><strong>@(_currentUser?.UserName ?? "-")</strong></div>
+                <div><span>Role</span><strong>@(_currentUser?.Role ?? "-")</strong></div>
+                <div><span>Cargo</span><strong>@(_currentUser?.JobTitle ?? "-")</strong></div>
+            </div>
+        </section>
+
+        <section class="work-card">
+            <p class="eyebrow">Email</p>
+            <h2>Trocar email</h2>
+            <EditForm Model="_emailModel" OnValidSubmit="ChangeEmailAsync">
+                <AntiforgeryToken />
+                <DataAnnotationsValidator />
+                <ValidationSummary class="validation-box" />
+
+                @if (_emailErrors.Count > 0)
+                {
+                    <div class="api-error-box">
+                        @foreach (var error in _emailErrors)
+                        {
+                            <div>@error</div>
+                        }
+                    </div>
+                }
+
+                <label class="form-label">Novo email</label>
+                <InputText class="form-control" @bind-Value="_emailModel.Email" />
+                <ValidationMessage For="() => _emailModel.Email" />
+
+                <div class="modal-actions">
+                    <button class="btn btn-primary" type="submit">Atualizar email</button>
+                </div>
+            </EditForm>
+        </section>
+
+        <section class="work-card profile-grid-wide">
+            <p class="eyebrow">Senha</p>
+            <h2>Trocar senha</h2>
+            <EditForm Model="_passwordModel" OnValidSubmit="ChangePasswordAsync">
+                <AntiforgeryToken />
+                <DataAnnotationsValidator />
+                <ValidationSummary class="validation-box" />
+
+                @if (_passwordErrors.Count > 0)
+                {
+                    <div class="api-error-box">
+                        @foreach (var error in _passwordErrors)
+                        {
+                            <div>@error</div>
+                        }
+                    </div>
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Senha atual</label>
+                        <InputText type="password" class="form-control" @bind-Value="_passwordModel.CurrentPassword" />
+                        <ValidationMessage For="() => _passwordModel.CurrentPassword" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Nova senha</label>
+                        <InputText type="password" class="form-control" @bind-Value="_passwordModel.NewPassword" />
+                        <ValidationMessage For="() => _passwordModel.NewPassword" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Confirmar senha</label>
+                        <InputText type="password" class="form-control" @bind-Value="_passwordModel.ConfirmPassword" />
+                        <ValidationMessage For="() => _passwordModel.ConfirmPassword" />
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-primary" type="submit">Atualizar senha</button>
+                </div>
+            </EditForm>
+        </section>
+    </div>
+}
+
+@code {
+    private bool _loading = true;
+    private string _email = string.Empty;
+    private UserListItem? _currentUser;
+    private ChangeEmailRequest _emailModel = new();
+    private ChangePasswordRequest _passwordModel = new();
+    private List<string> _emailErrors = [];
+    private List<string> _passwordErrors = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var principal = authState.User;
+        _email = principal.FindFirstValue(ClaimTypes.Email) ?? principal.Identity?.Name ?? string.Empty;
+        _emailModel.Email = _email;
+
+        var userIdValue = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (Guid.TryParse(userIdValue, out var userId))
+        {
+            var response = await UserApi.GetByIdAsync(userId);
+            _currentUser = response.Result;
+            if (_currentUser is not null)
+                _emailModel.Email = _currentUser.Email;
+        }
+
+        _loading = false;
+    }
+
+    private async Task ChangeEmailAsync()
+    {
+        _emailErrors = [];
+        var response = await AccountApi.ChangeEmailAsync(_emailModel);
+        if (response.Success)
+        {
+            Toast.Success("Email alterado. Faça login novamente para renovar a sessão.");
+            return;
+        }
+
+        _emailErrors = response.ErrorMessages.Count > 0 ? response.ErrorMessages : ["Não foi possível alterar o email."];
+        Toast.Error(string.Join(" ", _emailErrors));
+    }
+
+    private async Task ChangePasswordAsync()
+    {
+        _passwordErrors = [];
+        var response = await AccountApi.ChangePasswordAsync(_passwordModel);
+        if (response.Success)
+        {
+            _passwordModel = new();
+            Toast.Success("Senha alterada. Faça login novamente para renovar a sessão.");
+            return;
+        }
+
+        _passwordErrors = response.ErrorMessages.Count > 0 ? response.ErrorMessages : ["Não foi possível alterar a senha."];
+        Toast.Error(string.Join(" ", _passwordErrors));
+    }
+}

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CustomerApi.Infrastructure.Data.Context;
 using CustomerApi.Query.Abstractions;
@@ -25,53 +26,42 @@ public static class DatabaseMigrationExtensions
         }
         catch (Exception ex)
         {
-            app.Logger.LogError(ex, "Ocorreu uma exceção ao inicializar a aplicação: {Message}", ex.Message);
+            app.Logger.LogError(ex, "Ocorreu uma excecao ao inicializar a aplicacao: {Message}", ex.Message);
             throw;
         }
     }
 
-    private static async Task MigrateDbContextAsync<TDbContext>(this WebApplication app, TDbContext dbContext)
-        where TDbContext : DbContext
+    private static async Task MigrateDbContextAsync<TDbContext>(
+    this WebApplication app,
+    TDbContext dbContext)
+    where TDbContext : DbContext
     {
         var dbName = dbContext.Database.GetDbConnection().Database;
 
-        app.Logger.LogInformation("----- {DbName}: verificando banco de dados...", dbName);
-        var exists = await dbContext.Database.CanConnectAsync();
+        app.Logger.LogInformation("----- {DbName}: verificando migrations...", dbName);
 
-        if (!exists)
+        var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
+
+        if (pendingMigrations.Any())
         {
-            // banco não existe — cria e aplica todas as migrations
-            app.Logger.LogInformation("----- {DbName}: banco não encontrado — criando...", dbName);
+            app.Logger.LogInformation("----- {DbName}: aplicando migrations...", dbName);
 
             await dbContext.Database.MigrateAsync();
 
-            app.Logger.LogInformation("----- {DbName}: banco criado com sucesso!", dbName);
-
-            return;
-        }
-
-        app.Logger.LogInformation("----- {DbName}: verificando migrações pendentes...", dbName);
-
-        if (dbContext.Database.HasPendingModelChanges())
-        {
-            app.Logger.LogInformation("----- {DbName}: criando e migrando o banco de dados...", dbName);
-
-            await dbContext.Database.MigrateAsync();
-
-            app.Logger.LogInformation("----- {DbName}: banco de dados migrado com sucesso!", dbName);
+            app.Logger.LogInformation("----- {DbName}: migrations aplicadas com sucesso!", dbName);
         }
         else
         {
-            app.Logger.LogInformation("----- {DbName}: todas as migrações estão atualizadas.", dbName);
+            app.Logger.LogInformation("----- {DbName}: todas as migrations estão atualizadas.", dbName);
         }
     }
 
     private static async Task MigrateMongoDbContextAsync(this WebApplication app, IReadDbContext readDbContext)
     {
-        app.Logger.LogInformation("----- MongoDB: criando coleções...");
+        app.Logger.LogInformation("----- MongoDB: criando colecoes...");
 
         await readDbContext.CreateCollectionsAsync();
 
-        app.Logger.LogInformation("----- MongoDB: coleções criadas com sucesso!");
+        app.Logger.LogInformation("----- MongoDB: colecoes criadas com sucesso!");
     }
 }

@@ -49,7 +49,7 @@ public class AuthController(IMediator mediator) : ControllerBase
     ////////////////////////
     // POST: /api/auth/refreshtoken
     ////////////////////////
-    [Authorize]
+    [AllowAnonymous]
     [HttpPost("refreshtoken")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
@@ -58,9 +58,14 @@ public class AuthController(IMediator mediator) : ControllerBase
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> RefreshToken()
     {
+        var refreshToken = Request.GetRefreshTokenCookies();
+
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return Unauthorized(ApiResponse.Unauthorized());
+
         var command = new RefreshTokenCommand
         {
-            RefreshToken = Request.GetRefreshTokenCookies(),
+            RefreshToken = refreshToken,
             UserAgent = Request.GetUserAgent(),
             IpAddress = Request.GetIpAddress()
         };

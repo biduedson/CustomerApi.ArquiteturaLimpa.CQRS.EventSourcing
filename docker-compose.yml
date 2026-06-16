@@ -1,4 +1,4 @@
-version: '3.4'
+
 
 # -----------------------------------------------------
 # 🔹 Rede interna para comunicação entre os containers
@@ -33,12 +33,20 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker              # 👉 força a aplicação a usar o appsettings.Docker.json
       - ASPNETCORE_URLS=http://+:80                # 👉 define que o Kestrel escute na porta 80 dentro do container
+      - AdminSeed__Enabled=${AdminSeed__Enabled}
+      - AdminSeed__Username=${AdminSeed__Username}
+      - AdminSeed__Email=${AdminSeed__Email}
+      - AdminSeed__Role=${AdminSeed__Role}
+      - AdminSeed__FullName=${AdminSeed__FullName}
+      - AdminSeed__DateOfBirth=${AdminSeed__DateOfBirth}
+      - AdminSeed__JobTitle=${AdminSeed__JobTitle}
+      - AdminSeed__Password=${AdminSeed__Password}
 
   # -----------------------------------------------------
   # 🔹 SQL Server
   # -----------------------------------------------------
   customerapi-sql-server:
-    image: mcr.microsoft.com/azure-sql-edge:latest # Imagem oficial SQL Edge
+    image: mcr.microsoft.com/azure-sql-edge # Imagem oficial SQL Edge
     cap_add: ["SYS_PTRACE"]                        # Permissão extra para debugging
     hostname: mssql
     container_name: customerapi-sql-server

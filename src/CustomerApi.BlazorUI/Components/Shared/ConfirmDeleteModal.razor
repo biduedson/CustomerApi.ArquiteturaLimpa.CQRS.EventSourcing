@@ -1,0 +1,62 @@
+@if (IsOpen)
+{
+    <div class="modal-backdrop-shell" @onclick="CancelAsync">
+        <section class="confirm-modal" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="confirm-delete-title">
+            <header class="modal-header-clean">
+                <div>
+                    <p class="eyebrow mb-1">@Eyebrow</p>
+                    <h2 id="confirm-delete-title">@Title</h2>
+                </div>
+                <button class="btn-close" type="button" aria-label="Fechar" disabled="@IsBusy" @onclick="CancelAsync"></button>
+            </header>
+
+            <div class="danger-panel">
+                <h3>@ItemName</h3>
+                <p>@Message</p>
+            </div>
+
+            @if (ErrorMessages.Count > 0)
+            {
+                <div class="api-error-box mt-3">
+                    @foreach (var error in ErrorMessages)
+                    {
+                        <div>@error</div>
+                    }
+                </div>
+            }
+
+            <div class="modal-actions">
+                <button class="btn btn-light" type="button" disabled="@IsBusy" @onclick="CancelAsync">Cancelar</button>
+                <button class="btn btn-danger" type="button" disabled="@IsBusy" @onclick="ConfirmAsync">
+                    @(IsBusy ? BusyText : ConfirmButtonText)
+                </button>
+            </div>
+        </section>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public bool IsBusy { get; set; }
+    [Parameter] public string Eyebrow { get; set; } = "Confirmacao";
+    [Parameter] public string Title { get; set; } = "Confirmar exclusao";
+    [Parameter] public string ItemName { get; set; } = string.Empty;
+    [Parameter] public string Message { get; set; } = "Tem certeza que deseja excluir este registro?";
+    [Parameter] public string ConfirmButtonText { get; set; } = "Excluir";
+    [Parameter] public string BusyText { get; set; } = "Excluindo...";
+    [Parameter] public IReadOnlyList<string> ErrorMessages { get; set; } = [];
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+
+    private async Task CancelAsync()
+    {
+        if (!IsBusy)
+            await OnCancel.InvokeAsync();
+    }
+
+    private async Task ConfirmAsync()
+    {
+        if (!IsBusy)
+            await OnConfirm.InvokeAsync();
+    }
+}

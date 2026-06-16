@@ -156,6 +156,32 @@ body {
     box-shadow: 0 24px 80px rgba(15,23,42,.25);
 }
 
+.confirm-modal {
+    width: min(520px, 100%);
+    max-height: calc(100vh - 48px);
+    overflow: auto;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 22px;
+    padding: 24px;
+    border: 1px solid rgba(15,23,42,.12);
+    box-shadow: 0 26px 90px rgba(15,23,42,.30);
+}
+
+.confirm-modal .modal-header-clean {
+    margin-bottom: 18px;
+}
+
+.confirm-modal .danger-panel {
+    background: #fff7f7;
+    border-color: rgba(220,53,69,.26);
+    box-shadow: inset 4px 0 0 rgba(220,53,69,.72);
+}
+
+.confirm-modal .danger-panel p {
+    margin-bottom: 0;
+    color: #6b2730;
+}
+
 .modal-header-clean {
     display: flex;
     justify-content: space-between;

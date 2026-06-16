@@ -10,7 +10,8 @@ public static class AppSettingsExtensions
         services
             .AddOptionsWithValidation<ConnectionOptions>()
             .AddOptionsWithValidation<CacheOptions>()
-            .AddOptionsWithValidation<JwtOptions>();
+            .AddOptionsWithValidation<JwtOptions>()
+            .AddOptionsWithValidation<AdminSeedOptions>();
 
     private static IServiceCollection AddOptionsWithValidation<TOptions>(this IServiceCollection services)
         where TOptions : class, IAppOptions

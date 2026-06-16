@@ -1,7 +1,7 @@
 using CustomerApi.BlazorUI.Models;
 using CustomerApi.BlazorUI.Models.Users;
 
-namespace CustomerApi.BlazorUI.Services;
+namespace CustomerApi.BlazorUI.Services.ApiClients.Users;
 
 public interface IUserApiClient
 {

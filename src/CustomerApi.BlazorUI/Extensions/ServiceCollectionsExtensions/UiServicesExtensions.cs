@@ -1,4 +1,4 @@
-using CustomerApi.BlazorUI.Services;
+using CustomerApi.BlazorUI.Services.Notifications;
 using FluentValidation;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;

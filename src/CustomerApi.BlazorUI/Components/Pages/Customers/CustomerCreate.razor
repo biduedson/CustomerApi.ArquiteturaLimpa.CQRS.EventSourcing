@@ -1,9 +1,10 @@
 @using CustomerApi.BlazorUI.Models.Customers
+@using CustomerApi.BlazorUI.Components.Pages.Customers.Components
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Admin")]
 @page "/customers/new"
-@inject CustomerApi.BlazorUI.Services.ICustomerApiClient CustomerApi
-@inject CustomerApi.BlazorUI.Services.ToastService Toast
+@inject CustomerApi.BlazorUI.Services.ApiClients.Customers.ICustomerApiClient CustomerApi
+@inject CustomerApi.BlazorUI.Services.Notifications.ToastService Toast
 @inject NavigationManager Navigation
 
 <CustomerForm Title="Novo Cliente" Model="_model" OnValidSubmit="SaveAsync"/>

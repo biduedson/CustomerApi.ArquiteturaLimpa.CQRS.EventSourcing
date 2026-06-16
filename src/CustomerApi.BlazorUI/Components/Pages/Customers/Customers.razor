@@ -1,10 +1,11 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using CustomerApi.BlazorUI.Models.Customers
+@using CustomerApi.BlazorUI.Components.Pages.Customers.Components
 @attribute [Authorize(Roles = "Admin,Operator,Viewer")]
 @page "/customers"
-@inject CustomerApi.BlazorUI.Services.ICustomerApiClient CustomerApi
-@inject CustomerApi.BlazorUI.Services.ToastService Toast
+@inject CustomerApi.BlazorUI.Services.ApiClients.Customers.ICustomerApiClient CustomerApi
+@inject CustomerApi.BlazorUI.Services.Notifications.ToastService Toast
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Clientes</PageTitle>
@@ -36,38 +37,10 @@ else if (_customers.Count == 0)
 }
 else
 {
-    <div class="card border-0 shadow-sm rounded-4">
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>Gênero</th>
-                        <th>Nascimento</th>
-                        <th class="text-end">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach (var customer in _customers)
-                {
-                    <tr>
-                        <td><strong>@customer.FirstName @customer.LastName</strong></td>
-                        <td>@customer.Email</td>
-                        <td><span class="badge text-bg-light">@customer.Gender</span></td>
-                        <td>@customer.DateOfBirth.ToString("dd/MM/yyyy")</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" type="button" @onclick="() => OpenCustomerModal(customer)">Gerenciar</button>
-                            <AuthorizeView Roles="Admin">
-                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteAsync(customer.Id)">Excluir</button>
-                            </AuthorizeView>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <CustomerTable Customers="_customers"
+                   CanDelete="_isAdmin"
+                   OnManage="OpenCustomerModal"
+                   OnDelete="OpenDeleteConfirmation" />
 }
 
 <CustomerManagementModal Customer="_selectedCustomer"
@@ -75,20 +48,35 @@ else
                          ErrorMessages="_modalErrors"
                          OnClose="CloseCustomerModal"
                          OnSave="UpdateAsync"
-                         OnDelete="DeleteAsync" />
+                         OnDelete="OpenDeleteConfirmation" />
 
 <CustomerCreateModal IsOpen="_showCreateModal"
                      ErrorMessages="_modalErrors"
                      OnClose="CloseCreateModal"
                      OnSave="CreateAsync" />
 
+<ConfirmDeleteModal IsOpen="@(_customerPendingDelete is not null)"
+                    IsBusy="_deleting"
+                    Title="Confirmar exclusao"
+                    ItemName="@DeleteCustomerName"
+                    Message="Essa acao remove o cliente definitivamente. Deseja realmente excluir?"
+                    ConfirmButtonText="Excluir cliente"
+                    ErrorMessages="_modalErrors"
+                    OnCancel="CloseDeleteConfirmation"
+                    OnConfirm="DeleteConfirmedAsync" />
+
 @code {
     private bool _loading = true;
     private bool _isAdmin;
+    private bool _deleting;
     private List<CustomerListItem> _customers = [];
     private CustomerListItem? _selectedCustomer;
+    private CustomerListItem? _customerPendingDelete;
     private bool _showCreateModal;
     private List<string> _modalErrors = [];
+    private string DeleteCustomerName => _customerPendingDelete is null
+        ? string.Empty
+        : $"{_customerPendingDelete.FirstName} {_customerPendingDelete.LastName}";
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
@@ -132,14 +120,21 @@ else
         ShowApiErrors(response.ErrorMessages);
     }
 
-    private async Task DeleteAsync(Guid id)
+    private async Task DeleteConfirmedAsync()
     {
+        if (_customerPendingDelete is null)
+            return;
+
         _modalErrors = [];
-        var response = await CustomerApi.DeleteAsync(id);
+        _deleting = true;
+        var response = await CustomerApi.DeleteAsync(_customerPendingDelete.Id);
+        _deleting = false;
+
         if (response.Success)
         {
             Toast.Success("Cliente removido com sucesso.");
             _selectedCustomer = null;
+            _customerPendingDelete = null;
             await LoadAsync();
             return;
         }
@@ -157,6 +152,25 @@ else
     {
         _modalErrors = [];
         _selectedCustomer = null;
+    }
+
+    private void OpenDeleteConfirmation(CustomerListItem customer)
+    {
+        _modalErrors = [];
+        _customerPendingDelete = customer;
+    }
+
+    private void OpenDeleteConfirmation(Guid id)
+    {
+        var customer = _customers.FirstOrDefault(customer => customer.Id == id);
+        if (customer is not null)
+            OpenDeleteConfirmation(customer);
+    }
+
+    private void CloseDeleteConfirmation()
+    {
+        _modalErrors = [];
+        _customerPendingDelete = null;
     }
 
     private void OpenCreateModal()

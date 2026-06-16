@@ -5,6 +5,7 @@ using CustomerApi.Application.Customers.Commands.Create;
 using CustomerApi.Application.Customers.Responses;
 using CustomerApi.Core.Extensions;
 using CustomerApi.Domain.Entities.CustomerAggregate;
+using CustomerApi.Domain.Entities.UserAggregate;
 using CustomerApi.Domain.ValueObjects;
 using CustomerApi.Infrastructure.Data.Context;
 using CustomerApi.IntegrationTests.Extensions;
@@ -28,6 +29,7 @@ public class CreateCustomersControllerTests : ControllerTestsBase
         // Prepara o cenário.
         await using var webApplicationFactory = InitializeWebAppFactory();
         using var httpClient = webApplicationFactory.CreateClient(CreateClientOptions());
+        AuthenticateAs(httpClient, UserRole.Operator);
 
         var command = new Faker<CreateCustomerCommand>()
             .RuleFor(command => command.FirstName, faker => faker.Person.FirstName)
@@ -65,6 +67,7 @@ public class CreateCustomersControllerTests : ControllerTestsBase
         // Prepara o cenário.
         await using var webApplicationFactory = InitializeWebAppFactory();
         using var httpClient = webApplicationFactory.CreateClient(CreateClientOptions());
+        AuthenticateAs(httpClient, UserRole.Operator);
 
         var command = new Faker<CreateCustomerCommand>().Generate();
 
@@ -109,6 +112,7 @@ public class CreateCustomersControllerTests : ControllerTestsBase
         });
 
         using var httpClient = webApplicationFactory.CreateClient(CreateClientOptions());
+        AuthenticateAs(httpClient, UserRole.Operator);
 
         var command = new Faker<CreateCustomerCommand>()
             .RuleFor(command => command.FirstName, faker => faker.Person.FirstName)

@@ -30,6 +30,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     ////////////////////////
     // POST: /api/customers
     ////////////////////////
+    [Authorize(Roles = "Admin,Operator")]
     [HttpPost]
     [Consumes(MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]
@@ -43,6 +44,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     ///////////////////////
     // PUT: /api/customers
     //////////////////////
+    [Authorize(Roles = "Admin,Operator")]
     [HttpPut]
     [Consumes(MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]
@@ -73,6 +75,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     ///////////////////////////
     // GET: /api/customers/{id}
     ///////////////////////////
+    [Authorize(Roles = "Admin,Operator")]
     [HttpGet("{id:guid}")]
     [Consumes(MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]
@@ -86,6 +89,7 @@ public class CustomersController(IMediator mediator) : ControllerBase
     //////////////////////
     // GET: /api/customers
     //////////////////////
+    [Authorize(Roles = "Admin,Operator")]
     [HttpGet]
     [Consumes(MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]

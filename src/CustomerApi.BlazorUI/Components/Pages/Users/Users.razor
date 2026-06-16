@@ -1,10 +1,11 @@
 @using CustomerApi.BlazorUI.Models.Users
+@using CustomerApi.BlazorUI.Components.Pages.Users.Components
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
 @attribute [Authorize(Roles = "Admin,Operator")]
 @page "/users"
-@inject CustomerApi.BlazorUI.Services.IUserApiClient UserApi
-@inject CustomerApi.BlazorUI.Services.ToastService Toast
+@inject CustomerApi.BlazorUI.Services.ApiClients.Users.IUserApiClient UserApi
+@inject CustomerApi.BlazorUI.Services.Notifications.ToastService Toast
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Usuários</PageTitle>
@@ -33,47 +34,11 @@ else if (_users.Count == 0)
 }
 else
 {
-    <div class="card border-0 shadow-sm rounded-4">
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>Cargo</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th class="text-end">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach (var user in _users)
-                {
-                    <tr>
-                        <td>
-                            <strong>@user.FullName</strong>
-                            <div class="small text-muted">@user.UserName</div>
-                        </td>
-                        <td>@user.Email</td>
-                        <td>@user.JobTitle</td>
-                        <td><span class="badge text-bg-light">@user.Role</span></td>
-                        <td>
-                            <span class="badge @(user.IsActive ? "text-bg-success" : "text-bg-secondary")">
-                                @(user.IsActive ? "Ativo" : "Inativo")
-                            </span>
-                        </td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" type="button" @onclick="() => OpenUserModal(user)">Gerenciar</button>
-                            <AuthorizeView Roles="Admin">
-                                <button class="btn btn-sm btn-outline-danger" disabled="@IsDeleteDisabled(user)" @onclick="() => DeleteAsync(user.Id)">Excluir</button>
-                            </AuthorizeView>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <UserTable Users="_users"
+               CanDelete="_isAdmin"
+               AuthenticatedUserId="_authenticatedUserId"
+               OnManage="OpenUserModal"
+               OnDelete="OpenDeleteConfirmation" />
 }
 
 <UserManagementModal User="_selectedUser"
@@ -83,23 +48,36 @@ else
                      OnClose="CloseUserModal"
                      OnSaveProfile="UpdateProfileAsync"
                      OnSaveRole="UpdateRoleAsync"
-                     OnDelete="DeleteAsync" />
+                     OnDelete="OpenDeleteConfirmation" />
 
 <UserCreateModal IsOpen="_showCreateModal"
                  ErrorMessages="_modalErrors"
                  OnClose="CloseCreateModal"
                  OnSave="CreateAsync" />
 
+<ConfirmDeleteModal IsOpen="@(_userPendingDelete is not null)"
+                    IsBusy="_deleting"
+                    Title="Confirmar exclusao"
+                    ItemName="@DeleteUserName"
+                    Message="Essa acao remove o usuario do fluxo de gestao. Deseja realmente excluir?"
+                    ConfirmButtonText="Excluir usuario"
+                    ErrorMessages="_modalErrors"
+                    OnCancel="CloseDeleteConfirmation"
+                    OnConfirm="DeleteConfirmedAsync" />
+
 @code {
     private bool _loading = true;
+    private bool _deleting;
     private List<UserListItem> _users = [];
     private Guid? _authenticatedUserId;
     private bool _isAdmin;
     private UserListItem? _selectedUser;
+    private UserListItem? _userPendingDelete;
     private bool _showCreateModal;
     private List<string> _modalErrors = [];
 
     private bool CanDeleteSelectedUser => _selectedUser is not null && !IsDeleteDisabled(_selectedUser);
+    private string DeleteUserName => _userPendingDelete?.FullName ?? string.Empty;
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
@@ -118,18 +96,22 @@ else
             Toast.Error(string.Join(" ", response.ErrorMessages));
     }
 
-    private async Task DeleteAsync(Guid id)
+    private async Task DeleteConfirmedAsync()
     {
         _modalErrors = [];
 
-        if (!_isAdmin || id == _authenticatedUserId)
+        if (_userPendingDelete is null || !_isAdmin || _userPendingDelete.Id == _authenticatedUserId)
             return;
 
-        var response = await UserApi.DeleteAsync(id);
+        _deleting = true;
+        var response = await UserApi.DeleteAsync(_userPendingDelete.Id);
+        _deleting = false;
+
         if (response.Success)
         {
             Toast.Success("Usuário removido com sucesso.");
             _selectedUser = null;
+            _userPendingDelete = null;
             await LoadAsync();
             return;
         }
@@ -205,6 +187,28 @@ else
     {
         _modalErrors = [];
         _selectedUser = null;
+    }
+
+    private void OpenDeleteConfirmation(UserListItem user)
+    {
+        if (IsDeleteDisabled(user))
+            return;
+
+        _modalErrors = [];
+        _userPendingDelete = user;
+    }
+
+    private void OpenDeleteConfirmation(Guid id)
+    {
+        var user = _users.FirstOrDefault(user => user.Id == id);
+        if (user is not null)
+            OpenDeleteConfirmation(user);
+    }
+
+    private void CloseDeleteConfirmation()
+    {
+        _modalErrors = [];
+        _userPendingDelete = null;
     }
 
     private void OpenCreateModal()

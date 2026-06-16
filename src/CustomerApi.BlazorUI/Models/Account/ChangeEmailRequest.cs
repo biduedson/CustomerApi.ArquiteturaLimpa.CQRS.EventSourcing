@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using CustomerApi.BlazorUI.Abstractions;
 
 namespace CustomerApi.BlazorUI.Models.Account;
 
-public sealed class ChangeEmailRequest
+public sealed class ChangeEmailRequest : IRequest
 {
     [Required(ErrorMessage = "Email é obrigatório.")]
     [EmailAddress(ErrorMessage = "Email inválido.")]

@@ -2,8 +2,8 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Admin,Operator")]
 @page "/users/{Id:guid}"
-@inject CustomerApi.BlazorUI.Services.IUserApiClient UserApi
-@inject CustomerApi.BlazorUI.Services.ToastService Toast
+@inject CustomerApi.BlazorUI.Services.ApiClients.Users.IUserApiClient UserApi
+@inject CustomerApi.BlazorUI.Services.Notifications.ToastService Toast
 @inject NavigationManager Navigation
 
 <PageTitle>Detalhes do usuário</PageTitle>
@@ -23,7 +23,7 @@ else if (_user is not null)
         <div class="d-flex gap-2">
             <a class="btn btn-light rounded-pill px-4" href="users">Voltar</a>
             <AuthorizeView Roles="Admin">
-                <button class="btn btn-outline-danger rounded-pill px-4" @onclick="DeleteAsync">Excluir</button>
+                <button class="btn btn-outline-danger rounded-pill px-4" @onclick="OpenDeleteConfirmation">Excluir</button>
             </AuthorizeView>
         </div>
     </div>
@@ -54,11 +54,25 @@ else if (_user is not null)
     </div>
 }
 
+<ConfirmDeleteModal IsOpen="@(_showDeleteConfirmation && _user is not null)"
+                    IsBusy="_deleting"
+                    Title="Confirmar exclusao"
+                    ItemName="@DeleteUserName"
+                    Message="Essa acao remove o usuario do fluxo de gestao. Deseja realmente excluir?"
+                    ConfirmButtonText="Excluir usuario"
+                    ErrorMessages="_modalErrors"
+                    OnCancel="CloseDeleteConfirmation"
+                    OnConfirm="DeleteConfirmedAsync" />
+
 @code {
     [Parameter] public Guid Id { get; set; }
 
     private bool _loading = true;
+    private bool _deleting;
+    private bool _showDeleteConfirmation;
     private UserListItem? _user;
+    private List<string> _modalErrors = [];
+    private string DeleteUserName => _user?.FullName ?? string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -73,9 +87,13 @@ else if (_user is not null)
         }
     }
 
-    private async Task DeleteAsync()
+    private async Task DeleteConfirmedAsync()
     {
+        _modalErrors = [];
+        _deleting = true;
         var response = await UserApi.DeleteAsync(Id);
+        _deleting = false;
+
         if (response.Success)
         {
             Toast.Success("Usuário removido com sucesso.");
@@ -83,6 +101,19 @@ else if (_user is not null)
             return;
         }
 
-        Toast.Error(string.Join(" ", response.ErrorMessages));
+        _modalErrors = response.ErrorMessages.Count > 0 ? response.ErrorMessages : ["Nao foi possivel concluir a operacao."];
+        Toast.Error(string.Join(" ", _modalErrors));
+    }
+
+    private void OpenDeleteConfirmation()
+    {
+        _modalErrors = [];
+        _showDeleteConfirmation = true;
+    }
+
+    private void CloseDeleteConfirmation()
+    {
+        _modalErrors = [];
+        _showDeleteConfirmation = false;
     }
 }

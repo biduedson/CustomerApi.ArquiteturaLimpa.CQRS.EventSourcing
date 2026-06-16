@@ -8,6 +8,7 @@ using CustomerApi.WebApi.Extensions.ResultExtensions;
 using CustomerApi.WebApi.Models;
 using CustomerApi.WebApi.Models.Account;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +23,7 @@ public class AccountController(IMediator mediator) : ControllerBase
     ////////////////////////////////////
     // POST: /api/account/changepassword
     ////////////////////////////////////
+    [Authorize]
     [HttpPost("changepassword")]
     [Consumes(MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]
@@ -56,6 +58,7 @@ public class AccountController(IMediator mediator) : ControllerBase
     /////////////////////////////////
     // POST: /api/account/changeemail
     /////////////////////////////////
+    [Authorize]
     [HttpPost("changeemail")]
     [Consumes(MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]

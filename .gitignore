@@ -8,6 +8,7 @@
 .run/
 data-mssql/
 data-mongo/
+CustomerApi.ArquiteturaLimpa.CQRS.EventSourcing.sln
 # User-specific files
 *.rsuser
 *.suo

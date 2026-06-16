@@ -56,9 +56,13 @@ public abstract class BaseApiClient<TCreateRequest, TUpdateRequest, TKey, T>(Htt
         if (string.IsNullOrWhiteSpace(content))
             return CreateEmptyResponse<TModel>(response);
 
+        if (TryCreateAuthenticationResponse<TModel>(content, out var authenticationResponse))
+            return authenticationResponse;
+
         return JsonSerializer.Deserialize<ApiResponse<TModel>>(content, JsonSerializerOptions.Web)
             ?? CreateEmptyResponse<TModel>(response);
     }
+
     protected static async Task<ApiResponse> SendAsync(
         Func<Task<HttpResponseMessage>> request,
         CancellationToken cancellationToken)
@@ -68,6 +72,9 @@ public abstract class BaseApiClient<TCreateRequest, TUpdateRequest, TKey, T>(Htt
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
         if (string.IsNullOrWhiteSpace(content))
             return CreateEmptyResponse(response);
+
+        if (TryCreateAuthenticationResponse(content, out var authenticationResponse))
+            return authenticationResponse;
 
         return JsonSerializer.Deserialize<ApiResponse>(content, JsonSerializerOptions.Web)
             ?? CreateEmptyResponse(response);
@@ -94,5 +101,75 @@ public abstract class BaseApiClient<TCreateRequest, TUpdateRequest, TKey, T>(Htt
                 ? []
                 : [new ApiErrorResponse { Message = $"A API retornou {response.StatusCode}." }]
         };
+    }
+
+    private static bool TryCreateAuthenticationResponse<TModel>(
+        string content,
+        out ApiResponse<TModel> response)
+    {
+        response = default!;
+
+        if (!TryReadAuthenticationError(content, out var authenticationError))
+            return false;
+
+        response = new ApiResponse<TModel>
+        {
+            Success = false,
+            StatusCode = authenticationError.Status,
+            Errors = [new ApiErrorResponse { Message = GetAuthenticationMessage(authenticationError) }]
+        };
+
+        return true;
+    }
+
+    private static bool TryCreateAuthenticationResponse(string content, out ApiResponse response)
+    {
+        response = default!;
+
+        if (!TryReadAuthenticationError(content, out var authenticationError))
+            return false;
+
+        response = new ApiResponse
+        {
+            Success = false,
+            StatusCode = authenticationError.Status,
+            Errors = [new ApiErrorResponse { Message = GetAuthenticationMessage(authenticationError) }]
+        };
+
+        return true;
+    }
+
+    private static bool TryReadAuthenticationError(
+        string content,
+        out AuthenticationErrorResponse authenticationError)
+    {
+        authenticationError = default!;
+
+        try
+        {
+            var error = JsonSerializer.Deserialize<AuthenticationErrorResponse>(
+                content,
+                JsonSerializerOptions.Web);
+
+            if (string.IsNullOrWhiteSpace(error?.ErrorCode))
+                return false;
+
+            authenticationError = error;
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static string GetAuthenticationMessage(AuthenticationErrorResponse authenticationError)
+    {
+        if (!string.IsNullOrWhiteSpace(authenticationError.Detail))
+            return authenticationError.Detail;
+
+        return string.IsNullOrWhiteSpace(authenticationError.Title)
+            ? "Não foi possível validar sua sessão."
+            : authenticationError.Title;
     }
 }

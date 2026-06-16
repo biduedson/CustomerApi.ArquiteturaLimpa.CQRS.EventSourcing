@@ -15,6 +15,8 @@ public static class ApplicationStartupExtensions
 
         await app.MigrateDatabasesAsync(serviceScope);
 
+        await app.SeedAdminUserAsync();
+
         app.Logger.LogInformation("----- Aplicação está iniciando...");
 
         await app.RunAsync();

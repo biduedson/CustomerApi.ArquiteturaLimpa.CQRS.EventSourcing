@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CustomerApi.Core.AppSettings;
 using CustomerApi.Core.Extensions;
@@ -55,21 +56,51 @@ public static class SecurityExtensions
                {
                    OnMessageReceived = context =>
                    {
-
                        context.Token = context.Request.Cookies["access_Token"];
                        return Task.CompletedTask;
                    },
                    OnAuthenticationFailed = context =>
                    {
-                       if (context.Exception is SecurityTokenExpiredException)
+                       return Task.CompletedTask;
+                   },
+                   OnChallenge = context =>
+                   {
+                       context.HandleResponse();
+
+                       if (context.AuthenticateFailure is SecurityTokenExpiredException)
                        {
-                           context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                           context.Response.ContentType = "application/json";
-                           return context.Response.WriteAsync("{\"error\":\"Token expirado\"}");
+                           return WriteAuthenticationErrorAsync(
+                               context.Response,
+                               StatusCodes.Status401Unauthorized,
+                               "Token de acesso expirado.",
+                               "O token de acesso enviado expirou.",
+                               "ACCESS_TOKEN_EXPIRED");
                        }
 
-                       return Task.CompletedTask;
-                   }
+                       if (string.IsNullOrWhiteSpace(context.Request.Cookies["access_Token"]))
+                       {
+                           return WriteAuthenticationErrorAsync(
+                               context.Response,
+                               StatusCodes.Status401Unauthorized,
+                               "Token de acesso ausente.",
+                               "Nenhum token de acesso foi enviado.",
+                               "ACCESS_TOKEN_MISSING");
+                       }
+
+                       return WriteAuthenticationErrorAsync(
+                           context.Response,
+                           StatusCodes.Status401Unauthorized,
+                           "Token de acesso inválido.",
+                           "O token de acesso enviado é inválido.",
+                           "ACCESS_TOKEN_INVALID");
+                   },
+                   OnForbidden = context =>
+                       WriteAuthenticationErrorAsync(
+                           context.Response,
+                           StatusCodes.Status403Forbidden,
+                           "Acesso negado.",
+                           "Você não possui permissão para acessar este recurso.",
+                           "ACCESS_FORBIDDEN")
                };
 
            });
@@ -106,4 +137,31 @@ public static class SecurityExtensions
 
         return services;
     }
+
+    private static Task WriteAuthenticationErrorAsync(
+        HttpResponse response,
+        int statusCode,
+        string title,
+        string detail,
+        string errorCode)
+    {
+        response.StatusCode = statusCode;
+        response.ContentType = "application/json";
+
+        var error = new AuthenticationErrorResponse(title, statusCode, detail, errorCode);
+        var json = JsonSerializer.Serialize(error, JsonOptions);
+
+        return response.WriteAsync(json);
+    }
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
+    private sealed record AuthenticationErrorResponse(
+        string Title,
+        int Status,
+        string Detail,
+        string ErrorCode);
 }

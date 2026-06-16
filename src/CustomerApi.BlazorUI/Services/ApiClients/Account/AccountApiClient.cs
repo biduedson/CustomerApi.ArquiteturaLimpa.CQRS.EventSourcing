@@ -30,6 +30,9 @@ public sealed class AccountApiClient(HttpClient httpClient) : IAccountApiClient
         if (string.IsNullOrWhiteSpace(content))
             return CreateEmptyResponse(response);
 
+        if (TryCreateAuthenticationResponse(content, out var authenticationResponse))
+            return authenticationResponse;
+
         return JsonSerializer.Deserialize<ApiResponse>(content, JsonSerializerOptions.Web)
             ?? CreateEmptyResponse(response);
     }
@@ -42,5 +45,43 @@ public sealed class AccountApiClient(HttpClient httpClient) : IAccountApiClient
             StatusCode = (int)response.StatusCode,
             Errors = response.IsSuccessStatusCode ? [] : [new ApiErrorResponse { Message = $"A API retornou {response.StatusCode}." }]
         };
+    }
+
+    private static bool TryCreateAuthenticationResponse(string content, out ApiResponse response)
+    {
+        response = default!;
+
+        try
+        {
+            var authenticationError = JsonSerializer.Deserialize<AuthenticationErrorResponse>(
+                content,
+                JsonSerializerOptions.Web);
+
+            if (string.IsNullOrWhiteSpace(authenticationError?.ErrorCode))
+                return false;
+
+            response = new ApiResponse
+            {
+                Success = false,
+                StatusCode = authenticationError.Status,
+                Errors = [new ApiErrorResponse { Message = GetAuthenticationMessage(authenticationError) }]
+            };
+
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static string GetAuthenticationMessage(AuthenticationErrorResponse authenticationError)
+    {
+        if (!string.IsNullOrWhiteSpace(authenticationError.Detail))
+            return authenticationError.Detail;
+
+        return string.IsNullOrWhiteSpace(authenticationError.Title)
+            ? "Não foi possível validar sua sessão."
+            : authenticationError.Title;
     }
 }

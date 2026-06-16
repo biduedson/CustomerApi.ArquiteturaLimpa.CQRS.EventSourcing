@@ -4,8 +4,8 @@
 @using CustomerApi.BlazorUI.Components.Pages.Customers.Components
 @attribute [Authorize(Roles = "Admin,Operator,Viewer")]
 @page "/customers"
-@inject CustomerApi.BlazorUI.Services.ICustomerApiClient CustomerApi
-@inject CustomerApi.BlazorUI.Services.ToastService Toast
+@inject CustomerApi.BlazorUI.Services.ApiClients.Customers.ICustomerApiClient CustomerApi
+@inject CustomerApi.BlazorUI.Services.Notifications.ToastService Toast
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Clientes</PageTitle>

@@ -3,9 +3,9 @@
 @using System.Security.Claims
 @attribute [Authorize]
 @page "/account"
-@inject CustomerApi.BlazorUI.Services.IUserApiClient UserApi
-@inject CustomerApi.BlazorUI.Services.IAccountApiClient AccountApi
-@inject CustomerApi.BlazorUI.Services.ToastService Toast
+@inject CustomerApi.BlazorUI.Services.ApiClients.Users.IUserApiClient UserApi
+@inject CustomerApi.BlazorUI.Services.ApiClients.Account.IAccountApiClient AccountApi
+@inject CustomerApi.BlazorUI.Services.Notifications.ToastService Toast
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Meu perfil</PageTitle>

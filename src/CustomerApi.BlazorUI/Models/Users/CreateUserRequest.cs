@@ -1,6 +1,8 @@
+using CustomerApi.BlazorUI.Abstractions;
+
 namespace CustomerApi.BlazorUI.Models.Users;
 
-public sealed class CreateUserRequest
+public sealed class CreateUserRequest : IRequest
 {
     public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;

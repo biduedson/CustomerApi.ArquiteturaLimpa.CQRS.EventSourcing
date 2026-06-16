@@ -2,7 +2,7 @@ using CustomerApi.BlazorUI.Models;
 using CustomerApi.BlazorUI.Models.Account;
 using System.Text.Json;
 
-namespace CustomerApi.BlazorUI.Services;
+namespace CustomerApi.BlazorUI.Services.ApiClients.Account;
 
 public sealed class AccountApiClient(HttpClient httpClient) : IAccountApiClient
 {

@@ -1,4 +1,4 @@
-namespace CustomerApi.BlazorUI.Services;
+namespace CustomerApi.BlazorUI.Services.Notifications;
 
 public sealed class ToastService
 {

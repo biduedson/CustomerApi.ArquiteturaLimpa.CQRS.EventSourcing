@@ -1,3 +1,4 @@
+
 namespace CustomerApi.BlazorUI.Models;
 
 public sealed class ApiResponse

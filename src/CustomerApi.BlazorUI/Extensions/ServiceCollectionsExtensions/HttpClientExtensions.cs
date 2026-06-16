@@ -1,5 +1,8 @@
 using CustomerApi.BlazorUI.Extensions.ConfigurationExtensions;
-using CustomerApi.BlazorUI.Services;
+using CustomerApi.BlazorUI.Services.ApiClients.Account;
+using CustomerApi.BlazorUI.Services.ApiClients.Customers;
+using CustomerApi.BlazorUI.Services.ApiClients.Users;
+using CustomerApi.BlazorUI.Services.Authentication;
 using CustomerApi.BlazorUI.Settings;
 
 namespace CustomerApi.BlazorUI.Extensions.ServiceCollectionsExtensions;
@@ -12,6 +15,7 @@ public static class HttpClientExtensions
     {
         var options = configuration.GetOptions<CustomerApiSettings>();
 
+        services.AddTransient<AuthenticationRefreshHandler>();
         services.AddTransient<CookieForwardingHandler>();
 
         services.AddHttpClient("CustomerApi", client =>
@@ -31,6 +35,7 @@ public static class HttpClientExtensions
         {
             UseCookies = false
         })
+        .AddHttpMessageHandler<AuthenticationRefreshHandler>()
         .AddHttpMessageHandler<CookieForwardingHandler>();
 
         services.AddHttpClient<IUserApiClient, UserApiClient>(client =>
@@ -41,6 +46,7 @@ public static class HttpClientExtensions
         {
             UseCookies = false
         })
+        .AddHttpMessageHandler<AuthenticationRefreshHandler>()
         .AddHttpMessageHandler<CookieForwardingHandler>();
 
         services.AddHttpClient<IAccountApiClient, AccountApiClient>(client =>
@@ -51,6 +57,7 @@ public static class HttpClientExtensions
         {
             UseCookies = false
         })
+        .AddHttpMessageHandler<AuthenticationRefreshHandler>()
         .AddHttpMessageHandler<CookieForwardingHandler>();
 
         return services;

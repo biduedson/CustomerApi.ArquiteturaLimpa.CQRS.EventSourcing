@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using CustomerApi.BlazorUI.Abstractions;
 
 namespace CustomerApi.BlazorUI.Models.Account;
 
-public sealed class ChangePasswordRequest : IValidatableObject
+public sealed class ChangePasswordRequest : IValidatableObject, IRequest
 {
     [Required(ErrorMessage = "Senha atual é obrigatória.")]
     [MaxLength(100, ErrorMessage = "Senha atual deve ter no máximo 100 caracteres.")]

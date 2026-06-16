@@ -1,4 +1,4 @@
-namespace CustomerApi.BlazorUI.Services;
+namespace CustomerApi.BlazorUI.Services.Authentication;
 
 public sealed class CookieForwardingHandler(IHttpContextAccessor httpContextAccessor) : DelegatingHandler
 {

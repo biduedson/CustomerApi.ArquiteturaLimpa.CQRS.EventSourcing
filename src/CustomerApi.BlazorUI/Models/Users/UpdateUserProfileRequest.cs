@@ -1,6 +1,8 @@
+using CustomerApi.BlazorUI.Abstractions;
+
 namespace CustomerApi.BlazorUI.Models.Users;
 
-public sealed class UpdateUserProfileRequest
+public sealed class UpdateUserProfileRequest : IRequest
 {
     public Guid Id { get; set; }
     public string? FullName { get; set; }

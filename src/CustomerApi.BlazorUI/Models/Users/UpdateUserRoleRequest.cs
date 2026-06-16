@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using CustomerApi.BlazorUI.Abstractions;
 
 namespace CustomerApi.BlazorUI.Models.Users;
 
-public sealed class UpdateUserRoleRequest
+public sealed class UpdateUserRoleRequest : IRequest
 {
     public Guid Id { get; set; }
 

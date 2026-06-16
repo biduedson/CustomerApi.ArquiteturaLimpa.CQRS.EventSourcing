@@ -3,8 +3,8 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Admin")]
 @page "/customers/{Id:guid}/edit"
-@inject CustomerApi.BlazorUI.Services.ICustomerApiClient CustomerApi
-@inject CustomerApi.BlazorUI.Services.ToastService Toast
+@inject CustomerApi.BlazorUI.Services.ApiClients.Customers.ICustomerApiClient CustomerApi
+@inject CustomerApi.BlazorUI.Services.Notifications.ToastService Toast
 @inject NavigationManager Navigation
 
 <CustomerForm Title="Editar cliente" Model="_model" OnValidSubmit="SaveAsync" />

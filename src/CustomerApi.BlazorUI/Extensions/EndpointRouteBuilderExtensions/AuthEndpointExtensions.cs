@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using CustomerApi.BlazorUI.Services.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Net.Http.Headers;
@@ -43,7 +44,9 @@ public static class AuthEndpointExtensions
 
             if (apiResponse.Headers.TryGetValues("Set-Cookie", out var cookies))
                 foreach (var cookie in cookies)
-                    httpContext.Response.Headers.Append("Set-Cookie", cookie);
+                    httpContext.Response.Headers.Append(
+                        HeaderNames.SetCookie,
+                        AuthCookieHeaderHelper.NormalizeForUi(cookie));
 
             var accessToken = GetCookieValue(apiResponse.Headers, AccessTokenCookie);
             var claims = CreateClaims(accessToken, email);
@@ -72,8 +75,8 @@ public static class AuthEndpointExtensions
             {
             }
 
-            httpContext.Response.Cookies.Delete(AccessTokenCookie);
-            httpContext.Response.Cookies.Delete(RefreshTokenCookie);
+            httpContext.Response.Cookies.Delete(AccessTokenCookie, new CookieOptions { Path = "/" });
+            httpContext.Response.Cookies.Delete(RefreshTokenCookie, new CookieOptions { Path = "/" });
 
             await httpContext.SignOutAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme);

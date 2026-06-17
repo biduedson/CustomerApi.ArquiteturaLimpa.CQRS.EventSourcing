@@ -28,7 +28,8 @@ public static class AuthCookieExtensions
     public static void DeleteAuthCookies(this HttpResponse response)
     {
         response.Cookies.Delete(AccessTokenCookie, new CookieOptions { Path = "/" });
-        response.Cookies.Delete(RefreshTokenCookie, new CookieOptions { Path = "/api/auth/refreshtoken" });
+        response.Cookies.Delete(RefreshTokenCookie, new CookieOptions { Path = "/" });
+        response.Cookies.Delete(RefreshTokenCookie, new CookieOptions { Path = "/api/auth" });
     }
 
     public static string GetRefreshTokenCookies(this HttpRequest request)
@@ -71,6 +72,6 @@ public static class AuthCookieExtensions
             Secure = true,
             SameSite = SameSiteMode.Lax,
             Expires = expiresAt,
-            Path = "/api/auth/refreshtoken"
+            Path = "/"
         };
 }

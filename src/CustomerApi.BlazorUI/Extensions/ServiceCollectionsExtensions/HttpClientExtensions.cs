@@ -15,8 +15,17 @@ public static class HttpClientExtensions
     {
         var options = configuration.GetOptions<CustomerApiSettings>();
 
-        services.AddTransient<AuthenticationRefreshHandler>();
+        services.AddScoped<ApiResponseAuthHandler>();
         services.AddTransient<CookieForwardingHandler>();
+
+        services.AddHttpClient<AuthRefreshService>(client =>
+        {
+            client.BaseAddress = new Uri(options!.BaseUrl!);
+        })
+        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        {
+            UseCookies = false
+        });
 
         services.AddHttpClient("CustomerApi", client =>
         {
@@ -35,7 +44,6 @@ public static class HttpClientExtensions
         {
             UseCookies = false
         })
-        .AddHttpMessageHandler<AuthenticationRefreshHandler>()
         .AddHttpMessageHandler<CookieForwardingHandler>();
 
         services.AddHttpClient<IUserApiClient, UserApiClient>(client =>
@@ -46,7 +54,6 @@ public static class HttpClientExtensions
         {
             UseCookies = false
         })
-        .AddHttpMessageHandler<AuthenticationRefreshHandler>()
         .AddHttpMessageHandler<CookieForwardingHandler>();
 
         services.AddHttpClient<IAccountApiClient, AccountApiClient>(client =>
@@ -57,7 +64,6 @@ public static class HttpClientExtensions
         {
             UseCookies = false
         })
-        .AddHttpMessageHandler<AuthenticationRefreshHandler>()
         .AddHttpMessageHandler<CookieForwardingHandler>();
 
         return services;

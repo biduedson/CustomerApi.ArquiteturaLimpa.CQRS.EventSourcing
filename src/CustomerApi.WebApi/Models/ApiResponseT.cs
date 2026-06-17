@@ -12,8 +12,9 @@ public class ApiResponse<TResult> : ApiResponse
         bool success,
         string successMessage,
         int statusCode,
+        string? errorCode,
         IEnumerable<ApiErrorResponse> errors
-        ) : base(success, successMessage, statusCode, errors)
+        ) : base(success, successMessage, statusCode, errorCode, errors)
     {
         Result = result!;
     }

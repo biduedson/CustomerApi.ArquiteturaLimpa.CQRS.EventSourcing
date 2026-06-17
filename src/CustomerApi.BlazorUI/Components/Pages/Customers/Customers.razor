@@ -10,59 +10,37 @@
 
 <PageTitle>Clientes</PageTitle>
 
-<div class="page-heading">
-    <div>
-        <p class="eyebrow">Cadastro</p>
-        <h1>Clientes</h1>
-        <p class="text-muted">Consulta e manutenção do read side da sua API CQRS.</p>
-    </div>
-    <AuthorizeView Roles="Admin,Operator">
-        <button class="btn btn-primary rounded-pill" type="button" @onclick="OpenCreateModal">Novo cliente</button>
-    </AuthorizeView>
-</div>
-
+<ManagementPageHeader Eyebrow="Cadastro" Title="Clientes" ButtonText="Novo cliente"
+                      Description="Consulta e manutenção do read side da sua API CQRS." OnButtonClick="OpenCreateModal" />
 @if (_loading)
 {
-    <div class="skeleton-card"></div>
+    <SkeletonCard />
 }
 else if (_customers.Count == 0)
 {
-    <div class="empty-state">
-        <h3>Nenhum cliente encontrado</h3>
-        <p>Crie o primeiro cliente para validar o fluxo completo da UI para a API.</p>
+    <EmptyState Title="Nenhum cliente encontrado"
+                Description="Crie o primeiro cliente para validar o fluxo completo da UI para a API.">
         <AuthorizeView Roles="Admin,Operator">
             <button class="btn btn-primary rounded-pill" type="button" @onclick="OpenCreateModal">Cadastrar cliente</button>
         </AuthorizeView>
-    </div>
+    </EmptyState>
+
 }
 else
 {
-    <CustomerTable Customers="_customers"
-                   CanDelete="_isAdmin"
-                   OnManage="OpenCustomerModal"
+    <CustomerTable Customers="_customers" CanDelete="_isAdmin" OnManage="OpenCustomerModal"
                    OnDelete="OpenDeleteConfirmation" />
 }
 
-<CustomerManagementModal Customer="_selectedCustomer"
-                         CanDelete="_isAdmin"
-                         ErrorMessages="_modalErrors"
-                         OnClose="CloseCustomerModal"
-                         OnSave="UpdateAsync"
-                         OnDelete="OpenDeleteConfirmation" />
+<CustomerManagementModal Customer="_selectedCustomer" CanDelete="_isAdmin" ErrorMessages="_modalErrors"
+                         OnClose="CloseCustomerModal" OnSave="UpdateAsync" OnDelete="OpenDeleteConfirmation" />
 
-<CustomerCreateModal IsOpen="_showCreateModal"
-                     ErrorMessages="_modalErrors"
-                     OnClose="CloseCreateModal"
+<CustomerCreateModal IsOpen="_showCreateModal" ErrorMessages="_modalErrors" OnClose="CloseCreateModal"
                      OnSave="CreateAsync" />
 
-<ConfirmDeleteModal IsOpen="@(_customerPendingDelete is not null)"
-                    IsBusy="_deleting"
-                    Title="Confirmar exclusao"
-                    ItemName="@DeleteCustomerName"
-                    Message="Essa acao remove o cliente definitivamente. Deseja realmente excluir?"
-                    ConfirmButtonText="Excluir cliente"
-                    ErrorMessages="_modalErrors"
-                    OnCancel="CloseDeleteConfirmation"
+<ConfirmDeleteModal IsOpen="@(_customerPendingDelete is not null)" IsBusy="_deleting" Title="Confirmar exclusao"
+                    ItemName="@DeleteCustomerName" Message="Essa acao remove o cliente definitivamente. Deseja realmente excluir?"
+                    ConfirmButtonText="Excluir cliente" ErrorMessages="_modalErrors" OnCancel="CloseDeleteConfirmation"
                     OnConfirm="DeleteConfirmedAsync" />
 
 @code {
@@ -84,6 +62,7 @@ else
     {
         _loading = true;
         var response = await CustomerApi.GetAllAsync();
+
         _customers = response.Result?.ToList() ?? [];
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         _isAdmin = authState.User.IsInRole("Admin");

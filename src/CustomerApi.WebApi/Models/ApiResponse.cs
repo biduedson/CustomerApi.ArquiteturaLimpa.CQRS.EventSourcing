@@ -8,11 +8,17 @@ namespace CustomerApi.WebApi.Models;
 public class ApiResponse
 {
     [JsonConstructor]
-    public ApiResponse(bool success, string successMessage, int statusCode, IEnumerable<ApiErrorResponse> errors)
+    public ApiResponse(
+        bool success,
+        string? successMessage,
+        int statusCode,
+        string? errorCode,
+        IEnumerable<ApiErrorResponse> errors)
     {
         Success = success;
         SuccessMessage = successMessage;
         StatusCode = statusCode;
+        ErrorCode = errorCode;
         Errors = errors;
     }
     public ApiResponse()
@@ -22,6 +28,7 @@ public class ApiResponse
     public bool Success { get; protected init; }
     public string? SuccessMessage { get; protected init; }
     public int StatusCode { get; protected init; }
+    public string? ErrorCode { get; protected init; }
     public IEnumerable<ApiErrorResponse> Errors { get; private init; } = [];
 
     public static ApiResponse Ok() =>
@@ -38,12 +45,28 @@ public class ApiResponse
        new() { Success = false, StatusCode = StatusCodes.Status401Unauthorized };
     public static ApiResponse Unauthorized(string errorMessage) =>
          new() { Success = false, StatusCode = StatusCodes.Status401Unauthorized, Errors = CreateErrors(errorMessage) };
+    public static ApiResponse Unauthorized(string errorMessage, string errorCode) =>
+        new()
+        {
+            Success = false,
+            StatusCode = StatusCodes.Status401Unauthorized,
+            ErrorCode = errorCode,
+            Errors = CreateErrors(errorMessage)
+        };
     public static ApiResponse Unauthorized(IEnumerable<ApiErrorResponse> errors) =>
             new() { Success = false, StatusCode = StatusCodes.Status401Unauthorized, Errors = errors };
     public static ApiResponse Forbidden() =>
         new() { Success = false, StatusCode = StatusCodes.Status403Forbidden };
     public static ApiResponse Forbidden(string errorMessage) =>
             new() { Success = false, StatusCode = StatusCodes.Status403Forbidden, Errors = CreateErrors(errorMessage) };
+    public static ApiResponse Forbidden(string errorMessage, string errorCode) =>
+        new()
+        {
+            Success = false,
+            StatusCode = StatusCodes.Status403Forbidden,
+            ErrorCode = errorCode,
+            Errors = CreateErrors(errorMessage)
+        };
     public static ApiResponse NotFound() =>
             new() { Success = false, StatusCode = StatusCodes.Status404NotFound };
     public static ApiResponse NotFound(string errorMessage) =>

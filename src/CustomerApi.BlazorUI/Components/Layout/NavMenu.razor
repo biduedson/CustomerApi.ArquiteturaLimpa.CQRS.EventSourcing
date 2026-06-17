@@ -14,7 +14,7 @@
         <Authorized>
             <div class="small text-white-50 mb-2">Logado como</div>
             <strong>@context.User.Identity?.Name</strong>
-            <form method="post" action="/auth/logout" class="mt-3">
+            <form method="post" action="/api/auth/logout" class="mt-3">
                 <AntiforgeryToken />
 
                 <button class="btn btn-sm btn-outline-light rounded-pill w-100" type="submit">Sair</button>

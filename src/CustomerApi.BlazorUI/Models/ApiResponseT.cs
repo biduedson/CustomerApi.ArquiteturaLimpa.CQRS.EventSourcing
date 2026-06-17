@@ -8,6 +8,7 @@ public class ApiResponse<TResult>
     public string? SuccessMessage { get; set; }
     public string? SucessMessage { get; set; }
     public int StatusCode { get; set; }
+    public string? ErrorCode { get; set; }
     public List<ApiErrorResponse> Errors { get; set; } = [];
 
     public List<string> ErrorMessages => Errors

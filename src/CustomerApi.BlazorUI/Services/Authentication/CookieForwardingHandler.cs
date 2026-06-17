@@ -4,10 +4,10 @@ public sealed class CookieForwardingHandler(IHttpContextAccessor httpContextAcce
 {
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var cookieHeader = httpContextAccessor.HttpContext?.Request.Headers.Cookie.ToString();
+        var httpContext = httpContextAccessor.HttpContext;
 
-        if (!string.IsNullOrWhiteSpace(cookieHeader) && !request.Headers.Contains("Cookie"))
-            request.Headers.TryAddWithoutValidation("Cookie", cookieHeader);
+        if (httpContext is not null)
+            AuthCookieRelay.AddAuthCookies(httpContext, request);
 
         return base.SendAsync(request, cancellationToken);
     }

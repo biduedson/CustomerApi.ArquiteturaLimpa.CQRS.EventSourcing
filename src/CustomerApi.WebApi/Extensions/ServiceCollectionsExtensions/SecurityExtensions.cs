@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CustomerApi.Core.AppSettings;
 using CustomerApi.Core.Extensions;
 using CustomerApi.Domain.Entities.UserAggregate;
+using CustomerApi.WebApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -72,7 +73,6 @@ public static class SecurityExtensions
                            return WriteAuthenticationErrorAsync(
                                context.Response,
                                StatusCodes.Status401Unauthorized,
-                               "Token de acesso expirado.",
                                "O token de acesso enviado expirou.",
                                "ACCESS_TOKEN_EXPIRED");
                        }
@@ -82,7 +82,6 @@ public static class SecurityExtensions
                            return WriteAuthenticationErrorAsync(
                                context.Response,
                                StatusCodes.Status401Unauthorized,
-                               "Token de acesso ausente.",
                                "Nenhum token de acesso foi enviado.",
                                "ACCESS_TOKEN_MISSING");
                        }
@@ -90,7 +89,6 @@ public static class SecurityExtensions
                        return WriteAuthenticationErrorAsync(
                            context.Response,
                            StatusCodes.Status401Unauthorized,
-                           "Token de acesso inválido.",
                            "O token de acesso enviado é inválido.",
                            "ACCESS_TOKEN_INVALID");
                    },
@@ -98,7 +96,6 @@ public static class SecurityExtensions
                        WriteAuthenticationErrorAsync(
                            context.Response,
                            StatusCodes.Status403Forbidden,
-                           "Acesso negado.",
                            "Você não possui permissão para acessar este recurso.",
                            "ACCESS_FORBIDDEN")
                };
@@ -141,14 +138,16 @@ public static class SecurityExtensions
     private static Task WriteAuthenticationErrorAsync(
         HttpResponse response,
         int statusCode,
-        string title,
         string detail,
         string errorCode)
     {
         response.StatusCode = statusCode;
         response.ContentType = "application/json";
 
-        var error = new AuthenticationErrorResponse(title, statusCode, detail, errorCode);
+        var error = statusCode == StatusCodes.Status403Forbidden
+            ? ApiResponse.Forbidden(detail, errorCode)
+            : ApiResponse.Unauthorized(detail, errorCode);
+
         var json = JsonSerializer.Serialize(error, JsonOptions);
 
         return response.WriteAsync(json);
@@ -159,9 +158,4 @@ public static class SecurityExtensions
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    private sealed record AuthenticationErrorResponse(
-        string Title,
-        int Status,
-        string Detail,
-        string ErrorCode);
 }

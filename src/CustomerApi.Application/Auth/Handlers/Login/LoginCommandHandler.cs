@@ -59,17 +59,15 @@ IUnitOfWork unitOfWork
 
             sessionRepository.Update(existingDeviceSession);
         }
-        else
-        {
-            var session = UserSession.Create(
+
+        var session = UserSession.Create(
             user.Id,
             refreshTokenHash,
             request.UserAgent,
             request.IpAddress ?? string.Empty,
-            accessTokenExpiresAt);
+            refreshTokenExpiresAt);
 
-            sessionRepository.Add(session);
-        }
+        sessionRepository.Add(session);
 
         await unitOfWork.SaveChangesAsync();
 

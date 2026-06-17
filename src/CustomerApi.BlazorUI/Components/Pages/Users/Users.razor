@@ -10,59 +10,35 @@
 
 <PageTitle>Usuários</PageTitle>
 
-<div class="page-heading">
-    <div>
-        <p class="eyebrow">Acesso</p>
-        <h1>Usuários</h1>
-        <p class="text-muted">Gestão de usuários, perfis e permissões da API.</p>
-    </div>
-    <AuthorizeView Roles="Admin,Operator">
-        <button class="btn btn-primary rounded-pill" type="button" @onclick="OpenCreateModal">Novo usuário</button>
-    </AuthorizeView>
-</div>
+
+<ManagementPageHeader Eyebrow="Acesso" Title="Usuários" ButtonText="Novo usuário"
+                      Description="Gestão de usuários, perfis e permissões da API." OnButtonClick="OpenCreateModal" />
 
 @if (_loading)
 {
-    <div class="skeleton-card"></div>
+    <SkeletonCard />
 }
 else if (_users.Count == 0)
 {
-    <div class="empty-state">
-        <h3>Nenhum usuário encontrado</h3>
-        <p>Os usuários aparecerão aqui quando existirem no read side.</p>
-    </div>
+    <EmptyState Title="Nenhum usuário encontrado"
+                Description="Os usuários aparecerão aqui quando existirem no read side." />
 }
 else
 {
-    <UserTable Users="_users"
-               CanDelete="_isAdmin"
-               AuthenticatedUserId="_authenticatedUserId"
-               OnManage="OpenUserModal"
+    <UserTable Users="_users" CanDelete="_isAdmin" AuthenticatedUserId="_authenticatedUserId" OnManage="OpenUserModal"
                OnDelete="OpenDeleteConfirmation" />
 }
 
-<UserManagementModal User="_selectedUser"
-                     CanManage="_isAdmin"
-                     CanDelete="@CanDeleteSelectedUser"
-                     ErrorMessages="_modalErrors"
-                     OnClose="CloseUserModal"
-                     OnSaveProfile="UpdateProfileAsync"
-                     OnSaveRole="UpdateRoleAsync"
-                     OnDelete="OpenDeleteConfirmation" />
+<UserManagementModal User="_selectedUser" CanManage="_isAdmin" CanDelete="@CanDeleteSelectedUser"
+                     ErrorMessages="_modalErrors" OnClose="CloseUserModal" OnSaveProfile="UpdateProfileAsync"
+                     OnSaveRole="UpdateRoleAsync" OnDelete="OpenDeleteConfirmation" />
 
-<UserCreateModal IsOpen="_showCreateModal"
-                 ErrorMessages="_modalErrors"
-                 OnClose="CloseCreateModal"
+<UserCreateModal IsOpen="_showCreateModal" ErrorMessages="_modalErrors" OnClose="CloseCreateModal"
                  OnSave="CreateAsync" />
 
-<ConfirmDeleteModal IsOpen="@(_userPendingDelete is not null)"
-                    IsBusy="_deleting"
-                    Title="Confirmar exclusao"
-                    ItemName="@DeleteUserName"
-                    Message="Essa acao remove o usuario do fluxo de gestao. Deseja realmente excluir?"
-                    ConfirmButtonText="Excluir usuario"
-                    ErrorMessages="_modalErrors"
-                    OnCancel="CloseDeleteConfirmation"
+<ConfirmDeleteModal IsOpen="@(_userPendingDelete is not null)" IsBusy="_deleting" Title="Confirmar exclusao"
+                    ItemName="@DeleteUserName" Message="Essa acao remove o usuario do fluxo de gestao. Deseja realmente excluir?"
+                    ConfirmButtonText="Excluir usuario" ErrorMessages="_modalErrors" OnCancel="CloseDeleteConfirmation"
                     OnConfirm="DeleteConfirmedAsync" />
 
 @code {
@@ -85,6 +61,7 @@ else
     {
         _loading = true;
         var response = await UserApi.GetAllAsync();
+
         _users = response.Result?.ToList() ?? [];
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var authenticatedUser = authState.User;

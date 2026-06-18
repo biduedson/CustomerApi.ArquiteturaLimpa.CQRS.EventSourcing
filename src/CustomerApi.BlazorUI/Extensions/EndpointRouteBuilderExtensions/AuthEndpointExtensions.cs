@@ -101,6 +101,55 @@ public static class AuthEndpointExtensions
             return Results.Ok();
         });
 
+        app.MapPost("/account/changepassword", async (
+            HttpContext httpContext,
+            IHttpClientFactory httpClientFactory) =>
+        {
+            var form = await httpContext.Request.ReadFormAsync();
+            var currentPassword = form["currentPassword"].ToString();
+            var newPassword = form["newPassword"].ToString();
+            var confirmPassword = form["confirmPassword"].ToString();
+
+            if (string.IsNullOrWhiteSpace(currentPassword)
+                || string.IsNullOrWhiteSpace(newPassword)
+                || string.IsNullOrWhiteSpace(confirmPassword))
+                return Results.Redirect("/account?changePasswordError=required");
+
+            if (!string.Equals(newPassword, confirmPassword, StringComparison.Ordinal))
+                return Results.Redirect("/account?changePasswordError=confirm");
+
+            var client = httpClientFactory.CreateClient("CustomerApi");
+
+            var userAgent = httpContext.Request.Headers.UserAgent.ToString();
+            if (!string.IsNullOrWhiteSpace(userAgent))
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, "api/account/changepassword")
+            {
+                Content = JsonContent.Create(new
+                {
+                    CurrentPassword = currentPassword,
+                    NewPassword = newPassword,
+                    ConfirmPassword = confirmPassword
+                })
+            };
+
+            AuthCookieRelay.AddAuthCookies(httpContext, request);
+
+            using var apiResponse = await client.SendAsync(request);
+
+            if (!apiResponse.IsSuccessStatusCode)
+                return Results.Redirect("/account?changePasswordError=invalid");
+
+            AuthCookieRelay.AppendSetCookieHeaders(httpContext, apiResponse);
+            AuthCookieRelay.DeleteAuthCookies(httpContext);
+
+            await httpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return Results.Redirect("/login");
+        });
+
         return app;
     }
 

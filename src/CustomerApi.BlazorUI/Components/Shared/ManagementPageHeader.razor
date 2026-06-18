@@ -4,9 +4,12 @@
         <h1>@Title</h1>
         <p class="text-muted">@Description</p>
     </div>
-    <AuthorizeView Roles="Admin,Operator">
-        <button class="btn btn-primary rounded-pill" type="button" @onclick="HandleButtonClick">@ButtonText</button>
-    </AuthorizeView>
+    @if (!string.IsNullOrWhiteSpace(ButtonText) && OnButtonClick.HasDelegate)
+    {
+        <AuthorizeView Roles="Admin,Operator">
+            <button class="btn btn-primary rounded-pill" type="button" @onclick="HandleButtonClick">@ButtonText</button>
+        </AuthorizeView>
+    }
 </div>
 
 @code {

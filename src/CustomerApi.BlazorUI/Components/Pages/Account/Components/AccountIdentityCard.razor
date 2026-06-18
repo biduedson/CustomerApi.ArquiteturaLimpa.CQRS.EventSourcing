@@ -1,0 +1,17 @@
+@using CustomerApi.BlazorUI.Models.Users
+
+<section class="work-card">
+    <p class="eyebrow">Identidade</p>
+    <h2>@(User?.FullName ?? Email)</h2>
+    <div class="detail-list mt-3">
+        <div><span>Email</span><strong>@(User?.Email ?? Email)</strong></div>
+        <div><span>Username</span><strong>@(User?.UserName ?? "-")</strong></div>
+        <div><span>Role</span><strong>@(User?.Role ?? "-")</strong></div>
+        <div><span>Cargo</span><strong>@(User?.JobTitle ?? "-")</strong></div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public UserListItem? User { get; set; }
+    [Parameter] public string Email { get; set; } = string.Empty;
+}

@@ -1,0 +1,35 @@
+@using CustomerApi.BlazorUI.Models.Account
+
+<section class="work-card">
+    <p class="eyebrow">Email</p>
+    <h2>Trocar email</h2>
+    <EditForm Model="Model" OnValidSubmit="OnValidSubmit">
+        <AntiforgeryToken />
+        <DataAnnotationsValidator />
+        <ValidationSummary class="validation-box" />
+
+        @if (ErrorMessages.Count > 0)
+        {
+            <div class="api-error-box">
+                @foreach (var error in ErrorMessages)
+                {
+                    <div>@error</div>
+                }
+            </div>
+        }
+
+        <label class="form-label">Novo email</label>
+        <InputText class="form-control" @bind-Value="Model.Email" />
+        <ValidationMessage For="() => Model.Email" />
+
+        <div class="modal-actions">
+            <button class="btn btn-primary" type="submit">Atualizar email</button>
+        </div>
+    </EditForm>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public ChangeEmailRequest Model { get; set; } = new();
+    [Parameter] public IReadOnlyCollection<string> ErrorMessages { get; set; } = [];
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+}

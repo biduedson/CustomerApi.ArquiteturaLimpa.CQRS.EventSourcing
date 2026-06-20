@@ -15,8 +15,8 @@ public static class HttpClientExtensions
     {
         var options = configuration.GetOptions<CustomerApiSettings>();
 
-        services.AddScoped<ApiResponseAuthHandler>();
-        services.AddTransient<CookieForwardingHandler>();
+        services.AddScoped<AuthCookieService>();
+        services.AddTransient<CustomerApiRequestHandler>();
 
         services.AddHttpClient<AuthRefreshService>(client =>
         {
@@ -25,7 +25,8 @@ public static class HttpClientExtensions
         .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
         {
             UseCookies = false
-        });
+        })
+        .AddHttpMessageHandler<CustomerApiRequestHandler>();
 
         services.AddHttpClient("CustomerApi", client =>
         {
@@ -44,7 +45,7 @@ public static class HttpClientExtensions
         {
             UseCookies = false
         })
-        .AddHttpMessageHandler<CookieForwardingHandler>();
+        .AddHttpMessageHandler<CustomerApiRequestHandler>();
 
         services.AddHttpClient<IUserApiClient, UserApiClient>(client =>
         {
@@ -54,7 +55,7 @@ public static class HttpClientExtensions
         {
             UseCookies = false
         })
-        .AddHttpMessageHandler<CookieForwardingHandler>();
+        .AddHttpMessageHandler<CustomerApiRequestHandler>();
 
         services.AddHttpClient<IAccountApiClient, AccountApiClient>(client =>
         {
@@ -64,7 +65,7 @@ public static class HttpClientExtensions
         {
             UseCookies = false
         })
-        .AddHttpMessageHandler<CookieForwardingHandler>();
+        .AddHttpMessageHandler<CustomerApiRequestHandler>();
 
         return services;
     }

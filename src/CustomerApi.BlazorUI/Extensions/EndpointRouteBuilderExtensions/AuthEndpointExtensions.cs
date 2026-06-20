@@ -11,7 +11,8 @@ public static class AuthEndpointExtensions
     {
         app.MapPost("/auth/login", async (
             HttpContext httpContext,
-            IHttpClientFactory httpClientFactory) =>
+            IHttpClientFactory httpClientFactory,
+            AuthCookieService authCookieService) =>
         {
             var form = await httpContext.Request.ReadFormAsync();
             var email = form["email"].ToString();
@@ -36,9 +37,9 @@ public static class AuthEndpointExtensions
             if (!apiResponse.IsSuccessStatusCode)
                 return Results.Redirect("/login?error=invalid");
 
-            AuthCookieRelay.AppendSetCookieHeaders(httpContext, apiResponse);
+            authCookieService.AppendSetCookieHeaders(httpContext, apiResponse);
 
-            var accessToken = AuthCookieRelay.GetCookieValue(apiResponse.Headers, "access_Token");
+            var accessToken = authCookieService.GetCookieValue(apiResponse.Headers, "access_Token");
             var claims = AuthClaimsFactory.CreateClaims(accessToken, email);
 
             var identity = new ClaimsIdentity(
@@ -54,14 +55,15 @@ public static class AuthEndpointExtensions
 
         app.MapPost("/api/auth/logout", async (
             HttpContext httpContext,
-            IHttpClientFactory httpClientFactory) =>
+            IHttpClientFactory httpClientFactory,
+            AuthCookieService authCookieService) =>
         {
             var client = httpClientFactory.CreateClient("CustomerApi");
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/logout");
 
-                AuthCookieRelay.AddRefreshTokenCookie(httpContext, request);
+                authCookieService.AddRefreshTokenCookie(httpContext, request);
 
                 using var apiResponse = await client.SendAsync(request);
             }
@@ -69,7 +71,7 @@ public static class AuthEndpointExtensions
             {
             }
 
-            AuthCookieRelay.DeleteAuthCookies(httpContext);
+            authCookieService.DeleteAuthCookies(httpContext);
 
             await httpContext.SignOutAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme);
@@ -77,33 +79,10 @@ public static class AuthEndpointExtensions
             return Results.Redirect("/login");
         });
 
-        app.MapPost("/api/auth/refreshtoken", async (
-            HttpContext httpContext,
-            IHttpClientFactory httpClientFactory) =>
-        {
-            var client = httpClientFactory.CreateClient("CustomerApi");
-
-            var userAgent = httpContext.Request.Headers.UserAgent.ToString();
-            if (!string.IsNullOrWhiteSpace(userAgent))
-                client.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
-
-            using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/refreshtoken");
-
-            AuthCookieRelay.AddRefreshTokenCookie(httpContext, request);
-
-            using var apiResponse = await client.SendAsync(request);
-
-            if (!apiResponse.IsSuccessStatusCode)
-                return Results.Unauthorized();
-
-            AuthCookieRelay.AppendSetCookieHeaders(httpContext, apiResponse);
-
-            return Results.Ok();
-        });
-
         app.MapPost("/account/changepassword", async (
             HttpContext httpContext,
-            IHttpClientFactory httpClientFactory) =>
+            IHttpClientFactory httpClientFactory,
+            AuthCookieService authCookieService) =>
         {
             var form = await httpContext.Request.ReadFormAsync();
             var currentPassword = form["currentPassword"].ToString();
@@ -134,15 +113,15 @@ public static class AuthEndpointExtensions
                 })
             };
 
-            AuthCookieRelay.AddAuthCookies(httpContext, request);
+            authCookieService.AddAuthCookies(httpContext, request);
 
             using var apiResponse = await client.SendAsync(request);
 
             if (!apiResponse.IsSuccessStatusCode)
                 return Results.Redirect("/account?changePasswordError=invalid");
 
-            AuthCookieRelay.AppendSetCookieHeaders(httpContext, apiResponse);
-            AuthCookieRelay.DeleteAuthCookies(httpContext);
+            authCookieService.AppendSetCookieHeaders(httpContext, apiResponse);
+            authCookieService.DeleteAuthCookies(httpContext);
 
             await httpContext.SignOutAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme);

@@ -1,15 +1,18 @@
 using CustomerApi.BlazorUI.Models;
 using CustomerApi.BlazorUI.Models.Users;
 using CustomerApi.BlazorUI.Services.Authentication;
+using Microsoft.AspNetCore.Components;
 
 namespace CustomerApi.BlazorUI.Services.ApiClients.Users;
 
 public sealed class UserApiClient(
     HttpClient httpClient,
-    ApiResponseAuthHandler authHandler)
+    AuthRefreshService authRefreshService,
+    NavigationManager navigation)
     : BaseApiClient<CreateUserRequest, UpdateUserProfileRequest, Guid, UserListItem>(
         httpClient,
-        authHandler,
+        authRefreshService,
+        navigation,
         Route),
         IUserApiClient
 {

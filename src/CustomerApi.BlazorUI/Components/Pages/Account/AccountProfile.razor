@@ -12,8 +12,7 @@
 
 <PageTitle>Meu perfil</PageTitle>
 
-<ManagementPageHeader Eyebrow="Conta" Title="Meu perfil"
-                      Description="Dados e credenciais do usuário autenticado." />
+<ManagementPageHeader Eyebrow="Conta" Title="Meu perfil" Description="Dados e credenciais do usuário autenticado." />
 
 @if (_loading)
 {
@@ -24,7 +23,7 @@ else
     <div class="profile-grid">
         <AccountIdentityCard User="_currentUser" Email="_email" />
         <AccountEmailForm Model="_emailModel" ErrorMessages="_emailErrors" OnValidSubmit="ChangeEmailAsync" />
-        <AccountPasswordForm ErrorMessage="PasswordErrorMessage" />
+        <AccountPasswordForm ErrorMessage="@PasswordErrorMessage" />
     </div>
 }
 
@@ -89,4 +88,5 @@ else
 
         Toast.Error(string.Join(" ", _emailErrors));
     }
+
 }

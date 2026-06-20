@@ -3,12 +3,14 @@ using CustomerApi.BlazorUI.Abstractions;
 using CustomerApi.BlazorUI.Abstractions.ApiClients;
 using CustomerApi.BlazorUI.Models;
 using CustomerApi.BlazorUI.Services.Authentication;
+using Microsoft.AspNetCore.Components;
 
 namespace CustomerApi.BlazorUI.Services.ApiClients;
 
 public abstract class BaseApiClient<TCreateRequest, TUpdateRequest, TKey, T>(
     HttpClient httpClient,
-    ApiResponseAuthHandler authHandler,
+    AuthRefreshService authRefreshService,
+    NavigationManager navigation,
     string baseRoute)
        : IApiClient<TCreateRequest, TUpdateRequest, TKey, T>
     where TCreateRequest : IRequest
@@ -16,7 +18,13 @@ public abstract class BaseApiClient<TCreateRequest, TUpdateRequest, TKey, T>(
     where TKey : IEquatable<TKey>
     where T : class
 {
-    private readonly ApiResponseAuthHandler _authHandler = authHandler;
+    private const string AccessTokenExpired = "ACCESS_TOKEN_EXPIRED";
+    private const string AccessTokenMissing = "ACCESS_TOKEN_MISSING";
+    private const string AccessTokenInvalid = "ACCESS_TOKEN_INVALID";
+    private const string AccessForbidden = "ACCESS_FORBIDDEN";
+
+    private readonly AuthRefreshService _authRefreshService = authRefreshService;
+    private readonly NavigationManager _navigation = navigation;
 
     protected HttpClient HttpClient { get; } = httpClient;
 
@@ -56,60 +64,84 @@ public abstract class BaseApiClient<TCreateRequest, TUpdateRequest, TKey, T>(
         Func<Task<HttpResponseMessage>> request,
         CancellationToken cancellationToken)
     {
-        // Primeira tentativa: chama a API e transforma o retorno em ApiResponse<TModel>.
         var response = await SendAsync<TModel>(request, cancellationToken);
 
-        // Se deu certo, encerra aqui. Nao precisa validar refresh, login ou access denied.
+        // Resposta com sucesso: nao precisa tratar autenticacao.
         if (response.Success)
             return response;
 
-        // Chama ShouldHandleAuthenticationError para saber se esse ErrorCode pertence
-        // ao fluxo de autenticacao: token expirado, ausente, invalido ou acesso negado.
-        // Se nao pertence, e um erro comum da API e deve voltar direto para a tela.
-        if (!ApiResponseAuthHandler.ShouldHandleAuthenticationError(response.ErrorCode))
+        // Erros comuns da API voltam direto para a pagina.
+        if (string.IsNullOrWhiteSpace(response.ErrorCode))
             return response;
 
-        // Agora sim entrega para o handler: ele pode renovar o token, redirecionar para
-        // login/access-denied ou devolver a resposta original.
-        return await _authHandler.HandleAuthenticationErrorAsync(
-            response,
-            () => SendAsync<TModel>(request, cancellationToken),
-            cancellationToken);
+        // Tenta refresh/retry; se falhar vai para login, e acesso negado vai para access-denied.
+        switch (response.ErrorCode)
+        {
+            case AccessTokenExpired:
+            case AccessTokenMissing:
+                if (await _authRefreshService.TryRefreshAsync(cancellationToken))
+                    return await SendAsync<TModel>(request, cancellationToken);
+
+                _navigation.NavigateTo("/login", forceLoad: true);
+                return response;
+
+            case AccessTokenInvalid:
+                _navigation.NavigateTo("/login", forceLoad: true);
+                return response;
+
+            case AccessForbidden:
+                _navigation.NavigateTo("/access-denied", forceLoad: true);
+                return response;
+
+            default:
+                return response;
+        }
     }
 
     protected async Task<ApiResponse> SendWithAuthAsync(
         Func<Task<HttpResponseMessage>> request,
         CancellationToken cancellationToken)
     {
-        // Primeira tentativa: chama a API e transforma o retorno em ApiResponse.
         var response = await SendAsync(request, cancellationToken);
 
-        // Se deu certo, encerra aqui. Nao precisa validar refresh, login ou access denied.
+        // Resposta com sucesso: nao precisa tratar autenticacao.
         if (response.Success)
             return response;
 
-        // Chama ShouldHandleAuthenticationError para saber se esse ErrorCode pertence
-        // ao fluxo de autenticacao: token expirado, ausente, invalido ou acesso negado.
-        // Se nao pertence, e um erro comum da API e deve voltar direto para a tela.
-        if (!ApiResponseAuthHandler.ShouldHandleAuthenticationError(response.ErrorCode))
+        // Erros comuns da API voltam direto para a pagina.
+        if (string.IsNullOrWhiteSpace(response.ErrorCode))
             return response;
 
-        // Agora sim entrega para o handler: ele pode renovar o token, redirecionar para
-        // login/access-denied ou devolver a resposta original.
-        return await _authHandler.HandleAuthenticationErrorAsync(
-            response,
-            () => SendAsync(request, cancellationToken),
-            cancellationToken);
+        // Tenta refresh/retry; se falhar vai para login, e acesso negado vai para access-denied.
+        switch (response.ErrorCode)
+        {
+            case AccessTokenExpired:
+            case AccessTokenMissing:
+                if (await _authRefreshService.TryRefreshAsync(cancellationToken))
+                    return await SendAsync(request, cancellationToken);
+
+                _navigation.NavigateTo("/login", forceLoad: true);
+                return response;
+
+            case AccessTokenInvalid:
+                _navigation.NavigateTo("/login", forceLoad: true);
+                return response;
+
+            case AccessForbidden:
+                _navigation.NavigateTo("/access-denied", forceLoad: true);
+                return response;
+
+            default:
+                return response;
+        }
     }
 
     protected static async Task<ApiResponse<TModel>> SendAsync<TModel>(
         Func<Task<HttpResponseMessage>> request,
         CancellationToken cancellationToken)
     {
-        // Executa a requisicao HTTP; o Func cria uma nova chamada quando precisar repetir.
         using var response = await request();
 
-        // Converte o JSON da API para o modelo ApiResponse<TModel> usado pela UI.
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
         if (string.IsNullOrWhiteSpace(content))
             return CreateEmptyResponse<TModel>(response);
@@ -122,10 +154,8 @@ public abstract class BaseApiClient<TCreateRequest, TUpdateRequest, TKey, T>(
         Func<Task<HttpResponseMessage>> request,
         CancellationToken cancellationToken)
     {
-        // Executa a requisicao HTTP; o Func cria uma nova chamada quando precisar repetir.
         using var response = await request();
 
-        // Converte o JSON da API para o modelo ApiResponse usado pela UI.
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
         if (string.IsNullOrWhiteSpace(content))
             return CreateEmptyResponse(response);

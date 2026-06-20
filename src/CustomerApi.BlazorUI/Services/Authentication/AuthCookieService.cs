@@ -3,14 +3,14 @@ using Microsoft.Net.Http.Headers;
 
 namespace CustomerApi.BlazorUI.Services.Authentication;
 
-internal static class AuthCookieRelay
+public sealed class AuthCookieService
 {
     private const string AccessTokenCookie = "access_Token";
     private const string RefreshTokenCookie = "refresh_Token";
     private const string RefreshedAccessTokenItem = "RefreshedAccessToken";
     private const string RefreshedRefreshTokenItem = "RefreshedRefreshToken";
 
-    public static void AppendSetCookieHeaders(
+    public void AppendSetCookieHeaders(
         HttpContext httpContext,
         HttpResponseMessage apiResponse)
     {
@@ -24,7 +24,7 @@ internal static class AuthCookieRelay
             httpContext.Response.Headers.Append(HeaderNames.SetCookie, cookie);
     }
 
-    public static void AddRefreshTokenCookie(
+    public void AddRefreshTokenCookie(
         HttpContext httpContext,
         HttpRequestMessage request)
     {
@@ -38,7 +38,7 @@ internal static class AuthCookieRelay
             $"{RefreshTokenCookie}={refreshToken}");
     }
 
-    public static void AddAuthCookies(
+    public void AddAuthCookies(
         HttpContext httpContext,
         HttpRequestMessage request)
     {
@@ -60,7 +60,7 @@ internal static class AuthCookieRelay
             string.Join("; ", cookies));
     }
 
-    public static void StoreRefreshedAuthCookies(
+    public void StoreRefreshedAuthCookies(
         HttpContext httpContext,
         HttpResponseMessage apiResponse)
     {
@@ -73,14 +73,22 @@ internal static class AuthCookieRelay
             httpContext.Items[RefreshedRefreshTokenItem] = refreshToken;
     }
 
-    public static void DeleteAuthCookies(HttpContext httpContext)
+    public void RefreshCurrentRequestCookies(
+        HttpContext httpContext,
+        HttpResponseMessage apiResponse)
+    {
+        StoreRefreshedAuthCookies(httpContext, apiResponse);
+        AppendSetCookieHeaders(httpContext, apiResponse);
+    }
+
+    public void DeleteAuthCookies(HttpContext httpContext)
     {
         httpContext.Response.Cookies.Delete(AccessTokenCookie, new CookieOptions { Path = "/" });
         httpContext.Response.Cookies.Delete(RefreshTokenCookie, new CookieOptions { Path = "/" });
         httpContext.Response.Cookies.Delete(RefreshTokenCookie, new CookieOptions { Path = "/api/auth" });
     }
 
-    public static string? GetCookieValue(HttpResponseHeaders headers, string cookieName)
+    public string? GetCookieValue(HttpResponseHeaders headers, string cookieName)
     {
         if (!headers.TryGetValues(HeaderNames.SetCookie, out var cookieHeaders))
             return null;

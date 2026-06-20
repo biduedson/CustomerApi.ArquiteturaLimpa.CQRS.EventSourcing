@@ -1,0 +1,56 @@
+@using CustomerApi.BlazorUI.Models.Users
+
+<div class="mobile-card-list">
+    @foreach (var user in Users)
+    {
+        <article class="mobile-record-card">
+            <div class="mobile-record-card__header">
+                <div>
+                    <strong>@user.FullName</strong>
+                    <span>@user.UserName</span>
+                </div>
+                <span class="badge @(user.IsActive ? "text-bg-success" : "text-bg-secondary")">
+                    @(user.IsActive ? "Ativo" : "Inativo")
+                </span>
+            </div>
+
+            <dl class="mobile-record-card__details">
+                <div>
+                    <dt>Email</dt>
+                    <dd>@user.Email</dd>
+                </div>
+                <div>
+                    <dt>Cargo</dt>
+                    <dd>@user.JobTitle</dd>
+                </div>
+                <div>
+                    <dt>Role</dt>
+                    <dd><span class="badge text-bg-light">@user.Role</span></dd>
+                </div>
+            </dl>
+
+            <div class="mobile-record-card__actions">
+                <button class="btn btn-sm btn-outline-primary" type="button" @onclick="() => OnManage.InvokeAsync(user)">
+                    Gerenciar
+                </button>
+                @if (CanDelete)
+                {
+                    <button class="btn btn-sm btn-outline-danger" type="button" disabled="@IsDeleteDisabled(user)"
+                            @onclick="() => OnDelete.InvokeAsync(user)">
+                        Excluir
+                    </button>
+                }
+            </div>
+        </article>
+    }
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<UserListItem> Users { get; set; } = [];
+    [Parameter] public bool CanDelete { get; set; }
+    [Parameter] public Guid? AuthenticatedUserId { get; set; }
+    [Parameter] public EventCallback<UserListItem> OnManage { get; set; }
+    [Parameter] public EventCallback<UserListItem> OnDelete { get; set; }
+
+    private bool IsDeleteDisabled(UserListItem user) => user.Id == AuthenticatedUserId;
+}

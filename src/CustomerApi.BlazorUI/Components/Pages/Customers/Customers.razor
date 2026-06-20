@@ -28,8 +28,14 @@ else if (_customers.Count == 0)
 }
 else
 {
-    <CustomerTable Customers="_customers" CanDelete="_isAdmin" OnManage="OpenCustomerModal"
-                   OnDelete="OpenDeleteConfirmation" />
+    <div class="responsive-table-view">
+        <CustomerTable Customers="_customers" CanDelete="_isAdmin" OnManage="OpenCustomerModal"
+                       OnDelete="OpenDeleteConfirmation" />
+    </div>
+    <div class="responsive-card-view">
+        <CustomerCardList Customers="_customers" CanDelete="_isAdmin" OnManage="OpenCustomerModal"
+                          OnDelete="OpenDeleteConfirmation" />
+    </div>
 }
 
 <CustomerManagementModal Customer="_selectedCustomer" CanDelete="_isAdmin" ErrorMessages="_modalErrors"

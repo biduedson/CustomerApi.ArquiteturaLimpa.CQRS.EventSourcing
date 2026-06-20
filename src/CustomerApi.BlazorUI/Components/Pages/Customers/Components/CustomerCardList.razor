@@ -1,0 +1,46 @@
+@using CustomerApi.BlazorUI.Models.Customers
+
+<div class="mobile-card-list">
+    @foreach (var customer in Customers)
+    {
+        <article class="mobile-record-card">
+            <div class="mobile-record-card__header">
+                <div>
+                    <strong>@customer.FirstName @customer.LastName</strong>
+                    <span>@customer.Email</span>
+                </div>
+                <span class="badge text-bg-light">@customer.Gender</span>
+            </div>
+
+            <dl class="mobile-record-card__details">
+                <div>
+                    <dt>Email</dt>
+                    <dd>@customer.Email</dd>
+                </div>
+                <div>
+                    <dt>Nascimento</dt>
+                    <dd>@customer.DateOfBirth.ToString("dd/MM/yyyy")</dd>
+                </div>
+            </dl>
+
+            <div class="mobile-record-card__actions">
+                <button class="btn btn-sm btn-outline-primary" type="button" @onclick="() => OnManage.InvokeAsync(customer)">
+                    Gerenciar
+                </button>
+                @if (CanDelete)
+                {
+                    <button class="btn btn-sm btn-outline-danger" type="button" @onclick="() => OnDelete.InvokeAsync(customer)">
+                        Excluir
+                    </button>
+                }
+            </div>
+        </article>
+    }
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<CustomerListItem> Customers { get; set; } = [];
+    [Parameter] public bool CanDelete { get; set; }
+    [Parameter] public EventCallback<CustomerListItem> OnManage { get; set; }
+    [Parameter] public EventCallback<CustomerListItem> OnDelete { get; set; }
+}

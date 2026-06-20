@@ -134,6 +134,86 @@ body {
     background: #f8fafc;
 }
 
+.responsive-card-view {
+    display: none;
+}
+
+.mobile-card-list {
+    display: grid;
+    gap: 12px;
+}
+
+.mobile-record-card {
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid rgba(15,23,42,.10);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(15,23,42,.06);
+}
+
+.mobile-record-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.mobile-record-card__header > div {
+    min-width: 0;
+}
+
+.mobile-record-card__header strong,
+.mobile-record-card__header span {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.mobile-record-card__header strong {
+    font-size: 1rem;
+}
+
+.mobile-record-card__header span {
+    color: var(--muted);
+    font-size: .88rem;
+}
+
+.mobile-record-card__details {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+}
+
+.mobile-record-card__details > div {
+    min-width: 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(15,23,42,.08);
+}
+
+.mobile-record-card__details dt {
+    color: var(--muted);
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.mobile-record-card__details dd {
+    margin: 2px 0 0;
+    overflow-wrap: anywhere;
+}
+
+.mobile-record-card__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.mobile-record-card__actions .btn {
+    min-height: 36px;
+}
+
 .modal-backdrop-shell {
     position: fixed;
     inset: 0;
@@ -399,6 +479,25 @@ body {
 
     .detail-list > div {
         display: block;
+    }
+}
+
+@media (max-width: 768px) {
+    .responsive-table-view {
+        display: none;
+    }
+
+    .responsive-card-view {
+        display: block;
+    }
+
+    .page-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .page-heading .btn {
+        width: 100%;
     }
 }
 

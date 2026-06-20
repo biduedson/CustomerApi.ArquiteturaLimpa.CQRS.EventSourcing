@@ -2,14 +2,20 @@ using System.Text.Json;
 using CustomerApi.BlazorUI.Models;
 using CustomerApi.BlazorUI.Models.Account;
 using CustomerApi.BlazorUI.Services.Authentication;
+using Microsoft.AspNetCore.Components;
 
 namespace CustomerApi.BlazorUI.Services.ApiClients.Account;
 
 public sealed class AccountApiClient(
     HttpClient httpClient,
-    ApiResponseAuthHandler authHandler) : IAccountApiClient
+    AuthRefreshService authRefreshService,
+    NavigationManager navigation) : IAccountApiClient
 {
     private const string BaseRoute = "api/account";
+    private const string AccessTokenExpired = "ACCESS_TOKEN_EXPIRED";
+    private const string AccessTokenMissing = "ACCESS_TOKEN_MISSING";
+    private const string AccessTokenInvalid = "ACCESS_TOKEN_INVALID";
+    private const string AccessForbidden = "ACCESS_FORBIDDEN";
 
     public async Task<ApiResponse> ChangeEmailAsync(ChangeEmailRequest request, CancellationToken cancellationToken = default)
     {
@@ -29,16 +35,36 @@ public sealed class AccountApiClient(
     {
         var response = await SendAsync(request, cancellationToken);
 
+        // Resposta com sucesso: nao precisa tratar autenticacao.
         if (response.Success)
             return response;
 
-        if (!ApiResponseAuthHandler.ShouldHandleAuthenticationError(response.ErrorCode))
+        // Erros comuns da API voltam direto para a pagina.
+        if (string.IsNullOrWhiteSpace(response.ErrorCode))
             return response;
 
-        return await authHandler.HandleAuthenticationErrorAsync(
-            response,
-            () => SendAsync(request, cancellationToken),
-            cancellationToken);
+        // Tenta refresh/retry; se falhar vai para login, e acesso negado vai para access-denied.
+        switch (response.ErrorCode)
+        {
+            case AccessTokenExpired:
+            case AccessTokenMissing:
+                if (await authRefreshService.TryRefreshAsync(cancellationToken))
+                    return await SendAsync(request, cancellationToken);
+
+                navigation.NavigateTo("/login", forceLoad: true);
+                return response;
+
+            case AccessTokenInvalid:
+                navigation.NavigateTo("/login", forceLoad: true);
+                return response;
+
+            case AccessForbidden:
+                navigation.NavigateTo("/access-denied", forceLoad: true);
+                return response;
+
+            default:
+                return response;
+        }
     }
 
     private static async Task<ApiResponse> SendAsync(

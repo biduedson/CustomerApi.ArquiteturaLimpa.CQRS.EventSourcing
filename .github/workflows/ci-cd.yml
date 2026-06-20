@@ -10,7 +10,8 @@ on:
 env:
   DOTNET_VERSION: '9.0.x'
   SOLUTION_NAME: 'CustomerApi.ArquiteturaLimpa.CQRS.EventSourcing.slnx'
-  IMAGE_NAME: customerapi
+  API_IMAGE_NAME: customerapi
+  UI_IMAGE_NAME: customerapi-blazorui
   ACR_NAME: customerapiacr
 
 jobs:
@@ -60,12 +61,24 @@ jobs:
 
       # gera a imagem Docker com a tag do commit
       # sobe a imagem com a tag do commit e também como latest
-      - name: Build e Push da imagem Docker
+      - name: Build e Push da imagem Docker da WebApi
         run: |
-          IMAGE_TAG=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          IMAGE_TAG=${{ env.ACR_NAME }}.azurecr.io/${{ env.API_IMAGE_NAME }}:${{ github.sha }}
 
           docker build -f src/CustomerApi.WebApi/Dockerfile -t $IMAGE_TAG .
           docker push $IMAGE_TAG
 
-          docker tag $IMAGE_TAG ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
-          docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
+          docker tag $IMAGE_TAG ${{ env.ACR_NAME }}.azurecr.io/${{ env.API_IMAGE_NAME }}:latest
+          docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.API_IMAGE_NAME }}:latest
+
+      # gera a imagem Docker da Blazor UI com a tag do commit
+      # sobe a imagem com a tag do commit e tambem como latest
+      - name: Build e Push da imagem Docker da Blazor UI
+        run: |
+          IMAGE_TAG=${{ env.ACR_NAME }}.azurecr.io/${{ env.UI_IMAGE_NAME }}:${{ github.sha }}
+
+          docker build -f src/CustomerApi.BlazorUI/Dockerfile -t $IMAGE_TAG .
+          docker push $IMAGE_TAG
+
+          docker tag $IMAGE_TAG ${{ env.ACR_NAME }}.azurecr.io/${{ env.UI_IMAGE_NAME }}:latest
+          docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.UI_IMAGE_NAME }}:latest

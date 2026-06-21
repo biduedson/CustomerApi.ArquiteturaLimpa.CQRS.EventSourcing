@@ -89,6 +89,13 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
         act.IsSuccess.Should().BeTrue();
         act.Value.AccessToken.Should().Be(AccessToken);
         act.Value.RefreshToken.Should().Be(NewRefreshToken);
+
+        var revokedSession = await _userSessionRepository
+            .GetByRefreshTokenHashAsync(RefreshTokenHash);
+
+        revokedSession.Should().NotBeNull();
+        revokedSession.IsRevoked.Should().BeTrue();
+        revokedSession.ReplacedByTokenHash.Should().Be(NewRefreshTokenHash);
     }
 
     [Fact]

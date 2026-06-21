@@ -85,8 +85,7 @@ public class UserSessionTests
         userSession.RevokedAt.Should().NotBeNull();
         userSession.RevocationReason.Should().Be(reason);
         userSession.ReplacedByTokenHash.Should().Be(replacedByTokenHash);
-        userSession.RefreshTokenHash.Should().NotBe(refreshTokenHash);
-        userSession.RefreshTokenHash.Should().StartWith("REVOKED_");
+        userSession.RefreshTokenHash.Should().Be(refreshTokenHash);
     }
 
     [Fact]

@@ -144,6 +144,7 @@ public class ChangeEmailCommandHandlerTest(EfSqliteFixture fixture) : IClassFixt
         _userSessionRepository,
         _unitOfWork);
 
+    // Cria um usuário isolado com UserName e Email únicos para não violar os índices únicos do SQLite.
     private static User CreateUser() => new Faker<User>()
         .CustomInstantiator(faker => User.Create(
             CreateUniqueUserName("account-email-user"),
@@ -155,6 +156,7 @@ public class ChangeEmailCommandHandlerTest(EfSqliteFixture fixture) : IClassFixt
             "password-hash"))
         .Generate();
 
+    // Cria vários usuários distintos para testar conflitos de e-mail sem gerar colisões acidentais no banco.
     private static List<User> CreateUsers(int count) => new Faker<User>()
         .CustomInstantiator(faker => User.Create(
             CreateUniqueUserName("account-email-conflict-user"),
@@ -183,6 +185,7 @@ public class ChangeEmailCommandHandlerTest(EfSqliteFixture fixture) : IClassFixt
             DateTime.UtcNow.AddDays(7)))
         .Generate();
 
+    // Recria o banco SQLite antes de cada teste para garantir isolamento e evitar dados de execuções anteriores.
     public async Task InitializeAsync()
     {
         await fixture.Context.Database.EnsureDeletedAsync();

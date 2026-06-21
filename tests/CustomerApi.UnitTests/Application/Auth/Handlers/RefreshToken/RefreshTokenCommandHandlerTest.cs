@@ -333,6 +333,7 @@ public class RefreshTokenCommandHandlerTest(EfSqliteFixture fixture) : IClassFix
     #endregion
 
     #region IAsyncLifetime
+    // Recria o banco SQLite antes de cada teste para garantir isolamento e evitar dados de execuções anteriores.
     public async Task InitializeAsync()
     {
         await fixture.Context.Database.EnsureDeletedAsync();

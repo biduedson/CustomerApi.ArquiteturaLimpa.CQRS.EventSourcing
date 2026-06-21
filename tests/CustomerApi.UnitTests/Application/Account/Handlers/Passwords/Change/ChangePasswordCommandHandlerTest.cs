@@ -210,6 +210,7 @@ public class ChangePasswordCommandHandlerTest(EfSqliteFixture fixture) : IClassF
         _passwordHasher,
         _unitOfWork);
 
+    // Recria o banco SQLite antes de cada teste para garantir isolamento e evitar dados de execuções anteriores.
     public async Task InitializeAsync()
     {
         await fixture.Context.Database.EnsureDeletedAsync();

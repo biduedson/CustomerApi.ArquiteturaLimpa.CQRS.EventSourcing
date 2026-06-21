@@ -24,6 +24,7 @@ public class EfSqliteFixture : IAsyncLifetime, IDisposable
     public WriteDbContext Context { get; }
 
     #region IAsyncLifetime
+    // Prepara um banco SQLite vazio quando a fixture compartilhada é inicializada.
     public async Task InitializeAsync()
     {
         await Context.Database.EnsureDeletedAsync();

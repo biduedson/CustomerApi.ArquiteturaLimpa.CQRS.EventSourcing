@@ -179,6 +179,7 @@ public class CreateUserCommandHandlerTest(EfSqliteFixture fixture) : IClassFixtu
     private static string CreateUniqueEmail(string scenario) =>
         $"{scenario}.{Guid.NewGuid():N}@test.com";
 
+    // Recria o banco SQLite antes de cada teste para garantir isolamento e evitar dados de execuções anteriores.
     public async Task InitializeAsync()
     {
         await fixture.Context.Database.EnsureDeletedAsync();

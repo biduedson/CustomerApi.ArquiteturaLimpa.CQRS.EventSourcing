@@ -168,6 +168,7 @@ public class UpdateUserProfileCommandHandlerTest(EfSqliteFixture fixture) : ICla
             DateTime.UtcNow.AddDays(7)))
         .Generate();
 
+    // Recria o banco SQLite antes de cada teste para garantir isolamento e evitar dados de execuções anteriores.
     public async Task InitializeAsync()
     {
         await fixture.Context.Database.EnsureDeletedAsync();

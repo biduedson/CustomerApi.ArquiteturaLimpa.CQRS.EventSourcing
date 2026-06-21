@@ -1,5 +1,4 @@
 using CustomerApi.BlazorUI.Models.Customers;
-using CustomerApi.BlazorUI.Services.ApiClients;
 using CustomerApi.BlazorUI.Services.Authentication;
 using Microsoft.AspNetCore.Components;
 

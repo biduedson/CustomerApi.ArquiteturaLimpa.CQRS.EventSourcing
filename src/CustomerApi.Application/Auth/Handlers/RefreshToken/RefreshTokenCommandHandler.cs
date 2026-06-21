@@ -73,7 +73,7 @@ public class RefreshTokenCommandHandler(
         var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_jwtOptions.AccessTokenExpirationInMinutes);
         var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpirationInDays);
 
-        userSession.Revoke("Revogado por rotação do refreshToken");
+        userSession.Revoke("Revogado por rotação do refreshToken", newRefreshTokenHash);
 
         var newUserSession = UserSession.Create(
             user.Id,

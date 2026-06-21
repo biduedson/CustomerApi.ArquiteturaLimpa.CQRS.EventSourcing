@@ -70,8 +70,6 @@ public class UserSession : BaseEntity, IAggregateRoot
         RevokedAt = DateTime.UtcNow;
         RevocationReason = reason;
         ReplacedByTokenHash = replacedByTokenHash;
-        RefreshTokenHash = $"REVOKED_{Guid.NewGuid():N}";
-
     }
 
 

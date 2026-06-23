@@ -1,17 +1,38 @@
 @page "/"
 @attribute [Authorize]
 
-<div class="hero-card">
-    <div>
-        <p class="eyebrow">CustomerApi UI</p>
-        <h1>Interface Blazor para sua API Clean Architecture</h1>
-        <p class="lead">Dashboard moderno consumindo sua WebApi com DDD, CQRS, Redis, MongoDB e SQL.</p>
-        <a class="btn btn-primary btn-lg rounded-pill" href="customers">Gerenciar clientes</a>
-    </div>
-</div>
+<MudPaper Class="hero-card" Elevation="0">
+    <MudStack Spacing="3">
+        <MudText Class="eyebrow">CustomerApi UI</MudText>
+        <MudText Typo="Typo.h2"><b>Interface Blazor para sua API Clean Architecture</b></MudText>
+        <MudText Typo="Typo.h6" Class="lead">Dashboard moderno consumindo sua WebApi com DDD, CQRS, Redis, MongoDB e SQL.</MudText>
+        <MudButton Href="customers"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Large"
+                   EndIcon="@Icons.Material.Filled.ArrowForward">
+            Gerenciar clientes
+        </MudButton>
+    </MudStack>
+</MudPaper>
 
-<div class="row g-4 mt-2">
-    <div class="col-md-4"><div class="metric-card"><span>Arquitetura</span><strong>Clean</strong></div></div>
-    <div class="col-md-4"><div class="metric-card"><span>Backend</span><strong>.NET 9 API</strong></div></div>
-    <div class="col-md-4"><div class="metric-card"><span>Frontend</span><strong>Blazor</strong></div></div>
-</div>
+<MudGrid Class="mt-4">
+    <MudItem xs="12" md="4">
+        <MudPaper Class="metric-card" Elevation="0">
+            <MudText Color="Color.Secondary">Arquitetura</MudText>
+            <MudText Typo="Typo.h5"><b>Clean</b></MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" md="4">
+        <MudPaper Class="metric-card" Elevation="0">
+            <MudText Color="Color.Secondary">Backend</MudText>
+            <MudText Typo="Typo.h5"><b>.NET 9 API</b></MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" md="4">
+        <MudPaper Class="metric-card" Elevation="0">
+            <MudText Color="Color.Secondary">Frontend</MudText>
+            <MudText Typo="Typo.h5"><b>Blazor + MudBlazor</b></MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>

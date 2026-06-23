@@ -1,47 +1,52 @@
 @using CustomerApi.BlazorUI.Models.Users
 
-<div class="card border-0 shadow-sm rounded-4">
-    <div class="table-responsive">
-        <table class="table align-middle mb-0">
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Cargo</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th class="text-end">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var user in Users)
+<MudPaper Class="work-card" Elevation="0">
+    <MudTable Items="Users" Hover="true" Breakpoint="Breakpoint.Sm">
+        <HeaderContent>
+            <MudTh>Nome</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Cargo</MudTh>
+            <MudTh>Role</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh Class="text-end">Acoes</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Nome">
+                <MudText><b>@context.FullName</b></MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@context.UserName</MudText>
+            </MudTd>
+            <MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd DataLabel="Cargo">@context.JobTitle</MudTd>
+            <MudTd DataLabel="Role">
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Secondary">@context.Role</MudChip>
+            </MudTd>
+            <MudTd DataLabel="Status">
+                <MudChip T="string" Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Default)" Variant="Variant.Filled">
+                    @(context.IsActive ? "Ativo" : "Inativo")
+                </MudChip>
+            </MudTd>
+            <MudTd DataLabel="Acoes" Class="text-end">
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           Size="Size.Small"
+                           OnClick="() => OnManage.InvokeAsync(context)">
+                    Gerenciar
+                </MudButton>
+                @if (CanDelete)
                 {
-                    <tr>
-                        <td>
-                            <strong>@user.FullName</strong>
-                            <div class="small text-muted">@user.UserName</div>
-                        </td>
-                        <td>@user.Email</td>
-                        <td>@user.JobTitle</td>
-                        <td><span class="badge text-bg-light">@user.Role</span></td>
-                        <td>
-                            <span class="badge @(user.IsActive ? "text-bg-success" : "text-bg-secondary")">
-                                @(user.IsActive ? "Ativo" : "Inativo")
-                            </span>
-                        </td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" type="button" @onclick="() => OnManage.InvokeAsync(user)">Gerenciar</button>
-                            @if (CanDelete)
-                            {
-                                <button class="btn btn-sm btn-outline-danger" type="button" disabled="@IsDeleteDisabled(user)" @onclick="() => OnDelete.InvokeAsync(user)">Excluir</button>
-                            }
-                        </td>
-                    </tr>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Error"
+                               Size="Size.Small"
+                               Class="ms-2"
+                               Disabled="@IsDeleteDisabled(context)"
+                               OnClick="() => OnDelete.InvokeAsync(context)">
+                        Excluir
+                    </MudButton>
                 }
-            </tbody>
-        </table>
-    </div>
-</div>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
 
 @code {
     [Parameter] public IReadOnlyList<UserListItem> Users { get; set; } = [];

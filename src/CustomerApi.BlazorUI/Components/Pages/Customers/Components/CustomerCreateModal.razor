@@ -3,14 +3,14 @@
 @if (IsOpen)
 {
     <div class="modal-backdrop-shell" @onclick="Close">
-        <section class="management-modal" @onclick:stopPropagation="true">
+        <MudPaper Class="management-modal" Elevation="0" @onclick:stopPropagation="true">
             <header class="modal-header-clean">
                 <div>
-                    <p class="eyebrow mb-1">Novo cliente</p>
-                    <h2>Cadastrar cliente</h2>
-                    <p class="text-muted mb-0">Registra um cliente no fluxo principal da API.</p>
+                    <MudText Class="eyebrow">Novo cliente</MudText>
+                    <MudText Typo="Typo.h5"><b>Cadastrar cliente</b></MudText>
+                    <MudText Color="Color.Secondary">Registra um cliente no fluxo principal da API.</MudText>
                 </div>
-                <button class="btn-close" type="button" aria-label="Fechar" @onclick="Close"></button>
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Secondary" OnClick="Close" />
             </header>
 
             <EditForm Model="_model" OnValidSubmit="SaveAsync">
@@ -20,52 +20,44 @@
 
                 @if (ErrorMessages.Count > 0)
                 {
-                    <div class="api-error-box">
+                    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">
                         @foreach (var error in ErrorMessages)
                         {
                             <div>@error</div>
                         }
-                    </div>
+                    </MudAlert>
                 }
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Nome</label>
-                        <InputText class="form-control" @bind-Value="_model.FirstName" />
-                        <ValidationMessage For="() => _model.FirstName" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Sobrenome</label>
-                        <InputText class="form-control" @bind-Value="_model.LastName" />
-                        <ValidationMessage For="() => _model.LastName" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Email</label>
-                        <InputText class="form-control" @bind-Value="_model.Email" />
-                        <ValidationMessage For="() => _model.Email" />
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Gênero</label>
-                        <InputSelect class="form-select" @bind-Value="_model.Gender">
-                            <option value="Male">Masculino</option>
-                            <option value="Female">Feminino</option>
-                            <option value="Other">Outro</option>
-                        </InputSelect>
-                        <ValidationMessage For="() => _model.Gender" />
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Nascimento</label>
-                        <InputDate class="form-control" @bind-Value="_model.DateOfBirth" />
-                        <ValidationMessage For="() => _model.DateOfBirth" />
-                    </div>
-                </div>
+                <MudGrid>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="_model.FirstName" Label="Nome" Variant="Variant.Outlined" For="() => _model.FirstName" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="_model.LastName" Label="Sobrenome" Variant="Variant.Outlined" For="() => _model.LastName" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="_model.Email" Label="Email" Variant="Variant.Outlined" For="() => _model.Email" />
+                    </MudItem>
+                    <MudItem xs="12" md="3">
+                        <MudSelect @bind-Value="_model.Gender" Label="Genero" Variant="Variant.Outlined" For="() => _model.Gender">
+                            <MudSelectItem Value="@("Male")">Masculino</MudSelectItem>
+                            <MudSelectItem Value="@("Female")">Feminino</MudSelectItem>
+                            <MudSelectItem Value="@("Other")">Outro</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="3">
+                        <MudDatePicker @bind-Date="_model.DateOfBirth" Label="Nascimento" Variant="Variant.Outlined" For="() => _model.DateOfBirth" />
+                    </MudItem>
+                </MudGrid>
 
-                <div class="modal-actions">
-                    <button class="btn btn-light" type="button" @onclick="Close">Cancelar</button>
-                    <button class="btn btn-primary" type="submit">Criar cliente</button>
-                </div>
+                <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="Close">Cancelar</MudButton>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">
+                        Criar cliente
+                    </MudButton>
+                </MudStack>
             </EditForm>
-        </section>
+        </MudPaper>
     </div>
 }
 

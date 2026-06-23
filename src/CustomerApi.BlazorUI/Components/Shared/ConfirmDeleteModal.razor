@@ -1,37 +1,37 @@
 @if (IsOpen)
 {
     <div class="modal-backdrop-shell" @onclick="CancelAsync">
-        <section class="confirm-modal" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="confirm-delete-title">
+        <MudPaper Class="confirm-modal" Elevation="0" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-labelledby="confirm-delete-title">
             <header class="modal-header-clean">
                 <div>
-                    <p class="eyebrow mb-1">@Eyebrow</p>
-                    <h2 id="confirm-delete-title">@Title</h2>
+                    <MudText Class="eyebrow">@Eyebrow</MudText>
+                    <MudText Typo="Typo.h5" id="confirm-delete-title"><b>@Title</b></MudText>
                 </div>
-                <button class="btn-close" type="button" aria-label="Fechar" disabled="@IsBusy" @onclick="CancelAsync"></button>
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Secondary" Disabled="@IsBusy" OnClick="CancelAsync" />
             </header>
 
-            <div class="danger-panel">
-                <h3>@ItemName</h3>
-                <p>@Message</p>
-            </div>
+            <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
+                <MudText><b>@ItemName</b></MudText>
+                <MudText Typo="Typo.body2">@Message</MudText>
+            </MudAlert>
 
             @if (ErrorMessages.Count > 0)
             {
-                <div class="api-error-box mt-3">
+                <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mt-3">
                     @foreach (var error in ErrorMessages)
                     {
                         <div>@error</div>
                     }
-                </div>
+                </MudAlert>
             }
 
-            <div class="modal-actions">
-                <button class="btn btn-light" type="button" disabled="@IsBusy" @onclick="CancelAsync">Cancelar</button>
-                <button class="btn btn-danger" type="button" disabled="@IsBusy" @onclick="ConfirmAsync">
+            <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Disabled="@IsBusy" OnClick="CancelAsync">Cancelar</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Error" Disabled="@IsBusy" OnClick="ConfirmAsync">
                     @(IsBusy ? BusyText : ConfirmButtonText)
-                </button>
-            </div>
-        </section>
+                </MudButton>
+            </MudStack>
+        </MudPaper>
     </div>
 }
 

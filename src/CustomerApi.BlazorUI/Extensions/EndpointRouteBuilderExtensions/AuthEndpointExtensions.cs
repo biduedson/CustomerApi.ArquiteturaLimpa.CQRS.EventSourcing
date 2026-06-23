@@ -79,6 +79,18 @@ public static class AuthEndpointExtensions
             return Results.Redirect("/login");
         });
 
+        app.MapGet("/auth/reauthentication-required", async (
+            HttpContext httpContext,
+            AuthCookieService authCookieService) =>
+        {
+            authCookieService.DeleteAuthCookies(httpContext);
+
+            await httpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return Results.Redirect("/login");
+        });
+
         app.MapPost("/account/changepassword", async (
             HttpContext httpContext,
             IHttpClientFactory httpClientFactory,
@@ -126,7 +138,7 @@ public static class AuthEndpointExtensions
             await httpContext.SignOutAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme);
 
-            return Results.Redirect("/login");
+            return Results.Redirect("/auth/reauthentication-required");
         });
 
         return app;

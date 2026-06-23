@@ -3,14 +3,14 @@
 @if (User is not null)
 {
     <div class="modal-backdrop-shell" @onclick="Close">
-        <section class="management-modal" @onclick:stopPropagation="true">
+        <MudPaper Class="management-modal" Elevation="0" @onclick:stopPropagation="true">
             <header class="modal-header-clean">
                 <div>
-                    <p class="eyebrow mb-1">Usuário</p>
-                    <h2>@User.FullName</h2>
-                    <p class="text-muted mb-0">@User.Email</p>
+                    <MudText Class="eyebrow">Usuario</MudText>
+                    <MudText Typo="Typo.h5"><b>@User.FullName</b></MudText>
+                    <MudText Color="Color.Secondary">@User.Email</MudText>
                 </div>
-                <button class="btn-close" type="button" aria-label="Fechar" @onclick="Close"></button>
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Secondary" OnClick="Close" />
             </header>
 
             <div class="modal-summary-grid">
@@ -28,100 +28,91 @@
                 </div>
             </div>
 
-            <div class="modal-tabs">
-                <button class="modal-tab @(GetTabClass("profile"))" type="button" @onclick='() => _tab = "profile"'>Perfil</button>
-                <button class="modal-tab @(GetTabClass("role"))" type="button" disabled="@(!CanManage)" @onclick='() => _tab = "role"'>Permissão</button>
-                <button class="modal-tab @(GetTabClass("danger"))" type="button" disabled="@(!CanDelete)" @onclick='() => _tab = "danger"'>Excluir</button>
-            </div>
+            <MudTabs @bind-ActivePanelIndex="_tabIndex" Rounded="true" Elevation="0" Class="mb-3">
+                <MudTabPanel Text="Perfil" Icon="@Icons.Material.Filled.Person">
+                    <EditForm Model="_profileModel" OnValidSubmit="SaveProfileAsync">
+                        <AntiforgeryToken />
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="validation-box" />
 
-            @if (_tab == "profile")
-            {
-                <EditForm Model="_profileModel" OnValidSubmit="SaveProfileAsync">
-                    <AntiforgeryToken />
-                    <DataAnnotationsValidator />
-                    <ValidationSummary class="validation-box" />
+                        @if (ErrorMessages.Count > 0)
+                        {
+                            <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">
+                                @foreach (var error in ErrorMessages)
+                                {
+                                    <div>@error</div>
+                                }
+                            </MudAlert>
+                        }
 
-                    @if (ErrorMessages.Count > 0)
-                    {
-                        <div class="api-error-box">
-                            @foreach (var error in ErrorMessages)
-                            {
-                                <div>@error</div>
-                            }
-                        </div>
-                    }
+                        <MudGrid>
+                            <MudItem xs="12" md="7">
+                                <MudTextField @bind-Value="_profileModel.FullName" Label="Nome completo" Disabled="@(!CanManage)" Variant="Variant.Outlined" For="() => _profileModel.FullName" />
+                            </MudItem>
+                            <MudItem xs="12" md="5">
+                                <MudTextField @bind-Value="_profileModel.JobTitle" Label="Cargo" Disabled="@(!CanManage)" Variant="Variant.Outlined" For="() => _profileModel.JobTitle" />
+                            </MudItem>
+                            <MudItem xs="12" md="5">
+                                <MudDatePicker @bind-Date="_profileModel.DateOfBirth" Label="Nascimento" Disabled="@(!CanManage)" Variant="Variant.Outlined" For="() => _profileModel.DateOfBirth" />
+                            </MudItem>
+                        </MudGrid>
 
-                    <div class="row g-3">
-                        <div class="col-md-7">
-                            <label class="form-label">Nome completo</label>
-                            <InputText class="form-control" @bind-Value="_profileModel.FullName" disabled="@(!CanManage)" />
-                            <ValidationMessage For="() => _profileModel.FullName" />
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label">Cargo</label>
-                            <InputText class="form-control" @bind-Value="_profileModel.JobTitle" disabled="@(!CanManage)" />
-                            <ValidationMessage For="() => _profileModel.JobTitle" />
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label">Nascimento</label>
-                            <InputDate class="form-control" @bind-Value="_profileModel.DateOfBirth" disabled="@(!CanManage)" />
-                            <ValidationMessage For="() => _profileModel.DateOfBirth" />
-                        </div>
-                    </div>
+                        <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+                            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="Close">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!CanManage)">
+                                Salvar perfil
+                            </MudButton>
+                        </MudStack>
+                    </EditForm>
+                </MudTabPanel>
+                <MudTabPanel Text="Permissao" Icon="@Icons.Material.Filled.Security" Disabled="@(!CanManage)">
+                    <EditForm Model="_roleModel" OnValidSubmit="SaveRoleAsync">
+                        <AntiforgeryToken />
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="validation-box" />
 
-                    <div class="modal-actions">
-                        <button class="btn btn-light" type="button" @onclick="Close">Cancelar</button>
-                        <button class="btn btn-primary" type="submit" disabled="@(!CanManage)">Salvar perfil</button>
-                    </div>
-                </EditForm>
-            }
-            else if (_tab == "role")
-            {
-                <EditForm Model="_roleModel" OnValidSubmit="SaveRoleAsync">
-                    <AntiforgeryToken />
-                    <DataAnnotationsValidator />
-                    <ValidationSummary class="validation-box" />
+                        @if (ErrorMessages.Count > 0)
+                        {
+                            <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">
+                                @foreach (var error in ErrorMessages)
+                                {
+                                    <div>@error</div>
+                                }
+                            </MudAlert>
+                        }
 
-                    @if (ErrorMessages.Count > 0)
-                    {
-                        <div class="api-error-box">
-                            @foreach (var error in ErrorMessages)
-                            {
-                                <div>@error</div>
-                            }
-                        </div>
-                    }
+                        <MudSelect @bind-Value="_roleModel.Role" Label="Role de acesso" Disabled="@(!CanManage)" Variant="Variant.Outlined">
+                            <MudSelectItem Value="1">Viewer</MudSelectItem>
+                            <MudSelectItem Value="2">Operator</MudSelectItem>
+                            <MudSelectItem Value="3">Admin</MudSelectItem>
+                        </MudSelect>
 
-                    <label class="form-label">Role de acesso</label>
-                    <InputSelect class="form-select" @bind-Value="_roleModel.Role" disabled="@(!CanManage)">
-                        <option value="1">Viewer</option>
-                        <option value="2">Operator</option>
-                        <option value="3">Admin</option>
-                    </InputSelect>
-
-                    <div class="modal-actions">
-                        <button class="btn btn-light" type="button" @onclick="Close">Cancelar</button>
-                        <button class="btn btn-primary" type="submit" disabled="@(!CanManage)">Atualizar role</button>
-                    </div>
-                </EditForm>
-            }
-            else
-            {
-                <div class="danger-panel">
-                    <h3>Excluir usuário</h3>
-                    <p>Essa ação remove o usuário do fluxo de gestão. O próprio usuário logado não pode se excluir.</p>
-                    <div class="modal-actions">
-                        <button class="btn btn-light" type="button" @onclick="Close">Cancelar</button>
-                        <button class="btn btn-danger" type="button" disabled="@(!CanDelete)" @onclick="DeleteAsync">Excluir usuário</button>
-                    </div>
-                </div>
-            }
-        </section>
+                        <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+                            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="Close">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!CanManage)">
+                                Atualizar role
+                            </MudButton>
+                        </MudStack>
+                    </EditForm>
+                </MudTabPanel>
+                <MudTabPanel Text="Excluir" Icon="@Icons.Material.Filled.Delete" Disabled="@(!CanDelete)">
+                    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
+                        Essa acao remove o usuario do fluxo de gestao. O proprio usuario logado nao pode se excluir.
+                    </MudAlert>
+                    <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="Close">Cancelar</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" Disabled="@(!CanDelete)" OnClick="DeleteAsync">
+                            Excluir usuario
+                        </MudButton>
+                    </MudStack>
+                </MudTabPanel>
+            </MudTabs>
+        </MudPaper>
     </div>
 }
 
 @code {
-    private string _tab = "profile";
+    private int _tabIndex;
     private UserProfileFormModel _profileModel = new();
     private UpdateUserRoleRequest _roleModel = new();
 
@@ -177,8 +168,6 @@
     }
 
     private async Task Close() => await OnClose.InvokeAsync();
-
-    private string GetTabClass(string tab) => _tab == tab ? "active" : string.Empty;
 
     private static int ParseRole(string role) =>
         role.Equals("Admin", StringComparison.OrdinalIgnoreCase) ? 3 :

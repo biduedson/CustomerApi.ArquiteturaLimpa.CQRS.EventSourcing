@@ -1,11 +1,14 @@
 using CustomerApi.BlazorUI.Components;
 using CustomerApi.BlazorUI.Extensions.EndpointRouteBuilderExtensions;
 using CustomerApi.BlazorUI.Extensions.ServiceCollectionsExtensions;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
        .AddInteractiveServerComponents();
+
+builder.Services.AddMudServices();
 
 builder.Services
                 .ConfigureAppSettings()

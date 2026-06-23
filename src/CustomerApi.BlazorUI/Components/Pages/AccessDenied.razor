@@ -2,8 +2,13 @@
 
 <PageTitle>Acesso negado</PageTitle>
 
-<div class="empty-state">
-<h1>Acesso negado</h1>
-<p>Seu usuario nao possui permissao para acessar esta area.</p>
-<a class="btn btn-primary rounded-pill" href="/customers">Voltar para clientes</a>
-</div>    
+<MudPaper Class="empty-state" Elevation="0">
+    <MudStack AlignItems="AlignItems.Center" Spacing="2">
+        <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Warning" />
+        <MudText Typo="Typo.h4"><b>Acesso negado</b></MudText>
+        <MudText Color="Color.Secondary">Seu usuario nao possui permissao para acessar esta area.</MudText>
+        <MudButton Href="/customers" Variant="Variant.Filled" Color="Color.Primary">
+            Voltar para clientes
+        </MudButton>
+    </MudStack>
+</MudPaper>

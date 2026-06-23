@@ -3,45 +3,46 @@
 <div class="mobile-card-list">
     @foreach (var user in Users)
     {
-        <article class="mobile-record-card">
-            <div class="mobile-record-card__header">
-                <div>
-                    <strong>@user.FullName</strong>
-                    <span>@user.UserName</span>
-                </div>
-                <span class="badge @(user.IsActive ? "text-bg-success" : "text-bg-secondary")">
-                    @(user.IsActive ? "Ativo" : "Inativo")
-                </span>
-            </div>
+        <MudPaper Class="mobile-record-card" Elevation="0">
+            <MudStack Spacing="2">
+                <MudStack Row AlignItems="AlignItems.Start" Justify="Justify.SpaceBetween">
+                    <MudStack Spacing="0">
+                        <MudText><b>@user.FullName</b></MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">@user.UserName</MudText>
+                    </MudStack>
+                    <MudChip T="string" Size="Size.Small" Color="@(user.IsActive ? Color.Success : Color.Default)" Variant="Variant.Filled">
+                        @(user.IsActive ? "Ativo" : "Inativo")
+                    </MudChip>
+                </MudStack>
 
-            <dl class="mobile-record-card__details">
-                <div>
-                    <dt>Email</dt>
-                    <dd>@user.Email</dd>
-                </div>
-                <div>
-                    <dt>Cargo</dt>
-                    <dd>@user.JobTitle</dd>
-                </div>
-                <div>
-                    <dt>Role</dt>
-                    <dd><span class="badge text-bg-light">@user.Role</span></dd>
-                </div>
-            </dl>
+                <MudDivider />
 
-            <div class="mobile-record-card__actions">
-                <button class="btn btn-sm btn-outline-primary" type="button" @onclick="() => OnManage.InvokeAsync(user)">
-                    Gerenciar
-                </button>
-                @if (CanDelete)
-                {
-                    <button class="btn btn-sm btn-outline-danger" type="button" disabled="@IsDeleteDisabled(user)"
-                            @onclick="() => OnDelete.InvokeAsync(user)">
-                        Excluir
-                    </button>
-                }
-            </div>
-        </article>
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Email</MudText>
+                    <MudText>@user.Email</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Cargo</MudText>
+                    <MudText>@user.JobTitle</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Role</MudText>
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Secondary">@user.Role</MudChip>
+                </MudStack>
+
+                <MudStack Row Spacing="1">
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" FullWidth="true" OnClick="() => OnManage.InvokeAsync(user)">
+                        Gerenciar
+                    </MudButton>
+                    @if (CanDelete)
+                    {
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Error"
+                                   FullWidth="true"
+                                   Disabled="@IsDeleteDisabled(user)"
+                                   OnClick="() => OnDelete.InvokeAsync(user)">
+                            Excluir
+                        </MudButton>
+                    }
+                </MudStack>
+            </MudStack>
+        </MudPaper>
     }
 </div>
 

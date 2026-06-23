@@ -1,15 +1,20 @@
 @using CustomerApi.BlazorUI.Models.Users
 
-<section class="work-card">
-    <p class="eyebrow">Identidade</p>
-    <h2>@(User?.FullName ?? Email)</h2>
-    <div class="detail-list mt-3">
-        <div><span>Email</span><strong>@(User?.Email ?? Email)</strong></div>
-        <div><span>Username</span><strong>@(User?.UserName ?? "-")</strong></div>
-        <div><span>Role</span><strong>@(User?.Role ?? "-")</strong></div>
-        <div><span>Cargo</span><strong>@(User?.JobTitle ?? "-")</strong></div>
-    </div>
-</section>
+<MudPaper Class="work-card" Elevation="0">
+    <MudStack Spacing="3">
+        <div>
+            <MudText Class="eyebrow">Identidade</MudText>
+            <MudText Typo="Typo.h5"><b>@(User?.FullName ?? Email)</b></MudText>
+        </div>
+
+        <div class="detail-list">
+            <div><span>Email</span><strong>@(User?.Email ?? Email)</strong></div>
+            <div><span>Username</span><strong>@(User?.UserName ?? "-")</strong></div>
+            <div><span>Role</span><strong>@(User?.Role ?? "-")</strong></div>
+            <div><span>Cargo</span><strong>@(User?.JobTitle ?? "-")</strong></div>
+        </div>
+    </MudStack>
+</MudPaper>
 
 @code {
     [Parameter] public UserListItem? User { get; set; }

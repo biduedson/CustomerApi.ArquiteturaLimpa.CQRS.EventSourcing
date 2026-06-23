@@ -7,66 +7,79 @@
 
 <div class="login-page">
     <section class="login-panel">
-        <div class="login-story">
-            <div class="login-brand">
-                <span class="brand-mark">C</span>
+        <MudPaper Class="login-story" Elevation="0">
+            <MudStack Spacing="3">
+                <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="login-brand">
+                    <MudAvatar Class="brand-mark" Size="Size.Large">C</MudAvatar>
+                    <MudStack Spacing="0">
+                        <MudText Typo="Typo.subtitle1"><b>CustomerApi</b></MudText>
+                        <MudText Typo="Typo.caption">Clean Architecture UI</MudText>
+                    </MudStack>
+                </MudStack>
+
+                <MudText Class="eyebrow">CQRS + Event Sourcing</MudText>
+                <MudText Typo="Typo.h3"><b>Controle clientes com uma interface alinhada a sua API.</b></MudText>
+                <MudText Typo="Typo.body1" Class="lead">
+                    Painel Blazor para operar clientes e usuarios sobre uma solucao com DDD,
+                    MediatR, validacoes, persistencia SQL, MongoDB e Redis.
+                </MudText>
+
+                <div class="login-highlights">
+                    <span>Clean Architecture</span>
+                    <span>JWT + Cookies</span>
+                    <span>.NET 9</span>
+                </div>
+            </MudStack>
+        </MudPaper>
+
+        <MudPaper Class="login-card" Elevation="0">
+            <MudStack Spacing="3">
+                <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="login-brand login-brand-form">
+                    <MudAvatar Class="brand-mark" Size="Size.Large">C</MudAvatar>
+                    <MudStack Spacing="0">
+                        <MudText Typo="Typo.subtitle1"><b>CustomerApi CRM</b></MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">Acesso administrativo</MudText>
+                    </MudStack>
+                </MudStack>
+
                 <div>
-                    <strong>CustomerApi</strong>
-                    <small>Clean Architecture UI</small>
-                </div>
-            </div>
-
-            <p class="eyebrow">CQRS + Event Sourcing</p>
-            <h1>Controle clientes com uma interface alinhada a sua API.</h1>
-            <p class="lead">
-                Painel Blazor para operar clientes e usuários sobre uma solução com DDD,
-                MediatR, validações, persistência SQL, MongoDB e Redis.
-            </p>
-
-            <div class="login-highlights">
-                <span>Clean Architecture</span>
-                <span>JWT + Cookies</span>
-                <span>.NET 9</span>
-            </div>
-        </div>
-
-        <div class="login-card shadow-lg">
-            <div class="login-brand login-brand-form">
-                <span class="brand-mark">C</span>
-                <div>
-                    <strong>CustomerApi CRM</strong>
-                    <small>Acesso administrativo</small>
-                </div>
-            </div>
-
-            <h2>Entrar</h2>
-            <p class="text-muted">Use sua conta do sistema para acessar o painel de clientes.</p>
-
-            @if (HasError)
-            {
-                <div class="alert alert-danger rounded-4">
-                    Email ou senha inválidos. Confira os dados e tente novamente.
-                </div>
-            }
-
-            <form method="post" action="/auth/login" class="mt-4">
-                <AntiforgeryToken />
-
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input class="form-control form-control-lg" name="email" type="email" autocomplete="username" required />
+                    <MudText Typo="Typo.h4"><b>Entrar</b></MudText>
+                    <MudText Color="Color.Secondary">Use sua conta do sistema para acessar o painel de clientes.</MudText>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Senha</label>
-                    <input class="form-control form-control-lg" name="password" type="password" autocomplete="current-password" required />
-                </div>
+                @if (HasError)
+                {
+                    <MudAlert Severity="Severity.Error" Variant="Variant.Filled">
+                        Email ou senha invalidos. Confira os dados e tente novamente.
+                    </MudAlert>
+                }
 
-                <button class="btn btn-primary btn-lg rounded-pill w-100" type="submit">
-                    Entrar no sistema
-                </button>
-            </form>
-        </div>
+                <form method="post" action="/auth/login">
+                    <AntiforgeryToken />
+
+                    <MudStack Spacing="3">
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Email</MudText>
+                            <input class="form-control form-control-lg" name="email" type="email" autocomplete="username" required />
+                        </div>
+
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Senha</MudText>
+                            <input class="form-control form-control-lg" name="password" type="password" autocomplete="current-password" required />
+                        </div>
+
+                        <MudButton ButtonType="ButtonType.Submit"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Large"
+                                   FullWidth="true"
+                                   EndIcon="@Icons.Material.Filled.Login">
+                            Entrar no sistema
+                        </MudButton>
+                    </MudStack>
+                </form>
+            </MudStack>
+        </MudPaper>
     </section>
 </div>
 

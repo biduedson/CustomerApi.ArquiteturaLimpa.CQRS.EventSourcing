@@ -1,32 +1,37 @@
 @using CustomerApi.BlazorUI.Models.Account
 
-<section class="work-card">
-    <p class="eyebrow">Email</p>
-    <h2>Trocar email</h2>
-    <EditForm Model="Model" OnValidSubmit="OnValidSubmit">
-        <AntiforgeryToken />
-        <DataAnnotationsValidator />
-        <ValidationSummary class="validation-box" />
-
-        @if (ErrorMessages.Count > 0)
-        {
-            <div class="api-error-box">
-                @foreach (var error in ErrorMessages)
-                {
-                    <div>@error</div>
-                }
-            </div>
-        }
-
-        <label class="form-label">Novo email</label>
-        <InputText class="form-control" @bind-Value="Model.Email" />
-        <ValidationMessage For="() => Model.Email" />
-
-        <div class="modal-actions">
-            <button class="btn btn-primary" type="submit">Atualizar email</button>
+<MudPaper Class="work-card" Elevation="0">
+    <MudStack Spacing="3">
+        <div>
+            <MudText Class="eyebrow">Email</MudText>
+            <MudText Typo="Typo.h5"><b>Trocar email</b></MudText>
         </div>
-    </EditForm>
-</section>
+
+        <EditForm Model="Model" OnValidSubmit="OnValidSubmit">
+            <AntiforgeryToken />
+            <DataAnnotationsValidator />
+            <ValidationSummary class="validation-box" />
+
+            @if (ErrorMessages.Count > 0)
+            {
+                <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">
+                    @foreach (var error in ErrorMessages)
+                    {
+                        <div>@error</div>
+                    }
+                </MudAlert>
+            }
+
+            <MudTextField @bind-Value="Model.Email" Label="Novo email" Variant="Variant.Outlined" For="() => Model.Email" />
+
+            <MudStack Row Justify="Justify.FlexEnd" Class="mt-4">
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">
+                    Atualizar email
+                </MudButton>
+            </MudStack>
+        </EditForm>
+    </MudStack>
+</MudPaper>
 
 @code {
     [Parameter, EditorRequired] public ChangeEmailRequest Model { get; set; } = new();

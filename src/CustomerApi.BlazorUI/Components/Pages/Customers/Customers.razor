@@ -21,7 +21,9 @@ else if (_customers.Count == 0)
     <EmptyState Title="Nenhum cliente encontrado"
                 Description="Crie o primeiro cliente para validar o fluxo completo da UI para a API.">
         <AuthorizeView Roles="Admin,Operator">
-            <button class="btn btn-primary rounded-pill" type="button" @onclick="OpenCreateModal">Cadastrar cliente</button>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateModal">
+                Cadastrar cliente
+            </MudButton>
         </AuthorizeView>
     </EmptyState>
 

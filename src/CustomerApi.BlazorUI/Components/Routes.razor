@@ -1,4 +1,9 @@
-﻿<CascadingAuthenticationState>
+<MudThemeProvider Theme="_theme" IsDarkMode="true" DefaultScrollbar="true" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<CascadingAuthenticationState>
     <Router AppAssembly="typeof(Program).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
@@ -17,8 +22,50 @@
         </Found>
         <NotFound>
             <LayoutView Layout="typeof(Layout.MainLayout)">
-                <div class="alert alert-warning">Página não encontrada.</div>
+                <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
+                    Pagina nao encontrada.
+                </MudAlert>
             </LayoutView>
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+@code {
+    private readonly MudTheme _theme = new()
+    {
+        PaletteDark = new PaletteDark
+        {
+            Primary = "#8b5cf6",
+            Secondary = "#22d3ee",
+            Info = "#38bdf8",
+            Success = "#34d399",
+            Warning = "#fbbf24",
+            Error = "#fb7185",
+            Background = "#070b18",
+            BackgroundGray = "#0b1020",
+            Surface = "#111827",
+            DrawerBackground = "#0b1020",
+            DrawerText = "#dbeafe",
+            DrawerIcon = "#93c5fd",
+            AppbarBackground = "#0f172a",
+            AppbarText = "#f8fafc",
+            TextPrimary = "#f8fafc",
+            TextSecondary = "#94a3b8",
+            LinesDefault = "#1e293b",
+            LinesInputs = "#334155",
+            TableLines = "#1e293b",
+            Divider = "#1e293b"
+        },
+        LayoutProperties = new LayoutProperties
+        {
+            DefaultBorderRadius = "18px"
+        },
+        Typography = new Typography
+        {
+            Default = new DefaultTypography
+            {
+                FontFamily = ["Inter", "Segoe UI", "Arial", "sans-serif"]
+            }
+        }
+    };
+}

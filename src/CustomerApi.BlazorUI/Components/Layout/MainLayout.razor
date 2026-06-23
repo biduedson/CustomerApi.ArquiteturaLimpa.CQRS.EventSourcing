@@ -3,31 +3,58 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="app-shell">
-            <aside class="app-sidebar">
-                <div class="brand">
-                    <span class="brand-mark">C</span>
-                    <div>
-                        <strong>CustomerApi</strong>
-                        <small>Clean UI</small>
-                    </div>
-                </div>
-                <NavMenu />
-            </aside>
+        <MudLayout Class="app-shell">
+            <MudDrawer Open="true" Variant="DrawerVariant.Persistent" Elevation="0" Class="app-sidebar">
+                <MudStack Spacing="3" Class="h-100">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="brand">
+                        <MudAvatar Class="brand-mark" Size="Size.Large">C</MudAvatar>
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.subtitle1"><b>CustomerApi</b></MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Clean UI</MudText>
+                        </MudStack>
+                    </MudStack>
 
-            <main class="app-main">
-                <header class="topbar">
-                    <div>
-                        <strong>Blazor Dashboard</strong>
-                        <span class="text-muted ms-2">DDD + CQRS + API</span>
-                    </div>
-                </header>
+                    <NavMenu />
+                </MudStack>
+            </MudDrawer>
 
-                <section class="content-area">
+            <MudMainContent Class="app-main">
+                <MudAppBar Elevation="0" Class="topbar">
+                    <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="w-100">
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.subtitle1"><b>Blazor Dashboard</b></MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">DDD + CQRS + API</MudText>
+                        </MudStack>
+
+                        <MudAvatar Class="mobile-brand-mark" Size="Size.Small">C</MudAvatar>
+                    </MudStack>
+                </MudAppBar>
+
+                <nav class="mobile-nav-strip" aria-label="Navegacao mobile">
+                    <MudButton Href="/" Variant="Variant.Text" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Dashboard">Dashboard</MudButton>
+                    <MudButton Href="customers" Variant="Variant.Text" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.PeopleAlt">Clientes</MudButton>
+                    <MudButton Href="users" Variant="Variant.Text" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.AdminPanelSettings">Usuarios</MudButton>
+                    <MudButton Href="account" Variant="Variant.Text" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.AccountCircle">Perfil</MudButton>
+                    <AuthorizeView>
+                        <Authorized Context="mobileAuth">
+                            <form method="post" action="/api/auth/logout" class="mobile-logout-form">
+                                <AntiforgeryToken />
+                                <MudButton ButtonType="ButtonType.Submit"
+                                           Variant="Variant.Text"
+                                           Color="Color.Error"
+                                           StartIcon="@Icons.Material.Filled.Logout">
+                                    Sair
+                                </MudButton>
+                            </form>
+                        </Authorized>
+                    </AuthorizeView>
+                </nav>
+
+                <MudContainer MaxWidth="MaxWidth.False" Class="content-area">
                     @Body
-                </section>
-            </main>
-        </div>
+                </MudContainer>
+            </MudMainContent>
+        </MudLayout>
     </Authorized>
     <NotAuthorized>
         <RedirectToLogin />

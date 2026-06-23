@@ -1,30 +1,24 @@
 @implements IDisposable
 @inject CustomerApi.BlazorUI.Services.Notifications.ToastService ToastService
+@inject ISnackbar Snackbar
 
-@if(!string.IsNullOrWhiteSpace(_message))
-{
- <div class="toast-container position-fixed top-0 end-0 p-3">
-     <div class="alert alert-@_type shadow-lg rounded-4">@_message</div>
- </div>
-}
-
-@code{
-    private string? _message;
-    private string _type = "info";
-
+@code {
     protected override void OnInitialized()
     {
         ToastService.OnShow += Show;
     }
 
-    private async void Show(string type, string message)
+    private void Show(string type, string message)
     {
-        _type = type;
-        _message = message;
-        await InvokeAsync(StateHasChanged);
-        await Task.Delay(3500);
-        _message = null;
-        await InvokeAsync(StateHasChanged);
+        var severity = type switch
+        {
+            "success" => Severity.Success,
+            "danger" => Severity.Error,
+            "warning" => Severity.Warning,
+            _ => Severity.Info
+        };
+
+        Snackbar.Add(message, severity);
     }
 
     public void Dispose() => ToastService.OnShow -= Show;

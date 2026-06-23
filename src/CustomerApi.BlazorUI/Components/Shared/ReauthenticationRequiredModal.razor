@@ -1,0 +1,42 @@
+@if (IsOpen)
+{
+    <div class="modal-backdrop-shell" @onclick="ConfirmAsync">
+        <MudPaper Class="confirm-modal" Elevation="0" @onclick:stopPropagation="true" role="dialog" aria-modal="true">
+            <MudStack AlignItems="AlignItems.Center" Spacing="3">
+                <MudAvatar Size="Size.Large" Color="Color.Success">
+                    <MudIcon Icon="@Icons.Material.Filled.Check" />
+                </MudAvatar>
+
+                <MudStack AlignItems="AlignItems.Center" Spacing="1">
+                    <MudText Typo="Typo.h5" Align="Align.Center"><b>@Title</b></MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@Message</MudText>
+                </MudStack>
+
+                <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Class="w-100">
+                    Por seguranca, sera necessario fazer login novamente.
+                </MudAlert>
+
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           FullWidth="true"
+                           EndIcon="@Icons.Material.Filled.Login"
+                           OnClick="ConfirmAsync">
+                    OK, ir para login
+                </MudButton>
+            </MudStack>
+        </MudPaper>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public string Title { get; set; } = "Operacao concluida";
+    [Parameter] public string Message { get; set; } = "A alteracao foi realizada com sucesso.";
+    [Parameter] public EventCallback OnConfirm { get; set; }
+
+    private async Task ConfirmAsync()
+    {
+        await OnConfirm.InvokeAsync();
+    }
+}

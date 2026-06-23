@@ -1,13 +1,21 @@
 <div class="page-heading">
-    <div>
-        <p class="eyebrow">@Eyebrow</p>
-        <h1>@Title</h1>
-        <p class="text-muted">@Description</p>
+    <div class="page-heading-copy">
+        <MudText Class="eyebrow">@Eyebrow</MudText>
+        <MudText Typo="Typo.h3" Class="page-title"><b>@Title</b></MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary" Class="page-description">@Description</MudText>
     </div>
+
     @if (!string.IsNullOrWhiteSpace(ButtonText) && OnButtonClick.HasDelegate)
     {
         <AuthorizeView Roles="Admin,Operator">
-            <button class="btn btn-primary rounded-pill" type="button" @onclick="HandleButtonClick">@ButtonText</button>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       Class="page-heading-action"
+                       OnClick="HandleButtonClick">
+                @ButtonText
+            </MudButton>
         </AuthorizeView>
     }
 </div>

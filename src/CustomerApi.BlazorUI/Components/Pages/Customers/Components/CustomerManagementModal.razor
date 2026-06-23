@@ -3,19 +3,19 @@
 @if (Customer is not null)
 {
     <div class="modal-backdrop-shell" @onclick="Close">
-        <section class="management-modal" @onclick:stopPropagation="true">
+        <MudPaper Class="management-modal" Elevation="0" @onclick:stopPropagation="true">
             <header class="modal-header-clean">
                 <div>
-                    <p class="eyebrow mb-1">Cliente</p>
-                    <h2>@Customer.FirstName @Customer.LastName</h2>
-                    <p class="text-muted mb-0">@Customer.Email</p>
+                    <MudText Class="eyebrow">Cliente</MudText>
+                    <MudText Typo="Typo.h5"><b>@Customer.FirstName @Customer.LastName</b></MudText>
+                    <MudText Color="Color.Secondary">@Customer.Email</MudText>
                 </div>
-                <button class="btn-close" type="button" aria-label="Fechar" @onclick="Close"></button>
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Secondary" OnClick="Close" />
             </header>
 
             <div class="modal-summary-grid">
                 <div>
-                    <span>Gênero</span>
+                    <span>Genero</span>
                     <strong>@Customer.Gender</strong>
                 </div>
                 <div>
@@ -28,66 +28,62 @@
                 </div>
             </div>
 
-            <div class="modal-tabs">
-                <button class="modal-tab @(GetTabClass("details"))" type="button" @onclick='() => _tab = "details"'>Detalhes</button>
-                <button class="modal-tab @(GetTabClass("edit"))" type="button" @onclick='() => _tab = "edit"'>Atualizar</button>
-                <button class="modal-tab @(GetTabClass("danger"))" type="button" disabled="@(!CanDelete)" @onclick='() => _tab = "danger"'>Excluir</button>
-            </div>
-
-            @if (_tab == "details")
-            {
-                <div class="detail-list">
-                    <div><span>Nome</span><strong>@Customer.FirstName @Customer.LastName</strong></div>
-                    <div><span>Email</span><strong>@Customer.Email</strong></div>
-                    <div><span>Gênero</span><strong>@Customer.Gender</strong></div>
-                    <div><span>Nascimento</span><strong>@Customer.DateOfBirth.ToString("dd/MM/yyyy")</strong></div>
-                </div>
-            }
-            else if (_tab == "edit")
-            {
-                <EditForm Model="_model" OnValidSubmit="SaveAsync">
-                    <AntiforgeryToken />
-                    <DataAnnotationsValidator />
-                    <ValidationSummary class="validation-box" />
-
-                    @if (ErrorMessages.Count > 0)
-                    {
-                        <div class="api-error-box">
-                            @foreach (var error in ErrorMessages)
-                            {
-                                <div>@error</div>
-                            }
-                        </div>
-                    }
-
-                    <label class="form-label">Email</label>
-                    <InputText class="form-control" @bind-Value="_model.Email" />
-                    <ValidationMessage For="() => _model.Email" />
-                    <p class="form-hint">A rota atual de clientes aceita atualização apenas do email.</p>
-
-                    <div class="modal-actions">
-                        <button class="btn btn-light" type="button" @onclick="Close">Cancelar</button>
-                        <button class="btn btn-primary" type="submit">Salvar alteração</button>
+            <MudTabs @bind-ActivePanelIndex="_tabIndex" Rounded="true" Elevation="0" Class="mb-3">
+                <MudTabPanel Text="Detalhes" Icon="@Icons.Material.Filled.Badge">
+                    <div class="detail-list mt-3">
+                        <div><span>Nome</span><strong>@Customer.FirstName @Customer.LastName</strong></div>
+                        <div><span>Email</span><strong>@Customer.Email</strong></div>
+                        <div><span>Genero</span><strong>@Customer.Gender</strong></div>
+                        <div><span>Nascimento</span><strong>@Customer.DateOfBirth.ToString("dd/MM/yyyy")</strong></div>
                     </div>
-                </EditForm>
-            }
-            else
-            {
-                <div class="danger-panel">
-                    <h3>Excluir cliente</h3>
-                    <p>Essa ação remove o cliente pelo endpoint protegido para Admin.</p>
-                    <div class="modal-actions">
-                        <button class="btn btn-light" type="button" @onclick="Close">Cancelar</button>
-                        <button class="btn btn-danger" type="button" disabled="@(!CanDelete)" @onclick="DeleteAsync">Excluir cliente</button>
-                    </div>
-                </div>
-            }
-        </section>
+                </MudTabPanel>
+                <MudTabPanel Text="Atualizar" Icon="@Icons.Material.Filled.Edit">
+                    <EditForm Model="_model" OnValidSubmit="SaveAsync">
+                        <AntiforgeryToken />
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="validation-box" />
+
+                        @if (ErrorMessages.Count > 0)
+                        {
+                            <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-3">
+                                @foreach (var error in ErrorMessages)
+                                {
+                                    <div>@error</div>
+                                }
+                            </MudAlert>
+                        }
+
+                        <MudTextField @bind-Value="_model.Email" Label="Email" Variant="Variant.Outlined" For="() => _model.Email" />
+                        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2">
+                            A rota atual de clientes aceita atualizacao apenas do email.
+                        </MudText>
+
+                        <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+                            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="Close">Cancelar</MudButton>
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">
+                                Salvar alteracao
+                            </MudButton>
+                        </MudStack>
+                    </EditForm>
+                </MudTabPanel>
+                <MudTabPanel Text="Excluir" Icon="@Icons.Material.Filled.Delete" Disabled="@(!CanDelete)">
+                    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
+                        Essa acao remove o cliente pelo endpoint protegido para Admin.
+                    </MudAlert>
+                    <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="Close">Cancelar</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" Disabled="@(!CanDelete)" OnClick="DeleteAsync">
+                            Excluir cliente
+                        </MudButton>
+                    </MudStack>
+                </MudTabPanel>
+            </MudTabs>
+        </MudPaper>
     </div>
 }
 
 @code {
-    private string _tab = "details";
+    private int _tabIndex;
     private UpdateCustomerRequest _model = new();
 
     [Parameter] public CustomerListItem? Customer { get; set; }
@@ -118,6 +114,4 @@
     }
 
     private async Task Close() => await OnClose.InvokeAsync();
-
-    private string GetTabClass(string tab) => _tab == tab ? "active" : string.Empty;
 }

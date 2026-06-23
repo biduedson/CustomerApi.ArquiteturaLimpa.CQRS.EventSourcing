@@ -49,7 +49,7 @@ public class AccountController(IMediator mediator) : ControllerBase
         if (result.IsSuccess)
         {
             Response.DeleteAuthCookies();
-            return Ok(result);
+            return result.ToActionResult();
         }
 
         return result.ToActionResult();
@@ -81,7 +81,7 @@ public class AccountController(IMediator mediator) : ControllerBase
         if (result.IsSuccess)
         {
             Response.DeleteAuthCookies();
-            return Ok(result);
+            return result.ToActionResult();
         }
 
         return result.ToActionResult();

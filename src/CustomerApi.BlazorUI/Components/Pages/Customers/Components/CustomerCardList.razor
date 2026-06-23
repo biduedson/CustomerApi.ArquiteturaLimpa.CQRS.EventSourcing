@@ -3,38 +3,42 @@
 <div class="mobile-card-list">
     @foreach (var customer in Customers)
     {
-        <article class="mobile-record-card">
-            <div class="mobile-record-card__header">
-                <div>
-                    <strong>@customer.FirstName @customer.LastName</strong>
-                    <span>@customer.Email</span>
-                </div>
-                <span class="badge text-bg-light">@customer.Gender</span>
-            </div>
+        <MudPaper Class="mobile-record-card" Elevation="0">
+            <MudStack Spacing="2">
+                <MudStack Row AlignItems="AlignItems.Start" Justify="Justify.SpaceBetween">
+                    <MudStack Spacing="0">
+                        <MudText><b>@customer.FirstName @customer.LastName</b></MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">@customer.Email</MudText>
+                    </MudStack>
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Secondary">@customer.Gender</MudChip>
+                </MudStack>
 
-            <dl class="mobile-record-card__details">
-                <div>
-                    <dt>Email</dt>
-                    <dd>@customer.Email</dd>
-                </div>
-                <div>
-                    <dt>Nascimento</dt>
-                    <dd>@customer.DateOfBirth.ToString("dd/MM/yyyy")</dd>
-                </div>
-            </dl>
+                <MudDivider />
 
-            <div class="mobile-record-card__actions">
-                <button class="btn btn-sm btn-outline-primary" type="button" @onclick="() => OnManage.InvokeAsync(customer)">
-                    Gerenciar
-                </button>
-                @if (CanDelete)
-                {
-                    <button class="btn btn-sm btn-outline-danger" type="button" @onclick="() => OnDelete.InvokeAsync(customer)">
-                        Excluir
-                    </button>
-                }
-            </div>
-        </article>
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Nascimento</MudText>
+                    <MudText>@customer.DateOfBirth.ToString("dd/MM/yyyy")</MudText>
+                </MudStack>
+
+                <MudStack Row Spacing="1">
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Primary"
+                               FullWidth="true"
+                               OnClick="() => OnManage.InvokeAsync(customer)">
+                        Gerenciar
+                    </MudButton>
+                    @if (CanDelete)
+                    {
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Error"
+                                   FullWidth="true"
+                                   OnClick="() => OnDelete.InvokeAsync(customer)">
+                            Excluir
+                        </MudButton>
+                    }
+                </MudStack>
+            </MudStack>
+        </MudPaper>
     }
 </div>
 

@@ -1,0 +1,56 @@
+@if (IsOpen)
+{
+    <div class="modal-backdrop-shell" @onclick="CancelAsync">
+        <MudPaper Class="confirm-modal" Elevation="0" @onclick:stopPropagation="true" role="dialog" aria-modal="true">
+            <header class="modal-header-clean">
+                <div>
+                    <MudText Class="eyebrow">@Eyebrow</MudText>
+                    <MudText Typo="Typo.h5"><b>@Title</b></MudText>
+                </div>
+                <MudIconButton Icon="@Icons.Material.Filled.Close"
+                               Color="Color.Secondary"
+                               Disabled="@IsBusy"
+                               OnClick="CancelAsync" />
+            </header>
+
+            <MudAlert Severity="@Severity" Variant="Variant.Outlined">
+                @Message
+            </MudAlert>
+
+            <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Disabled="@IsBusy" OnClick="CancelAsync">
+                    Cancelar
+                </MudButton>
+                <MudButton Variant="Variant.Filled" Color="@ConfirmColor" Disabled="@IsBusy" OnClick="ConfirmAsync">
+                    @(IsBusy ? BusyText : ConfirmButtonText)
+                </MudButton>
+            </MudStack>
+        </MudPaper>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public bool IsBusy { get; set; }
+    [Parameter] public string Eyebrow { get; set; } = "Confirmacao";
+    [Parameter] public string Title { get; set; } = "Confirmar acao";
+    [Parameter] public string Message { get; set; } = "Deseja continuar?";
+    [Parameter] public string ConfirmButtonText { get; set; } = "Confirmar";
+    [Parameter] public string BusyText { get; set; } = "Processando...";
+    [Parameter] public Severity Severity { get; set; } = Severity.Warning;
+    [Parameter] public Color ConfirmColor { get; set; } = Color.Warning;
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+
+    private async Task CancelAsync()
+    {
+        if (!IsBusy)
+            await OnCancel.InvokeAsync();
+    }
+
+    private async Task ConfirmAsync()
+    {
+        if (!IsBusy)
+            await OnConfirm.InvokeAsync();
+    }
+}

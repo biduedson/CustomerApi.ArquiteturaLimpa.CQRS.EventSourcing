@@ -1,50 +1,41 @@
 @using CustomerApi.BlazorUI.Models.Customers
 
-<div class="page-heading">
-    <div>
-        <p class="eyebrow">Formulário</p>
-        <h1>@Title</h1>
-        <p class="text-muted">Os dados serão enviados para a WebApi e processados via MediatR.</p>
-    </div>
-</div>
+<ManagementPageHeader Eyebrow="Formulario"
+                      Title="@Title"
+                      Description="Os dados serao enviados para a WebApi e processados via MediatR." />
 
 <EditForm Model="Model" OnValidSubmit="OnValidSubmit">
     <AntiforgeryToken />
     <DataAnnotationsValidator />
 
-    <div class="card border-0 shadow-sm rounded-4 form-card">
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label">Nome</label>
-                <InputText class="form-control form-control-lg" @bind-Value="Model.FirstName" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Sobrenome</label>
-                <InputText class="form-control form-control-lg" @bind-Value="Model.LastName" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Email</label>
-                <InputText class="form-control form-control-lg" @bind-Value="Model.Email" />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Gênero</label>
-                <InputSelect class="form-select form-select-lg" @bind-Value="Model.Gender">
-                    <option value="Male">Masculino</option>
-                    <option value="Female">Feminino</option>
-                    <option value="Other">Outro</option>
-                </InputSelect>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Nascimento</label>
-                <InputDate class="form-control form-control-lg" @bind-Value="Model.DateOfBirth" />
-            </div>
-        </div>
+    <MudPaper Class="form-card" Elevation="0">
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="Model.FirstName" Label="Nome" Variant="Variant.Outlined" For="() => Model.FirstName" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="Model.LastName" Label="Sobrenome" Variant="Variant.Outlined" For="() => Model.LastName" />
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudTextField @bind-Value="Model.Email" Label="Email" Variant="Variant.Outlined" For="() => Model.Email" />
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudSelect @bind-Value="Model.Gender" Label="Genero" Variant="Variant.Outlined" For="() => Model.Gender">
+                    <MudSelectItem Value="@("Male")">Masculino</MudSelectItem>
+                    <MudSelectItem Value="@("Female")">Feminino</MudSelectItem>
+                    <MudSelectItem Value="@("Other")">Outro</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudDatePicker @bind-Date="Model.DateOfBirth" Label="Nascimento" Variant="Variant.Outlined" For="() => Model.DateOfBirth" />
+            </MudItem>
+        </MudGrid>
 
-        <div class="d-flex justify-content-end gap-2 mt-4">
-            <a class="btn btn-light rounded-pill px-4" href="customers">Cancelar</a>
-            <button class="btn btn-primary rounded-pill px-4" type="submit">Salvar</button>
-        </div>
-    </div>
+        <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+            <MudButton Href="customers" Variant="Variant.Outlined" Color="Color.Secondary">Cancelar</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Salvar</MudButton>
+        </MudStack>
+    </MudPaper>
 </EditForm>
 
 @code {

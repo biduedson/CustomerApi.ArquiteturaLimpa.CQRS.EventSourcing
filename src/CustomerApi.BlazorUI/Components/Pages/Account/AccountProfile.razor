@@ -12,7 +12,7 @@
 
 <PageTitle>Meu perfil</PageTitle>
 
-<ManagementPageHeader Eyebrow="Conta" Title="Meu perfil" Description="Dados e credenciais do usuário autenticado." />
+<ManagementPageHeader Eyebrow="Conta" Title="Meu perfil" Description="Dados e credenciais do usuario autenticado." />
 
 @if (_loading)
 {
@@ -22,36 +22,44 @@ else
 {
     <div class="profile-grid">
         <AccountIdentityCard User="_currentUser" Email="_email" />
-        <AccountEmailForm Model="_emailModel" ErrorMessages="_emailErrors" OnValidSubmit="ChangeEmailAsync" />
-        <AccountPasswordForm ErrorMessage="@PasswordErrorMessage" />
+        <AccountEmailForm Model="_emailModel" ErrorMessages="_emailErrors" OnValidSubmit="RequestEmailConfirmation" />
+        <AccountPasswordForm Model="_passwordModel" ErrorMessages="_passwordErrors" OnValidSubmit="RequestPasswordConfirmation" />
     </div>
 }
 
+<ConfirmActionModal IsOpen="_showConfirmationModal"
+                    IsBusy="_savingAccountChange"
+                    Title="@_confirmationTitle"
+                    Message="@_confirmationMessage"
+                    ConfirmButtonText="@_confirmationButtonText"
+                    BusyText="Salvando..."
+                    Severity="Severity.Warning"
+                    ConfirmColor="Color.Warning"
+                    OnCancel="CloseConfirmation"
+                    OnConfirm="ConfirmAccountChangeAsync" />
+
+<ReauthenticationRequiredModal IsOpen="_showReauthenticationModal"
+                               Title="@_reauthenticationTitle"
+                               Message="@_reauthenticationMessage"
+                               OnConfirm="RedirectToLogin" />
+
 @code {
     private bool _loading = true;
+    private bool _savingAccountChange;
     private string _email = string.Empty;
     private UserListItem? _currentUser;
     private ChangeEmailRequest _emailModel = new();
+    private ChangePasswordRequest _passwordModel = new();
     private List<string> _emailErrors = [];
-
-    private string? PasswordErrorMessage
-    {
-        get
-        {
-            var query = Navigation.ToAbsoluteUri(Navigation.Uri).Query;
-
-            if (!query.Contains("changePasswordError", StringComparison.OrdinalIgnoreCase))
-                return null;
-
-            if (query.Contains("required", StringComparison.OrdinalIgnoreCase))
-                return "Informe a senha atual, a nova senha e a confirmação.";
-
-            if (query.Contains("confirm", StringComparison.OrdinalIgnoreCase))
-                return "A confirmação da nova senha não corresponde à nova senha informada.";
-
-            return "Não foi possível alterar a senha. Confira a senha atual e tente novamente.";
-        }
-    }
+    private List<string> _passwordErrors = [];
+    private bool _showConfirmationModal;
+    private string _confirmationTitle = string.Empty;
+    private string _confirmationMessage = string.Empty;
+    private string _confirmationButtonText = "Confirmar";
+    private Func<Task>? _confirmedAction;
+    private bool _showReauthenticationModal;
+    private string _reauthenticationTitle = "Alteracao concluida";
+    private string _reauthenticationMessage = "Sua conta foi atualizada com sucesso.";
 
     protected override async Task OnInitializedAsync()
     {
@@ -72,21 +80,102 @@ else
         _loading = false;
     }
 
-    private async Task ChangeEmailAsync()
+    private void RequestEmailConfirmation()
     {
         _emailErrors = [];
+        OpenConfirmation(
+            "Confirmar troca de email",
+            "Tem certeza que deseja alterar seu email? Sua sessao atual sera encerrada e sera necessario fazer login novamente.",
+            "Sim, alterar email",
+            ChangeEmailAsync);
+    }
+
+    private void RequestPasswordConfirmation()
+    {
+        _passwordErrors = [];
+        OpenConfirmation(
+            "Confirmar troca de senha",
+            "Tem certeza que deseja alterar sua senha? Sua sessao atual sera encerrada e sera necessario fazer login novamente.",
+            "Sim, alterar senha",
+            ChangePasswordAsync);
+    }
+
+    private void OpenConfirmation(string title, string message, string buttonText, Func<Task> confirmedAction)
+    {
+        _confirmationTitle = title;
+        _confirmationMessage = message;
+        _confirmationButtonText = buttonText;
+        _confirmedAction = confirmedAction;
+        _showConfirmationModal = true;
+    }
+
+    private void CloseConfirmation()
+    {
+        _showConfirmationModal = false;
+        _confirmedAction = null;
+    }
+
+    private async Task ConfirmAccountChangeAsync()
+    {
+        if (_confirmedAction is null)
+            return;
+
+        _savingAccountChange = true;
+        await _confirmedAction.Invoke();
+        _savingAccountChange = false;
+    }
+
+    private async Task ChangeEmailAsync()
+    {
         var response = await AccountApi.ChangeEmailAsync(_emailModel);
         if (response.Success)
         {
-            Toast.Success("Email alterado. Faça login novamente para renovar a sessão.");
+            CloseConfirmation();
+            ShowReauthenticationModal(
+                "Email alterado com sucesso",
+                "Seu email foi atualizado. Para renovar sua sessao com os novos dados, faca login novamente.");
             return;
         }
 
         _emailErrors = response.ErrorMessages.Count > 0
             ? response.ErrorMessages
-            : ["Não foi possível alterar o email."];
+            : ["Nao foi possivel alterar o email."];
 
+        CloseConfirmation();
         Toast.Error(string.Join(" ", _emailErrors));
     }
 
+    private async Task ChangePasswordAsync()
+    {
+        var response = await AccountApi.ChangePasswordAsync(_passwordModel);
+        if (response.Success)
+        {
+            CloseConfirmation();
+            _passwordModel = new();
+            ShowReauthenticationModal(
+                "Senha alterada com sucesso",
+                "Sua senha foi atualizada. Para continuar usando o sistema, faca login novamente.");
+            return;
+        }
+
+        _passwordErrors = response.ErrorMessages.Count > 0
+            ? response.ErrorMessages
+            : ["Nao foi possivel alterar a senha. Confira a senha atual e tente novamente."];
+
+        CloseConfirmation();
+        Toast.Error(string.Join(" ", _passwordErrors));
+    }
+
+    private void ShowReauthenticationModal(string title, string message)
+    {
+        _reauthenticationTitle = title;
+        _reauthenticationMessage = message;
+        _showReauthenticationModal = true;
+    }
+
+    private void RedirectToLogin()
+    {
+        _showReauthenticationModal = false;
+        Navigation.NavigateTo("/auth/reauthentication-required", forceLoad: true);
+    }
 }

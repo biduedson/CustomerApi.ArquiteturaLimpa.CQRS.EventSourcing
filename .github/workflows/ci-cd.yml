@@ -95,16 +95,15 @@ jobs:
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           SQL_CONNECTION_STRING: ${{ secrets.SQL_CONNECTION_STRING }}
           MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
-          REDIS_CONNECTION_STRING: ${{ secrets.REDIS_CONNECTION_STRING }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          ADMIN_SEED_ENABLED: ${{ secrets.ADMIN_SEED_ENABLED }}
-          ADMIN_SEED_USERNAME: ${{ secrets.ADMIN_SEED_USERNAME }}
-          ADMIN_SEED_EMAIL: ${{ secrets.ADMIN_SEED_EMAIL }}
-          ADMIN_SEED_ROLE: ${{ secrets.ADMIN_SEED_ROLE }}
-          ADMIN_SEED_FULL_NAME: ${{ secrets.ADMIN_SEED_FULL_NAME }}
-          ADMIN_SEED_DATE_OF_BIRTH: ${{ secrets.ADMIN_SEED_DATE_OF_BIRTH }}
-          ADMIN_SEED_JOB_TITLE: ${{ secrets.ADMIN_SEED_JOB_TITLE }}
-          ADMIN_SEED_PASSWORD: ${{ secrets.ADMIN_SEED_PASSWORD }}
+          ADMIN_SEED_ENABLED: ${{ secrets.ADMINSEED_ENABLED }}
+          ADMIN_SEED_USERNAME: ${{ secrets.ADMINSEED_USERNAME }}
+          ADMIN_SEED_EMAIL: ${{ secrets.ADMINSEED_EMAIL }}
+          ADMIN_SEED_ROLE: ${{ secrets.ADMINSEED_ROLE }}
+          ADMIN_SEED_FULL_NAME: ${{ secrets.ADMINSEED_FULLNAME }}
+          ADMIN_SEED_DATE_OF_BIRTH: ${{ secrets.ADMINSEED_DATEOFBIRTH }}
+          ADMIN_SEED_JOB_TITLE: ${{ secrets.ADMINSEED_JOBTITLE }}
+          ADMIN_SEED_PASSWORD: ${{ secrets.ADMINSEED_PASSWORD }}
         run: |
           # set -euo pipefail = stop on errors, unset variables, or failed pipelines.
           # Para em erros, variáveis ausentes ou pipelines com falha.
@@ -114,6 +113,22 @@ jobs:
           # Cria arquivos temporários acessíveis somente pelo usuário do runner.
           umask 077
 
+          # Fail before deployment when a required secret is missing.
+          # Interrompe antes do deploy quando um secret obrigatório está ausente.
+          test -n "$MSSQL_SA_PASSWORD"
+          test -n "$REDIS_PASSWORD"
+          test -n "$JWT_SECRET"
+          test -n "$SQL_CONNECTION_STRING"
+          test -n "$MONGODB_CONNECTION_STRING"
+          test -n "$ADMIN_SEED_ENABLED"
+          test -n "$ADMIN_SEED_USERNAME"
+          test -n "$ADMIN_SEED_EMAIL"
+          test -n "$ADMIN_SEED_ROLE"
+          test -n "$ADMIN_SEED_FULL_NAME"
+          test -n "$ADMIN_SEED_DATE_OF_BIRTH"
+          test -n "$ADMIN_SEED_JOB_TITLE"
+          test -n "$ADMIN_SEED_PASSWORD"
+
           # cat > file = create the production .env from GitHub Secrets.
           # Cria o .env de produção usando os GitHub Secrets.
           cat > production.env <<EOF
@@ -121,7 +136,7 @@ jobs:
           REDIS_PASSWORD=${REDIS_PASSWORD}
           ConnectionStrings__SqlConnection=${SQL_CONNECTION_STRING}
           ConnectionStrings__NoSqlConnection=${MONGODB_CONNECTION_STRING}
-          ConnectionStrings__CacheConnection=${REDIS_CONNECTION_STRING}
+          ConnectionStrings__CacheConnection=customerapi-redis:6379,password=${REDIS_PASSWORD}
           JwtOptions__Secret=${JWT_SECRET}
           AdminSeed__Enabled=${ADMIN_SEED_ENABLED}
           AdminSeed__Username=${ADMIN_SEED_USERNAME}

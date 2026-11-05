@@ -77,9 +77,11 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.ssh"
-          HOST_KEY=$(printf '%s\n' "$VPS_KNOWN_HOSTS" | awk '$1 !~ /^#/ && NF >= 3 { print $2, $3; exit }')
-          test -n "$HOST_KEY"
-          printf '%s %s\n' "$VPS_HOST" "$HOST_KEY" > "$HOME/.ssh/known_hosts"
+          HOST_KEY_LINE=$(printf '%s\n' "$VPS_KNOWN_HOSTS" | awk '$1 !~ /^#/ && NF >= 3 { print; exit }')
+          test -n "$HOST_KEY_LINE"
+          printf '%s\n' "$HOST_KEY_LINE" > "$HOME/.ssh/known_hosts"
+          HOST_KEY=$(printf '%s\n' "$HOST_KEY_LINE" | awk '{ print $2, $3 }')
+          printf '%s %s\n' "$VPS_HOST" "$HOST_KEY" >> "$HOME/.ssh/known_hosts"
           chmod 600 "$HOME/.ssh/known_hosts"
 
       # Map GitHub Secrets to shell environment variables without committing them.

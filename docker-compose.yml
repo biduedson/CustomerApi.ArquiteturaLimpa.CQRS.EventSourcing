@@ -59,7 +59,7 @@ services:
     expose:
       - 1433                                       # Porta interna
     ports:
-      - "1433:1433"                                # Porta externa mapeada
+      - "127.0.0.1:1433:1433"                                # Porta externa mapeada
     environment:                                   # Variáveis de ambiente vindas do .env local
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}     # 👉 senha real vem do .env e não fica hardcoded no compose
@@ -81,7 +81,7 @@ services:
     expose:
       - 27017
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27017:27017"
     networks:
       - app-network
     volumes:
@@ -99,7 +99,7 @@ services:
     expose:
       - 6379
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     networks:
       - app-network
     # O Redis grava os dados persistentes neste diretório da VPS.

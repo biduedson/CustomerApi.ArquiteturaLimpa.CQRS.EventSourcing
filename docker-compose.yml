@@ -69,7 +69,7 @@ services:
     networks:
       - app-network
     volumes:
-      - sqlserver-data:/var/opt/mssql/data         # Volume persistente para dados
+      - sqlserver-mssql:/var/opt/mssql         # Volume persistente para dados
 
   # -----------------------------------------------------
   # 🔹 MongoDB
@@ -118,6 +118,6 @@ services:
 # Assim, reiniciar ou recriar os containers não apaga os dados.
 # Não apague esses diretórios e faça backups deles em produção.
 volumes:
-  sqlserver-data:
+  sqlserver-mssql:
   data-mongo:
     external: true

@@ -1,5 +1,7 @@
 name: CI/CD - Customer API
 
+# Run the validation job for pull requests targeting master.
+# Execute o deploy only after a push/merge into master.
 on:
   pull_request:
     branches: [ master ]
@@ -8,77 +10,181 @@ on:
     branches: [ master ]
 
 env:
+  # Shared values available to all jobs.
+  # Valores compartilhados por todos os jobs.
   DOTNET_VERSION: '9.0.x'
   SOLUTION_NAME: 'CustomerApi.ArquiteturaLimpa.CQRS.EventSourcing.slnx'
-  API_IMAGE_NAME: customerapi
-  UI_IMAGE_NAME: customerapi-blazorui
-  ACR_NAME: customerapiacr
 
 jobs:
+  # This job validates the code. If any step fails, the workflow stops.
+  # Este job valida o código. Se alguma etapa falhar, o workflow para.
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      # baixa o código do repositório
+      # Checkout = download the repository code into the GitHub runner.
+      # Checkout = baixa o código do repositório para o runner do GitHub.
       - name: Baixar código
         uses: actions/checkout@v4
 
-      # instala o .NET na versão configurada
+      # Setup .NET = install the SDK version used by the solution.
+      # Setup .NET = instala a versão do SDK usada pela solução.
       - name: Instalar .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      # restaura os pacotes NuGet do projeto
+      # Restore = download NuGet dependencies.
+      # Restore = baixa as dependências NuGet.
       - name: Restaurar pacotes
         run: dotnet restore ${{ env.SOLUTION_NAME }}
 
-      # compila o projeto em modo Release
+      # Build = compile the solution in Release mode.
+      # Build = compila a solução no modo Release.
       - name: Build
         run: dotnet build ${{ env.SOLUTION_NAME }} --configuration Release --no-restore
 
-      # roda todos os testes — se falhar, o pipeline para aqui
+      # Test = run all tests; a failure blocks the deployment.
+      # Test = executa todos os testes; uma falha bloqueia o deploy.
       - name: Testes
         run: dotnet test ${{ env.SOLUTION_NAME }} --configuration Release --no-build --verbosity normal
 
-  build-and-push-image:
-    # só roda se build-and-test passou
+  # Deploy only runs after build-and-test succeeds and master receives a push.
+  # O deploy roda somente após os testes passarem e a master receber um push.
+  deploy-to-vps:
+    name: Deploy to Hostinger VPS
+    # needs = this job depends on the successful completion of build-and-test.
+    # needs = este job depende da conclusão bem-sucedida de build-and-test.
     needs: build-and-test
     runs-on: ubuntu-latest
-    # só roda quando há push na master — não roda em PR
+    # This prevents deployment from pull request events.
+    # Isto impede deploy em eventos de pull request.
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
     steps:
-      # baixa o código para gerar a imagem Docker
-      - name: Baixar código
-        uses: actions/checkout@v4
-
-      # faz login no Azure Container Registry
-      - name: Login no ACR
-        uses: azure/docker-login@v2
+      # ssh-agent = load the private key into the runner's SSH agent.
+      # ssh-agent = carrega a chave privada no agente SSH do runner.
+      # The matching public key is already in /home/deploy/.ssh/authorized_keys.
+      # A chave pública correspondente já está em /home/deploy/.ssh/authorized_keys.
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          login-server: ${{ env.ACR_NAME }}.azurecr.io
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
+          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
 
-      # gera a imagem Docker com a tag do commit
-      # sobe a imagem com a tag do commit e também como latest
-      - name: Build e Push da imagem Docker da WebApi
+      - name: Configure trusted VPS host
+        env:
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
         run: |
-          IMAGE_TAG=${{ env.ACR_NAME }}.azurecr.io/${{ env.API_IMAGE_NAME }}:${{ github.sha }}
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
 
-          docker build -f src/CustomerApi.WebApi/Dockerfile -t $IMAGE_TAG .
-          docker push $IMAGE_TAG
-
-          docker tag $IMAGE_TAG ${{ env.ACR_NAME }}.azurecr.io/${{ env.API_IMAGE_NAME }}:latest
-          docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.API_IMAGE_NAME }}:latest
-
-      # gera a imagem Docker da Blazor UI com a tag do commit
-      # sobe a imagem com a tag do commit e tambem como latest
-      - name: Build e Push da imagem Docker da Blazor UI
+      # Map GitHub Secrets to shell environment variables without committing them.
+      # Mapeia GitHub Secrets para variáveis do shell sem fazer commit delas.
+      - name: Send production environment
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          SQL_CONNECTION_STRING: ${{ secrets.SQL_CONNECTION_STRING }}
+          MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
+          REDIS_CONNECTION_STRING: ${{ secrets.REDIS_CONNECTION_STRING }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ADMIN_SEED_ENABLED: ${{ secrets.ADMIN_SEED_ENABLED }}
+          ADMIN_SEED_USERNAME: ${{ secrets.ADMIN_SEED_USERNAME }}
+          ADMIN_SEED_EMAIL: ${{ secrets.ADMIN_SEED_EMAIL }}
+          ADMIN_SEED_ROLE: ${{ secrets.ADMIN_SEED_ROLE }}
+          ADMIN_SEED_FULL_NAME: ${{ secrets.ADMIN_SEED_FULL_NAME }}
+          ADMIN_SEED_DATE_OF_BIRTH: ${{ secrets.ADMIN_SEED_DATE_OF_BIRTH }}
+          ADMIN_SEED_JOB_TITLE: ${{ secrets.ADMIN_SEED_JOB_TITLE }}
+          ADMIN_SEED_PASSWORD: ${{ secrets.ADMIN_SEED_PASSWORD }}
         run: |
-          IMAGE_TAG=${{ env.ACR_NAME }}.azurecr.io/${{ env.UI_IMAGE_NAME }}:${{ github.sha }}
+          # set -euo pipefail = stop on errors, unset variables, or failed pipelines.
+          # Para em erros, variáveis ausentes ou pipelines com falha.
+          set -euo pipefail
 
-          docker build -f src/CustomerApi.BlazorUI/Dockerfile -t $IMAGE_TAG .
-          docker push $IMAGE_TAG
+          # umask 077 = create temporary files readable only by this runner user.
+          # Cria arquivos temporários acessíveis somente pelo usuário do runner.
+          umask 077
 
-          docker tag $IMAGE_TAG ${{ env.ACR_NAME }}.azurecr.io/${{ env.UI_IMAGE_NAME }}:latest
-          docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.UI_IMAGE_NAME }}:latest
+          # cat > file = create the production .env from GitHub Secrets.
+          # Cria o .env de produção usando os GitHub Secrets.
+          cat > production.env <<EOF
+          MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+          REDIS_PASSWORD=${REDIS_PASSWORD}
+          ConnectionStrings__SqlConnection=${SQL_CONNECTION_STRING}
+          ConnectionStrings__NoSqlConnection=${MONGODB_CONNECTION_STRING}
+          ConnectionStrings__CacheConnection=${REDIS_CONNECTION_STRING}
+          JwtOptions__Secret=${JWT_SECRET}
+          AdminSeed__Enabled=${ADMIN_SEED_ENABLED}
+          AdminSeed__Username=${ADMIN_SEED_USERNAME}
+          AdminSeed__Email=${ADMIN_SEED_EMAIL}
+          AdminSeed__Role=${ADMIN_SEED_ROLE}
+          AdminSeed__FullName=${ADMIN_SEED_FULL_NAME}
+          AdminSeed__DateOfBirth=${ADMIN_SEED_DATE_OF_BIRTH}
+          AdminSeed__JobTitle=${ADMIN_SEED_JOB_TITLE}
+          AdminSeed__Password=${ADMIN_SEED_PASSWORD}
+          EOF
+
+          # scp = securely copy the .env file to the VPS.
+          # scp = copia o .env com segurança para a VPS.
+          scp -P "$VPS_PORT" production.env "$VPS_USER@$VPS_HOST:/tmp/customer-api.env"
+
+          # rm -f = remove the temporary local file after transfer.
+          # Remove o arquivo temporário local depois da transferência.
+          rm -f production.env
+
+          # ssh = execute commands remotely on the VPS.
+          # Executa comandos remotamente na VPS.
+          # chmod 600 = only the deploy user can read the production .env.
+          # Apenas o usuário deploy pode ler o .env de produção.
+          ssh -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" \
+            'mkdir -p /opt/customer-api && mv /tmp/customer-api.env /opt/customer-api/.env && chmod 600 /opt/customer-api/.env'
+
+      # Update the source code and rebuild the Docker services on the VPS.
+      # Atualiza o código e recompila os serviços Docker na VPS.
+      - name: Update and start application
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          # Stop immediately if a command fails.
+          # Para imediatamente se algum comando falhar.
+          set -euo pipefail
+
+          # Run the following block inside the VPS.
+          # Executa o bloco abaixo dentro da VPS.
+          ssh -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" <<'REMOTE_SCRIPT'
+          set -e
+          APP_DIR=/opt/customer-api/app
+
+          # mkdir -p = create the deployment directory if it does not exist.
+          # Cria a pasta de deploy caso ela ainda não exista.
+          mkdir -p /opt/customer-api
+
+          # git clone = first deployment: download the master branch.
+          # Primeiro deploy: baixa a branch master.
+          if [ ! -d "$APP_DIR/.git" ]; then
+            git clone --branch master "https://github.com/${{ github.repository }}.git" "$APP_DIR"
+          else
+            # git fetch = download remote changes without changing local files.
+            # Baixa mudanças remotas sem alterar os arquivos locais.
+            cd "$APP_DIR"
+            git fetch origin master
+
+            # git reset --hard = make the VPS match origin/master exactly.
+            # Faz a VPS ficar exatamente igual à origin/master.
+            git reset --hard origin/master
+          fi
+
+          cd "$APP_DIR"
+
+          # docker compose up -d --build = build images and start containers in background.
+          # Compila as imagens e inicia os containers em segundo plano.
+          # --env-file tells Compose where the private production variables are.
+          # --env-file informa ao Compose onde estão as variáveis privadas de produção.
+          docker compose --env-file /opt/customer-api/.env up -d --build
+          REMOTE_SCRIPT

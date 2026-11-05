@@ -6,6 +6,7 @@
 .DS_Store
 */.DS_Store
 .run/
+.idea/
 data-mssql/
 data-mongo/
 CustomerApi.ArquiteturaLimpa.CQRS.EventSourcing.sln

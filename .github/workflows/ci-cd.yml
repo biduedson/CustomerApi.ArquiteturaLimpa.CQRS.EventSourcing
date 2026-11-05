@@ -96,14 +96,14 @@ jobs:
           SQL_CONNECTION_STRING: ${{ secrets.SQL_CONNECTION_STRING }}
           MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          ADMIN_SEED_ENABLED: ${{ secrets.ADMINSEED_ENABLED }}
-          ADMIN_SEED_USERNAME: ${{ secrets.ADMINSEED_USERNAME }}
-          ADMIN_SEED_EMAIL: ${{ secrets.ADMINSEED_EMAIL }}
-          ADMIN_SEED_ROLE: ${{ secrets.ADMINSEED_ROLE }}
-          ADMIN_SEED_FULL_NAME: ${{ secrets.ADMINSEED_FULLNAME }}
-          ADMIN_SEED_DATE_OF_BIRTH: ${{ secrets.ADMINSEED_DATEOFBIRTH }}
-          ADMIN_SEED_JOB_TITLE: ${{ secrets.ADMINSEED_JOBTITLE }}
-          ADMIN_SEED_PASSWORD: ${{ secrets.ADMINSEED_PASSWORD }}
+          ADMIN_SEED_ENABLED: ${{ secrets.ADMINSEED__ENABLED }}
+          ADMIN_SEED_USERNAME: ${{ secrets.ADMINSEED__USERNAME }}
+          ADMIN_SEED_EMAIL: ${{ secrets.ADMINSEED__EMAIL }}
+          ADMIN_SEED_ROLE: ${{ secrets.ADMINSEED__ROLE }}
+          ADMIN_SEED_FULL_NAME: ${{ secrets.ADMINSEED__FULLNAME }}
+          ADMIN_SEED_DATE_OF_BIRTH: ${{ secrets.ADMINSEED__DATEOFBIRTH }}
+          ADMIN_SEED_JOB_TITLE: ${{ secrets.ADMINSEED__JOBTITLE }}
+          ADMIN_SEED_PASSWORD: ${{ secrets.ADMINSEED__PASSWORD }}
         run: |
           # set -euo pipefail = stop on errors, unset variables, or failed pipelines.
           # Para em erros, variáveis ausentes ou pipelines com falha.

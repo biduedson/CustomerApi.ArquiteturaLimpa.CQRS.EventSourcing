@@ -20,10 +20,6 @@ services:
       dockerfile: src/CustomerApi.WebApi/Dockerfile # Dockerfile da WebApi
     expose:
       - 80                                         # Porta exposta internamente
-    links:                                         # Links para outros serviços
-      - customerapi-sql-server
-      - customerapi-mongo-server
-      - customerapi-redis
     networks:
       - app-network                                # Usa a rede interna
     depends_on:                                    # Garante que bancos subam antes da API
@@ -46,6 +42,28 @@ services:
       - AdminSeed__DateOfBirth=${AdminSeed__DateOfBirth}
       - AdminSeed__JobTitle=${AdminSeed__JobTitle}
       - AdminSeed__Password=${AdminSeed__Password}
+
+  # -----------------------------------------------------
+  # 🔹 Blazor UI
+  # -----------------------------------------------------
+  customerapi-blazorui:
+    image: ${DOCKER_REGISTRY-}customerapi-blazorui
+    container_name: customerapi-blazorui
+    restart: always
+    build:
+      context: .
+      dockerfile: src/CustomerApi.BlazorUI/Dockerfile
+    expose:
+      - 80
+    ports:
+      - "8081:80"
+    networks:
+      - app-network
+    depends_on:
+      - customerapi-webapi
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:80
 
   # -----------------------------------------------------
   # 🔹 SQL Server

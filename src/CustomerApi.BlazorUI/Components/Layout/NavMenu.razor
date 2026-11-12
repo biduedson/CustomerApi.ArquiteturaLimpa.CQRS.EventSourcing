@@ -14,7 +14,7 @@
     <AuthorizeView>
         <Authorized>
             <MudText Typo="Typo.caption" Color="Color.Secondary">Logado como</MudText>
-            <MudText Typo="Typo.body2"><b>@context.User.Identity?.Name</b></MudText>
+            <MudText Typo="Typo.body2" class="text-truncate sidebar-user-email"><b>@context.User.Identity?.Name</b></MudText>
             <form method="post" action="/api/auth/logout" class="mt-3">
                 <AntiforgeryToken />
 
